@@ -12,7 +12,7 @@ class CartController extends Controller
     {
         $cartItems = Cart::with('product')->where('user_id', auth()->id())->get();
         $subtotal = $cartItems->sum('subtotal');
-        $shipping = $subtotal >= 50 ? 0 : 5.99;
+        $shipping = $subtotal >= 250 ? 0 : 10;
         $tax = $subtotal * 0.08;
         $total = $subtotal + $shipping + $tax;
 
@@ -81,24 +81,51 @@ class CartController extends Controller
         $request->validate(['quantity' => 'required|integer|min:1|max:10']);
 
         if ($cartItem->user_id !== auth()->id()) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+            }
             abort(403);
         }
 
         if ($cartItem->product->stock < $request->quantity) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Not enough stock available'], 400);
+            }
             return back()->with('error', 'Not enough stock available');
         }
 
         $cartItem->update(['quantity' => $request->quantity]);
+        
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Cart updated!',
+                'cart_count' => Cart::where('user_id', auth()->id())->sum('quantity')
+            ]);
+        }
+        
         return back()->with('success', 'Cart updated!');
     }
 
-    public function remove(Cart $cartItem)
+    public function remove(Request $request, Cart $cartItem)
     {
         if ($cartItem->user_id !== auth()->id()) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 403);
+            }
             abort(403);
         }
 
         $cartItem->delete();
+        
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Item removed from cart!',
+                'cart_count' => Cart::where('user_id', auth()->id())->sum('quantity')
+            ]);
+        }
+        
         return back()->with('success', 'Item removed from cart!');
     }
 

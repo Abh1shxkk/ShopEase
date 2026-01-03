@@ -9,7 +9,8 @@ export default defineConfig({
                 'resources/css/app.css',
                 'resources/css/landing.css',
                 'resources/js/app.js',
-                'resources/js/landing.js'
+                'resources/js/landing.js',
+                'resources/js/cart.js'
             ],
             refresh: true,
         }),
