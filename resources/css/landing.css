@@ -1,0 +1,261 @@
+/* ============================================
+   LUX Landing Page - Custom Styles
+   ============================================ */
+
+/* Typography */
+h1, h2, h3, h4, .font-serif {
+    font-family: 'Playfair Display', serif;
+}
+
+/* Hide scrollbar utility */
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Film grain overlay for luxury aesthetic */
+.film-grain {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0.05;
+    background-image: url("https://www.transparenttextures.com/patterns/stardust.png");
+}
+
+/* Smooth scroll behavior */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Navbar transition states */
+.navbar-scrolled {
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    border-bottom-color: rgb(226 232 240);
+}
+
+.navbar-default {
+    background-color: white;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom-color: transparent;
+}
+
+/* Hero slider transitions */
+.hero-slide {
+    transition: opacity 1000ms ease-in-out;
+}
+
+.hero-slide.active {
+    opacity: 1;
+    z-index: 10;
+}
+
+.hero-slide.inactive {
+    opacity: 0;
+    z-index: 0;
+}
+
+.hero-content {
+    transition: all 1000ms ease-in-out;
+}
+
+.hero-content.active {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.hero-content.inactive {
+    transform: translateY(1rem);
+    opacity: 0;
+}
+
+/* Slider dots */
+.slider-dot {
+    transition: all 300ms ease-in-out;
+}
+
+.slider-dot.active {
+    background-color: white;
+    transform: scale(1.25);
+}
+
+.slider-dot.inactive {
+    background-color: transparent;
+}
+
+/* Product card hover effects */
+.product-card-overlay {
+    transition: opacity 300ms ease-in-out;
+}
+
+.product-card-icon {
+    transition: all 300ms ease-in-out;
+    transform: translateY(-0.5rem);
+    opacity: 0;
+}
+
+.group:hover .product-card-icon {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.product-card-icon-delayed {
+    transition-delay: 75ms;
+}
+
+/* Image hover effects */
+.image-zoom {
+    transition: transform 1000ms ease-in-out;
+}
+
+.group:hover .image-zoom {
+    transform: scale(1.05);
+}
+
+.image-zoom-slow {
+    transition: transform 3000ms ease-in-out;
+}
+
+.group:hover .image-zoom-slow {
+    transform: scale(1.1);
+}
+
+/* Category hover line effect */
+.category-line {
+    transition: width 500ms ease-in-out;
+    width: 0;
+}
+
+.group:hover .category-line {
+    width: 3rem;
+}
+
+/* Grayscale to color transition */
+.grayscale-hover {
+    filter: grayscale(100%);
+    transition: filter 700ms ease-in-out;
+}
+
+.group:hover .grayscale-hover {
+    filter: grayscale(0%);
+}
+
+/* Floating detail image */
+.floating-detail {
+    transition: transform 300ms ease-in-out;
+}
+
+.floating-detail:hover {
+    transform: rotate(-3deg);
+}
+
+/* Chat widget transitions */
+.chat-widget {
+    transition: all 300ms ease-in-out;
+}
+
+.chat-widget.open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.chat-widget.closed {
+    transform: translateY(0.5rem);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.chat-button {
+    transition: transform 300ms ease-in-out;
+}
+
+.chat-button.hidden {
+    transform: scale(0);
+}
+
+.chat-button.visible {
+    transform: scale(1);
+}
+
+/* Mobile menu */
+.mobile-menu {
+    transition: opacity 300ms ease-in-out, visibility 300ms ease-in-out;
+}
+
+.mobile-menu.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mobile-menu.closed {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Snap scroll for product carousel */
+.snap-x {
+    scroll-snap-type: x mandatory;
+}
+
+.snap-start {
+    scroll-snap-align: start;
+}
+
+/* Journal card hover */
+.journal-image {
+    transition: filter 700ms ease-in-out;
+}
+
+/* Instagram feed image zoom */
+.instagram-image {
+    transition: transform 1000ms ease-in-out;
+}
+
+.instagram-image:hover {
+    transform: scale(1.1);
+}
+
+/* Underline decoration animation */
+.underline-animate {
+    transition: text-decoration-color 300ms ease-in-out;
+}
+
+.underline-animate:hover {
+    text-decoration-color: rgb(15 23 42);
+}
+
+/* Button hover effects */
+.btn-outline-hover {
+    transition: all 300ms ease-in-out;
+}
+
+.btn-outline-hover:hover {
+    background-color: rgb(15 23 42);
+    color: white;
+}
+
+/* Scroll indicator arrows */
+.scroll-arrow {
+    transition: all 300ms ease-in-out;
+}
+
+.scroll-arrow:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.scroll-arrow:not(:disabled):hover {
+    background-color: rgb(15 23 42);
+    color: white;
+}

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 // Landing Page
 Route::get('/', function () {
     return view('landing');
-});
+})->name('home');
 
 // Shop routes (Public - everyone can browse)
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
