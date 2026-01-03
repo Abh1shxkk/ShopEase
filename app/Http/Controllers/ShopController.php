@@ -58,6 +58,20 @@ class ShopController extends Controller
         $categories = ['Electronics', 'Fashion', 'Home', 'Books', 'Sports', 'Beauty'];
         $totalProducts = Product::where('status', 'active')->count();
 
+        // AJAX request - return JSON
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'html' => view('shop.partials.products', compact('products'))->render(),
+                'pagination' => $products->links()->render(),
+                'count' => [
+                    'from' => $products->firstItem() ?? 0,
+                    'to' => $products->lastItem() ?? 0,
+                    'total' => $products->total()
+                ]
+            ]);
+        }
+
         return view('shop.index', compact('products', 'categories', 'totalProducts'));
     }
 
