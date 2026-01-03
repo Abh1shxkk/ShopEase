@@ -1,111 +1,164 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    
+    <title>@yield('title', 'ShopEase') | Sign In</title>
+    
+    {{-- Fonts --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    @vite(['resources/css/app.css', 'resources/css/landing.css', 'resources/js/app.js', 'resources/js/landing.js'])
+</head>
+<body class="bg-white text-slate-900 overflow-x-hidden" style="font-family: 'Inter', sans-serif;">
+    {{-- Film Grain Overlay --}}
+    <div class="film-grain"></div>
+    
+    {{-- Navbar --}}
+    @include('partials.landing.navbar')
 
-@section('title', 'Login')
-
-@section('content')
-<div x-data="{ showPassword: false, loading: false }" class="min-h-screen grid lg:grid-cols-2">
-    <!-- Left Side - Image -->
-    <div class="hidden lg:block relative">
-        <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop" 
-             alt="Shopping" 
-             class="absolute inset-0 w-full h-full object-cover">
-        <div class="absolute inset-0 bg-black/40"></div>
-        <div class="absolute inset-0 flex flex-col justify-center px-12">
-            <h1 class="text-4xl xl:text-5xl font-bold text-white mb-4">Welcome Back to ShopEase</h1>
-            <p class="text-lg text-white/80">Your premium shopping experience awaits</p>
-        </div>
-    </div>
-
-    <!-- Right Side - Form -->
-    <div class="flex items-center justify-center px-6 py-12 bg-white">
-        <div class="w-full max-w-[400px]">
-            <!-- Logo -->
-            <div class="flex justify-center mb-8">
-                <a href="/" class="flex items-center space-x-2">
-                    <div class="w-10 h-10 bg-slate-900 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                        </svg>
-                    </div>
-                    <span class="text-xl font-semibold text-slate-900">ShopEase</span>
-                </a>
+    <div x-data="{ showPassword: false, loading: false }" class="min-h-screen flex flex-col md:flex-row bg-white pt-[100px]">
+        {{-- Left Side: Cinematic Heritage Imagery --}}
+        <div class="relative w-full md:w-[55%] lg:w-[60%] h-[40vh] md:h-auto md:min-h-screen overflow-hidden">
+            <img 
+                src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1200" 
+                alt="Luxury Shopping" 
+                class="w-full h-full object-cover grayscale brightness-[0.4]"
+            />
+            <div class="absolute inset-0 flex flex-col items-center justify-center text-center p-12">
+                <div class="max-w-md">
+                    <h2 class="text-3xl md:text-5xl lg:text-6xl font-serif text-white mb-6 tracking-tight leading-tight">
+                        Welcome Back to <span class="italic">Shop<span class="text-blue-400">/</span>Ease</span>
+                    </h2>
+                    <div class="w-12 h-[1px] bg-white/30 mx-auto mb-6"></div>
+                    <p class="text-slate-300 font-light tracking-[0.2em] uppercase text-[10px] md:text-xs">
+                        Your premium shopping experience awaits
+                    </p>
+                </div>
             </div>
+        </div>
 
-            <!-- Card -->
-            <div class="card p-8">
-                <div class="text-center mb-8">
-                    <h2 class="text-2xl font-semibold text-slate-900">Sign in to your account</h2>
+        {{-- Right Side: Refined Minimalist Form --}}
+        <div class="w-full md:w-[45%] lg:w-[40%] flex items-center justify-center p-6 md:p-12 lg:p-16 bg-slate-50/30">
+            <div class="w-full max-w-[320px]">
+                {{-- Logo & Header --}}
+                <div class="text-center mb-10">
+                    <a href="{{ route('home') }}" class="flex items-center justify-center gap-3 mb-8">
+                        <div class="bg-slate-900 p-2">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                            </svg>
+                        </div>
+                        <span class="text-lg font-serif tracking-[0.15em] uppercase text-slate-900">ShopEase</span>
+                    </a>
+                    <h1 class="text-2xl font-serif text-slate-900 mb-2">Sign in</h1>
+                    <p class="text-slate-400 text-[11px] tracking-wide">Enter your credentials to access your account</p>
                 </div>
 
+                {{-- Login Form --}}
                 <form method="POST" action="{{ route('login') }}" @submit="loading = true" class="space-y-5">
                     @csrf
                     
-                    <!-- Email -->
-                    <div class="space-y-2">
-                        <label for="email" class="label">Email</label>
-                        <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus
-                            class="input w-full @error('email') input-error @enderror"
-                            placeholder="name@example.com">
+                    {{-- Email Field --}}
+                    <div class="space-y-1">
+                        <label for="email" class="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-500 block">Email Address</label>
+                        <input 
+                            type="email" 
+                            id="email"
+                            name="email"
+                            value="{{ old('email') }}"
+                            placeholder="name@example.com"
+                            autofocus
+                            class="w-full px-0 py-2.5 bg-transparent border-b border-slate-200 focus:border-slate-900 focus:outline-none transition-all text-[12px] text-slate-900 placeholder:text-slate-300 rounded-none @error('email') border-red-500 @enderror"
+                        />
                         @error('email')
-                            <p class="text-sm text-red-500">{{ $message }}</p>
+                            <p class="text-[10px] text-red-500 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <!-- Password -->
-                    <div class="space-y-2">
-                        <label for="password" class="label">Password</label>
+                    {{-- Password Field --}}
+                    <div class="space-y-1">
+                        <label for="password" class="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-500 block">Password</label>
                         <div class="relative">
-                            <input :type="showPassword ? 'text' : 'password'" id="password" name="password" required
-                                class="input w-full pr-10 @error('password') input-error @enderror"
-                                placeholder="••••••••">
-                            <button type="button" @click="showPassword = !showPassword" class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                                <svg x-show="!showPassword" class="w-5 h-5 text-slate-400 hover:text-slate-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            <input 
+                                :type="showPassword ? 'text' : 'password'" 
+                                id="password"
+                                name="password"
+                                placeholder="••••••••"
+                                class="w-full px-0 py-2.5 bg-transparent border-b border-slate-200 focus:border-slate-900 focus:outline-none transition-all text-[12px] text-slate-900 placeholder:text-slate-300 rounded-none @error('password') border-red-500 @enderror"
+                            />
+                            <button type="button" @click="showPassword = !showPassword" class="absolute right-0 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-900 transition-colors">
+                                <svg x-show="!showPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                 </svg>
-                                <svg x-show="showPassword" x-cloak class="w-5 h-5 text-slate-400 hover:text-slate-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                                <svg x-show="showPassword" x-cloak class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
                                 </svg>
                             </button>
                         </div>
                         @error('password')
-                            <p class="text-sm text-red-500">{{ $message }}</p>
+                            <p class="text-[10px] text-red-500 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <!-- Remember & Forgot -->
-                    <div class="flex items-center justify-between">
-                        <label class="flex items-center space-x-2 cursor-pointer">
-                            <input type="checkbox" name="remember" class="checkbox">
-                            <span class="text-sm text-slate-600">Remember me</span>
+                    {{-- Remember Me & Forgot Password --}}
+                    <div class="flex items-center justify-between pt-1">
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <div class="relative flex items-center justify-center w-3.5 h-3.5 border border-slate-200 group-hover:border-slate-900 transition-colors">
+                                <input type="checkbox" name="remember" class="absolute opacity-0 w-full h-full cursor-pointer peer" />
+                                <div class="w-1.5 h-1.5 bg-slate-900 scale-0 peer-checked:scale-100 transition-transform"></div>
+                            </div>
+                            <span class="text-[10px] font-medium text-slate-500 group-hover:text-slate-900 transition-colors uppercase tracking-wider">Remember me</span>
                         </label>
-                        <a href="#" class="text-sm text-slate-600 hover:text-slate-900 transition-colors">Forgot password?</a>
+                        <button type="button" class="text-[10px] font-medium text-slate-400 hover:text-slate-900 transition-colors uppercase tracking-wider">
+                            Forgot?
+                        </button>
                     </div>
 
-                    <!-- Submit -->
-                    <button type="submit" class="btn btn-primary w-full" :disabled="loading">
-                        <svg x-show="loading" class="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
+                    {{-- Submit Button --}}
+                    <button 
+                        type="submit" 
+                        class="w-full bg-slate-900 text-white py-3 text-[10px] font-bold tracking-[0.2em] uppercase hover:bg-slate-800 transition-all rounded-none mt-3 flex items-center justify-center"
+                        :disabled="loading"
+                    >
+                        <svg x-show="loading" x-cloak class="animate-spin -ml-1 mr-2 h-3 w-3" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <span x-text="loading ? 'Signing in...' : 'Sign In'"></span>
+                        <span x-text="loading ? 'Signing in...' : 'Sign In'">Sign In</span>
                     </button>
+
+                    {{-- Divider --}}
+                    <div class="relative py-4">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-slate-100"></div>
+                        </div>
+                        <div class="relative flex justify-center text-[9px] uppercase font-bold tracking-[0.2em]">
+                            <span class="bg-slate-50 px-3 text-slate-300">New to ShopEase?</span>
+                        </div>
+                    </div>
+
+                    {{-- Create Account Button --}}
+                    <a 
+                        href="{{ route('register') }}"
+                        class="block w-full text-center border border-slate-200 py-3 text-[10px] font-bold tracking-[0.2em] uppercase hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all rounded-none"
+                    >
+                        Create Account
+                    </a>
                 </form>
-
-                <!-- Divider -->
-                <div class="divider my-6">
-                    <span class="text-sm text-muted">or</span>
-                </div>
-
-                <!-- Register Link -->
-                <p class="text-center text-sm text-slate-600">
-                    Don't have an account?
-                    <a href="{{ route('register') }}" class="font-medium text-slate-900 hover:underline">Sign up</a>
-                </p>
             </div>
         </div>
     </div>
-</div>
 
-<style>[x-cloak] { display: none !important; }</style>
-@endsection
+    {{-- Footer --}}
+    @include('partials.landing.footer')
+
+    <style>[x-cloak] { display: none !important; }</style>
+    @stack('scripts')
+</body>
+</html>

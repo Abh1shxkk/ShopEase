@@ -16,10 +16,12 @@ class ShopController extends Controller
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        // Category filter
+        // Category filter - use category_id with relationship
         if ($request->filled('category')) {
-            $categories = is_array($request->category) ? $request->category : [$request->category];
-            $query->whereIn('category', $categories);
+            $query->whereHas('category', function($q) use ($request) {
+                $categories = is_array($request->category) ? $request->category : [$request->category];
+                $q->whereIn('name', $categories);
+            });
         }
 
         // Price range filter
@@ -81,12 +83,16 @@ class ShopController extends Controller
             abort(404);
         }
 
+        // Get related products using category_id
         $relatedProducts = Product::where('status', 'active')
-            ->where('category', $product->category)
             ->where('id', '!=', $product->id)
+            ->when($product->category_id, function($query) use ($product) {
+                return $query->where('category_id', $product->category_id);
+            })
             ->take(6)
             ->get();
 
         return view('shop.show', compact('product', 'relatedProducts'));
     }
 }
+
