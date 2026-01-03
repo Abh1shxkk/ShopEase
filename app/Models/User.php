@@ -14,7 +14,8 @@ class User extends Authenticatable
     protected $fillable = [
         'name', 'email', 'password', 'role', 'phone', 'avatar',
         'date_of_birth', 'gender', 'last_login_at',
-        'email_notifications', 'sms_notifications', 'marketing_emails'
+        'email_notifications', 'sms_notifications', 'marketing_emails',
+        'google_id', 'facebook_id', 'social_avatar', 'email_verified_at'
     ];
 
     protected $hidden = [
@@ -59,6 +60,9 @@ class User extends Authenticatable
     {
         if ($this->avatar) {
             return asset('storage/' . $this->avatar);
+        }
+        if ($this->social_avatar) {
+            return $this->social_avatar;
         }
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=3b82f6&color=fff';
     }

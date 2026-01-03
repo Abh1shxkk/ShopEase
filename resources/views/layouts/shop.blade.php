@@ -29,7 +29,7 @@
     @include('partials.landing.navbar')
     
     {{-- Main Content --}}
-    <main class="pt-[100px] min-h-screen">
+    <main class="pt-12 min-h-screen">
         @yield('content')
     </main>
     

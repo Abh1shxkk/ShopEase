@@ -4,7 +4,66 @@
 @section('description', 'Browse our curated collection of premium products')
 
 @section('content')
+{{-- Hero Image Slider --}}
 <div x-data="{ 
+    currentSlide: 0, 
+    slides: [
+        { image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600', title: 'New Season Arrivals', subtitle: 'Discover the latest trends' },
+        { image: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1600', title: 'Summer Collection', subtitle: 'Light & breezy styles' },
+        { image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600', title: 'Premium Quality', subtitle: 'Crafted with care' }
+    ],
+    autoSlide: null,
+    init() {
+        this.autoSlide = setInterval(() => this.next(), 5000);
+    },
+    next() {
+        this.currentSlide = (this.currentSlide + 1) % this.slides.length;
+    },
+    prev() {
+        this.currentSlide = (this.currentSlide - 1 + this.slides.length) % this.slides.length;
+    },
+    goTo(index) {
+        this.currentSlide = index;
+    }
+}" class="relative h-[50vh] md:h-[60vh] overflow-hidden bg-slate-900">
+    {{-- Slides --}}
+    <template x-for="(slide, index) in slides" :key="index">
+        <div x-show="currentSlide === index"
+             x-transition:enter="transition ease-out duration-700"
+             x-transition:enter-start="opacity-0 scale-105"
+             x-transition:enter-end="opacity-100 scale-100"
+             x-transition:leave="transition ease-in duration-500"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-95"
+             class="absolute inset-0">
+            <img :src="slide.image" :alt="slide.title" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-black/40"></div>
+            <div class="absolute inset-0 flex items-center justify-center text-center px-6">
+                <div>
+                    <p class="text-[11px] font-bold tracking-[0.3em] uppercase text-white/80 mb-4" x-text="slide.subtitle"></p>
+                    <h2 class="text-4xl md:text-6xl font-serif text-white" x-text="slide.title"></h2>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    {{-- Navigation Arrows --}}
+    <button @click="prev()" class="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 backdrop-blur flex items-center justify-center text-white hover:bg-white hover:text-slate-900 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    <button @click="next()" class="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 backdrop-blur flex items-center justify-center text-white hover:bg-white hover:text-slate-900 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </button>
+
+    {{-- Dots --}}
+    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+        <template x-for="(slide, index) in slides" :key="'dot-'+index">
+            <button @click="goTo(index)" :class="currentSlide === index ? 'bg-white w-8' : 'bg-white/40 w-2'" class="h-2 rounded-full transition-all duration-300"></button>
+        </template>
+    </div>
+</div>
+
+<div id="products" x-data="{ 
     showFilters: false,
     viewMode: 'grid',
     wishlist: JSON.parse(localStorage.getItem('wishlist') || '[]'),
@@ -18,20 +77,6 @@
         localStorage.setItem('wishlist', JSON.stringify(this.wishlist));
     }
 }">
-    {{-- Hero Section --}}
-    <div class="bg-slate-50 border-b border-slate-100">
-        <div class="max-w-[1440px] mx-auto px-6 md:px-12 py-16 md:py-24">
-            <div class="max-w-2xl">
-                <h1 class="text-4xl md:text-5xl font-serif mb-6 tracking-tight">
-                    Discover Our Collection
-                </h1>
-                <p class="text-slate-600 text-lg leading-relaxed">
-                    Curated pieces that blend timeless elegance with modern sensibility. Each item tells a story of craftsmanship and quality.
-                </p>
-            </div>
-        </div>
-    </div>
-
     <div class="max-w-[1440px] mx-auto px-6 md:px-12 py-12">
         {{-- Mobile Filter Toggle --}}
         <div class="lg:hidden mb-8">
@@ -106,8 +151,8 @@
                 </div>
 
                 {{-- Pagination --}}
-                <div class="mt-16" id="pagination-container">
-                    {{ $products->links() }}
+                <div id="pagination-container">
+                    {{ $products->links('vendor.pagination.luxury') }}
                 </div>
             </div>
         </div>

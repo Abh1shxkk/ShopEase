@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
@@ -34,15 +35,38 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function approvedReviews(): HasMany
+    {
+        return $this->reviews()->where('is_approved', true)->latest();
+    }
+
+    public function getAverageRatingAttribute(): float
+    {
+        return round($this->approvedReviews()->avg('rating') ?? 0, 1);
+    }
+
+    public function getReviewsCountAttribute(): int
+    {
+        return $this->approvedReviews()->count();
+    }
+
     public function getCategoryNameAttribute(): string
     {
         return $this->category ? $this->category->name : ($this->category_old ?? 'Uncategorized');
     }
 
-    public function getImageUrlAttribute(): ?string
+    public function getImageUrlAttribute(): string
     {
+        // Default placeholder image
+        $placeholder = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600';
+        
         if (!$this->image) {
-            return null;
+            return $placeholder;
         }
         
         // If it's already a full URL (external image)
