@@ -130,23 +130,26 @@
 @endsection
 
 @push('scripts')
+@php
+$cartData = $cartItems->map(function($item) {
+    return [
+        'id' => $item->id,
+        'product_id' => $item->product_id,
+        'name' => $item->product->name,
+        'category' => $item->product->category_name,
+        'price' => (float)($item->product->discount_price ?? $item->product->price),
+        'quantity' => $item->quantity,
+        'max_stock' => min(10, $item->product->stock),
+        'image' => $item->product->image_url,
+        'url' => route('shop.show', $item->product_id),
+        'loading' => false
+    ];
+});
+@endphp
 <script>
 function cartManager() {
     return {
-        items: @json($cartItems->map(function($item) {
-            return [
-                'id' => $item->id,
-                'product_id' => $item->product_id,
-                'name' => $item->product->name,
-                'category' => $item->product->category_name,
-                'price' => (float)($item->product->discount_price ?? $item->product->price),
-                'quantity' => $item->quantity,
-                'max_stock' => min(10, $item->product->stock),
-                'image' => $item->product->image ? (str_starts_with($item->product->image, 'http') ? $item->product->image : '/storage/' . $item->product->image) : null,
-                'url' => route('shop.show', $item->product_id),
-                'loading' => false
-            ];
-        })),
+        items: @json($cartData),
         toast: { show: false, message: '', type: 'success' },
         
         get subtotal() {

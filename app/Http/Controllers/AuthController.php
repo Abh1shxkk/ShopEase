@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\LoginNotification;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -23,6 +25,9 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+            
+            // Send login notification email
+            $this->sendLoginNotification(Auth::user(), $request);
 
             // Admin goes to admin panel, users go to shop (or intended URL like checkout)
             if (Auth::user()->role === 'admin') {
@@ -70,5 +75,21 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    protected function sendLoginNotification(User $user, Request $request): void
+    {
+        $loginDetails = [
+            'time' => now()->format('F j, Y \a\t g:i A'),
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'location' => 'Unknown', // Can integrate IP geolocation API later
+        ];
+
+        // Send email (queued for better performance)
+        Mail::to($user->email)->queue(new LoginNotification($user, $loginDetails));
+        
+        // Update last login timestamp
+        $user->update(['last_login_at' => now()]);
     }
 }

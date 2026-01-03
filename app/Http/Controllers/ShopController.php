@@ -91,7 +91,7 @@ class ShopController extends Controller
             return response()->json([
                 'success' => true,
                 'html' => view('shop.partials.products', compact('products'))->render(),
-                'pagination' => $products->links()->render(),
+                'pagination' => $products->links('vendor.pagination.luxury')->render(),
                 'count' => [
                     'from' => $products->firstItem() ?? 0,
                     'to' => $products->lastItem() ?? 0,
