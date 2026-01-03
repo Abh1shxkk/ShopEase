@@ -1,15 +1,4 @@
 {{-- Product Grid Component --}}
-@php
-$products = [
-    ['id' => 'p1', 'name' => 'Kilim Weekender Bag', 'price' => 745.00, 'category' => 'Travel', 'image' => 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=800', 'rating' => 5, 'tag' => 'Artisanal'],
-    ['id' => 'p2', 'name' => "Men's Kilim Loafers", 'price' => 395.00, 'category' => 'Footwear', 'image' => 'https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?auto=format&fit=crop&q=80&w=800', 'rating' => 4.9, 'tag' => 'Classic'],
-    ['id' => 'p3', 'name' => "Women's Kilim Clogs", 'price' => 245.00, 'category' => 'Footwear', 'image' => 'https://images.unsplash.com/photo-1603191659812-ee978eeeef76?auto=format&fit=crop&q=80&w=800', 'rating' => 4.8, 'tag' => null],
-    ['id' => 'p4', 'name' => 'Geometric Travel Tote', 'price' => 185.00, 'category' => 'Travel', 'image' => 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&q=80&w=800', 'rating' => 4.7, 'tag' => null],
-    ['id' => 'p5', 'name' => 'Hand-woven Scarf', 'price' => 85.00, 'category' => 'Accessories', 'image' => 'https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?auto=format&fit=crop&q=80&w=800', 'rating' => 4.9, 'tag' => null],
-    ['id' => 'p6', 'name' => 'Leather Bound Journal', 'price' => 45.00, 'category' => 'Lifestyle', 'image' => 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?auto=format&fit=crop&q=80&w=800', 'rating' => 4.6, 'tag' => null],
-];
-@endphp
-
 <section id="shop" class="py-24 bg-white overflow-hidden">
     <div class="max-w-[1440px] mx-auto px-6 md:px-12 relative">
         
@@ -24,7 +13,7 @@ $products = [
                 {{-- Scroll Left Button --}}
                 <button 
                     id="product-prev"
-                    class="scroll-arrow p-2 border border-slate-200"
+                    class="scroll-arrow p-2 border border-slate-200 hover:border-slate-900 transition-colors"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -33,7 +22,7 @@ $products = [
                 {{-- Scroll Right Button --}}
                 <button 
                     id="product-next"
-                    class="scroll-arrow p-2 border border-slate-200"
+                    class="scroll-arrow p-2 border border-slate-200 hover:border-slate-900 transition-colors"
                 >
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -47,42 +36,56 @@ $products = [
             id="product-scroll"
             class="flex overflow-x-auto hide-scrollbar snap-x scroll-smooth"
         >
-            @foreach($products as $product)
+            @forelse($curatedProducts ?? [] as $product)
                 <div class="snap-start flex-shrink-0 w-full sm:w-1/2 md:w-1/4 px-4 first:pl-0 last:pr-0">
                     {{-- Product Card --}}
-                    <div class="group cursor-pointer">
+                    <a href="{{ route('shop.show', $product) }}" class="group cursor-pointer block">
                         <div class="relative aspect-[3/4] overflow-hidden mb-6 bg-[#f7f7f7]">
+                            @if($product->image)
                             <img 
-                                src="{{ $product['image'] }}" 
-                                alt="{{ $product['name'] }}"
+                                src="{{ $product->image_url }}" 
+                                alt="{{ $product->name }}"
                                 class="w-full h-full object-cover image-zoom"
                             />
+                            @else
+                            <div class="w-full h-full flex items-center justify-center">
+                                <svg class="w-16 h-16 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            </div>
+                            @endif
                             
                             {{-- Overlay on hover --}}
                             <div class="product-card-overlay absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100"></div>
 
                             {{-- Top-Left Shopping Bag Icon --}}
                             <div class="absolute top-4 left-4 product-card-icon">
-                                <button class="p-2 text-white hover:text-slate-200 transition-colors drop-shadow-md">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                                    </svg>
-                                </button>
+                                <form action="{{ route('cart.add') }}" method="POST" onclick="event.stopPropagation();">
+                                    @csrf
+                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                    <button type="submit" class="p-2 text-white hover:text-slate-200 transition-colors drop-shadow-md">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                        </svg>
+                                    </button>
+                                </form>
                             </div>
 
                             {{-- Top-Right Heart Icon --}}
                             <div class="absolute top-4 right-4 product-card-icon product-card-icon-delayed">
-                                <button class="p-2 text-white hover:text-red-400 transition-colors drop-shadow-md">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                                    </svg>
-                                </button>
+                                <form action="{{ route('wishlist.toggle') }}" method="POST" onclick="event.stopPropagation();">
+                                    @csrf
+                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                    <button type="submit" class="p-2 text-white hover:text-red-400 transition-colors drop-shadow-md">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                        </svg>
+                                    </button>
+                                </form>
                             </div>
 
-                            @if($product['tag'])
+                            @if($product->discount_price)
                                 <div class="absolute bottom-4 left-1/2 -translate-x-1/2">
                                     <span class="text-[8px] font-bold tracking-[0.2em] uppercase bg-white/90 backdrop-blur-sm px-3 py-1.5 shadow-sm border border-slate-100">
-                                        {{ $product['tag'] }}
+                                        Sale
                                     </span>
                                 </div>
                             @endif
@@ -90,16 +93,20 @@ $products = [
                         
                         <div class="flex flex-col md:flex-row justify-between items-baseline gap-2">
                             <h3 class="text-[13px] font-medium tracking-tight text-slate-900 hover:text-slate-600 transition-colors">
-                                {{ $product['name'] }}
+                                {{ $product->name }}
                             </h3>
                             <p class="text-[12px] font-semibold text-slate-900 whitespace-nowrap">
-                                Rs. {{ number_format($product['price'], 2) }}
+                                Rs. {{ number_format($product->discount_price ?? $product->price, 2) }}
                             </p>
                         </div>
-                        <p class="text-[10px] text-slate-400 tracking-widest uppercase mt-1">{{ $product['category'] }}</p>
-                    </div>
+                        <p class="text-[10px] text-slate-400 tracking-widest uppercase mt-1">{{ $product->category_name }}</p>
+                    </a>
                 </div>
-            @endforeach
+            @empty
+                <div class="w-full text-center py-12 text-slate-500">
+                    No products available yet.
+                </div>
+            @endforelse
         </div>
 
         {{-- New Arrivals Section --}}
@@ -110,48 +117,74 @@ $products = [
 
         {{-- Standard Grid for New Arrivals --}}
         <div class="grid grid-cols-2 md:grid-cols-3 gap-x-12 gap-y-20">
-            @foreach(array_slice($products, 0, 6) as $product)
+            @forelse($newArrivals ?? [] as $product)
                 <div class="w-full px-0">
-                    <div class="group cursor-pointer">
+                    <a href="{{ route('shop.show', $product) }}" class="group cursor-pointer block">
                         <div class="relative aspect-[3/4] overflow-hidden mb-6 bg-[#f7f7f7]">
+                            @if($product->image)
                             <img 
-                                src="{{ $product['image'] }}" 
+                                src="{{ $product->image_url }}" 
                                 class="w-full h-full object-cover image-zoom"
-                                alt="{{ $product['name'] }}"
+                                alt="{{ $product->name }}"
                             />
+                            @else
+                            <div class="w-full h-full flex items-center justify-center">
+                                <svg class="w-16 h-16 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            </div>
+                            @endif
                             <div class="product-card-overlay absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100"></div>
                             
                             <div class="absolute top-4 left-4 product-card-icon">
-                                <button class="p-2 text-white">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                                    </svg>
-                                </button>
+                                <form action="{{ route('cart.add') }}" method="POST" onclick="event.stopPropagation();">
+                                    @csrf
+                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                    <button type="submit" class="p-2 text-white">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                                        </svg>
+                                    </button>
+                                </form>
                             </div>
                             <div class="absolute top-4 right-4 product-card-icon product-card-icon-delayed">
-                                <button class="p-2 text-white">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                                    </svg>
-                                </button>
+                                <form action="{{ route('wishlist.toggle') }}" method="POST" onclick="event.stopPropagation();">
+                                    @csrf
+                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                    <button type="submit" class="p-2 text-white">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                        </svg>
+                                    </button>
+                                </form>
                             </div>
+                            
+                            @if($product->created_at->diffInDays(now()) < 7)
+                            <div class="absolute bottom-4 left-1/2 -translate-x-1/2">
+                                <span class="text-[8px] font-bold tracking-[0.2em] uppercase bg-slate-900 text-white px-3 py-1.5">
+                                    New
+                                </span>
+                            </div>
+                            @endif
                         </div>
                         
                         <div class="flex flex-col md:flex-row justify-between items-baseline gap-2">
-                            <h3 class="text-[13px] font-medium tracking-tight text-slate-900">{{ $product['name'] }}</h3>
-                            <p class="text-[12px] font-semibold text-slate-900">Rs. {{ number_format($product['price'], 2) }}</p>
+                            <h3 class="text-[13px] font-medium tracking-tight text-slate-900">{{ $product->name }}</h3>
+                            <p class="text-[12px] font-semibold text-slate-900">Rs. {{ number_format($product->discount_price ?? $product->price, 2) }}</p>
                         </div>
-                        <p class="text-[10px] text-slate-400 tracking-widest uppercase mt-1">{{ $product['category'] }}</p>
-                    </div>
+                        <p class="text-[10px] text-slate-400 tracking-widest uppercase mt-1">{{ $product->category_name }}</p>
+                    </a>
                 </div>
-            @endforeach
+            @empty
+                <div class="col-span-3 text-center py-12 text-slate-500">
+                    No new arrivals yet.
+                </div>
+            @endforelse
         </div>
 
         {{-- View More Button --}}
         <div class="mt-20 text-center">
-            <button class="text-[11px] font-bold tracking-[0.2em] uppercase underline underline-offset-8 decoration-slate-200 underline-animate hover:decoration-slate-900 transition-all">
+            <a href="{{ route('shop.index') }}" class="text-[11px] font-bold tracking-[0.2em] uppercase underline underline-offset-8 decoration-slate-200 underline-animate hover:decoration-slate-900 transition-all">
                 View More
-            </button>
+            </a>
         </div>
     </div>
 </section>

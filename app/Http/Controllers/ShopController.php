@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -16,12 +17,30 @@ class ShopController extends Controller
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
+        // Gender filter (Men/Women)
+        if ($request->filled('gender')) {
+            $gender = strtolower($request->gender);
+            if (in_array($gender, ['men', 'women'])) {
+                $query->where(function($q) use ($gender) {
+                    $q->where('gender', $gender)
+                      ->orWhere('gender', 'unisex');
+                });
+            }
+        }
+
         // Category filter - use category_id with relationship
         if ($request->filled('category')) {
-            $query->whereHas('category', function($q) use ($request) {
-                $categories = is_array($request->category) ? $request->category : [$request->category];
-                $q->whereIn('name', $categories);
-            });
+            $categories = is_array($request->category) ? $request->category : [$request->category];
+            
+            // Try to find category IDs first
+            $categoryIds = Category::whereIn('name', $categories)->pluck('id')->toArray();
+            
+            if (!empty($categoryIds)) {
+                $query->whereIn('category_id', $categoryIds);
+            } else {
+                // Fallback to old category_old column
+                $query->whereIn('category_old', $categories);
+            }
         }
 
         // Price range filter
@@ -57,8 +76,15 @@ class ShopController extends Controller
         }
 
         $products = $query->paginate(12)->withQueryString();
-        $categories = ['Electronics', 'Fashion', 'Home', 'Books', 'Sports', 'Beauty'];
+        
+        // Get categories from database, fallback to hardcoded if empty
+        $dbCategories = Category::where('is_active', true)->orderBy('sort_order')->pluck('name')->toArray();
+        $categories = !empty($dbCategories) ? $dbCategories : ['Electronics', 'Fashion', 'Home', 'Books', 'Sports', 'Beauty'];
+        
         $totalProducts = Product::where('status', 'active')->count();
+        
+        // Get current gender filter for view
+        $currentGender = $request->gender;
 
         // AJAX request - return JSON
         if ($request->ajax() || $request->wantsJson()) {
@@ -74,7 +100,7 @@ class ShopController extends Controller
             ]);
         }
 
-        return view('shop.index', compact('products', 'categories', 'totalProducts'));
+        return view('shop.index', compact('products', 'categories', 'totalProducts', 'currentGender'));
     }
 
     public function show(Product $product)
@@ -83,16 +109,18 @@ class ShopController extends Controller
             abort(404);
         }
 
-        // Get related products using category_id
-        $relatedProducts = Product::where('status', 'active')
-            ->where('id', '!=', $product->id)
-            ->when($product->category_id, function($query) use ($product) {
-                return $query->where('category_id', $product->category_id);
-            })
-            ->take(6)
-            ->get();
+        // Get related products - try category_id first, then fallback
+        $relatedQuery = Product::where('status', 'active')
+            ->where('id', '!=', $product->id);
+            
+        if ($product->category_id) {
+            $relatedQuery->where('category_id', $product->category_id);
+        } elseif ($product->category_old) {
+            $relatedQuery->where('category_old', $product->category_old);
+        }
+        
+        $relatedProducts = $relatedQuery->take(6)->get();
 
         return view('shop.show', compact('product', 'relatedProducts'));
     }
 }
-

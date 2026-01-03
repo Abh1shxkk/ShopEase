@@ -1,18 +1,18 @@
 {{-- Category Showcase Component --}}
 @php
-$categories = [
-    ['id' => 'c1', 'name' => 'Footwear', 'image' => 'https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&q=80&w=800', 'itemCount' => 42],
-    ['id' => 'c2', 'name' => 'Travel Bags', 'image' => 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=800', 'itemCount' => 18],
-    ['id' => 'c3', 'name' => 'Home Goods', 'image' => 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&q=80&w=800', 'itemCount' => 56],
-    ['id' => 'c4', 'name' => 'New Arrivals', 'image' => 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&q=80&w=800', 'itemCount' => 12],
+$showcaseCategories = [
+    ['name' => 'Women', 'link' => route('shop.index', ['gender' => 'women']), 'image' => 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=800'],
+    ['name' => 'Men', 'link' => route('shop.index', ['gender' => 'men']), 'image' => 'https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?auto=format&fit=crop&q=80&w=800'],
+    ['name' => 'Accessories', 'link' => route('shop.index', ['category' => 'Accessories']), 'image' => 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=800'],
+    ['name' => 'New Arrivals', 'link' => route('shop.index', ['sort' => 'newest']), 'image' => 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&q=80&w=800'],
 ];
 @endphp
 
 <section id="categories" class="py-24 bg-white border-t border-slate-100">
     <div class="max-w-[1440px] mx-auto px-6 md:px-12">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-slate-200 border border-slate-200">
-            @foreach($categories as $category)
-                <a href="{{ route('shop.index', ['category' => $category['name']]) }}" class="group relative h-[600px] overflow-hidden bg-white cursor-pointer block">
+            @foreach($showcaseCategories as $category)
+                <a href="{{ $category['link'] }}" class="group relative h-[600px] overflow-hidden bg-white cursor-pointer block">
                     <img 
                         src="{{ $category['image'] }}" 
                         alt="{{ $category['name'] }}" 

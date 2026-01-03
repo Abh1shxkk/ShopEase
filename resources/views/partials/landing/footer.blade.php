@@ -68,6 +68,12 @@
                             <li><a href="{{ route('orders') }}" class="hover:underline">My Orders</a></li>
                             <li><a href="{{ route('wishlist') }}" class="hover:underline">Wishlist</a></li>
                             <li><a href="{{ route('cart') }}" class="hover:underline">Shopping Cart</a></li>
+                            <li>
+                                <form action="{{ route('logout') }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="hover:underline text-red-600">Logout</button>
+                                </form>
+                            </li>
                         @else
                             <li><a href="{{ route('login') }}" class="hover:underline">Login</a></li>
                             <li><a href="{{ route('register') }}" class="hover:underline">Create Account</a></li>

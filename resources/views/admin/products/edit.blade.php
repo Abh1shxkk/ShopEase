@@ -52,10 +52,20 @@
                             </div>
 
                             <div>
-                                <label for="stock" class="label mb-2 block">Stock Quantity <span class="text-red-500">*</span></label>
-                                <input type="number" id="stock" name="stock" value="{{ old('stock', $product->stock) }}" min="0" class="input w-full @error('stock') input-error @enderror" required>
-                                @error('stock')<p class="text-sm text-red-500 mt-1">{{ $message }}</p>@enderror
+                                <label for="gender" class="label mb-2 block">Gender <span class="text-red-500">*</span></label>
+                                <select id="gender" name="gender" class="input select w-full @error('gender') input-error @enderror" required>
+                                    <option value="unisex" {{ old('gender', $product->gender ?? 'unisex') == 'unisex' ? 'selected' : '' }}>Unisex</option>
+                                    <option value="men" {{ old('gender', $product->gender) == 'men' ? 'selected' : '' }}>Men</option>
+                                    <option value="women" {{ old('gender', $product->gender) == 'women' ? 'selected' : '' }}>Women</option>
+                                </select>
+                                @error('gender')<p class="text-sm text-red-500 mt-1">{{ $message }}</p>@enderror
                             </div>
+                        </div>
+
+                        <div>
+                            <label for="stock" class="label mb-2 block">Stock Quantity <span class="text-red-500">*</span></label>
+                            <input type="number" id="stock" name="stock" value="{{ old('stock', $product->stock) }}" min="0" class="input w-full @error('stock') input-error @enderror" required>
+                            @error('stock')<p class="text-sm text-red-500 mt-1">{{ $message }}</p>@enderror
                         </div>
                     </div>
                 </div>

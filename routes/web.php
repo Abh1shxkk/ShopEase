@@ -15,7 +15,21 @@ use Illuminate\Support\Facades\Route;
 
 // Landing Page
 Route::get('/', function () {
-    return view('landing');
+    $curatedProducts = \App\Models\Product::with('category')
+        ->where('status', 'active')
+        ->whereNotNull('image')
+        ->inRandomOrder()
+        ->take(8)
+        ->get();
+    
+    $newArrivals = \App\Models\Product::with('category')
+        ->where('status', 'active')
+        ->whereNotNull('image')
+        ->orderBy('created_at', 'desc')
+        ->take(6)
+        ->get();
+    
+    return view('landing', compact('curatedProducts', 'newArrivals'));
 })->name('home');
 
 // Shop routes (Public - everyone can browse)
@@ -56,9 +70,9 @@ Route::middleware('auth')->group(function () {
     
     // Profile
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
-    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
-    Route::put('/profile/preferences', [ProfileController::class, 'updatePreferences'])->name('profile.preferences');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::post('/profile/preferences', [ProfileController::class, 'updatePreferences'])->name('profile.preferences');
     Route::delete('/profile', [ProfileController::class, 'deleteAccount'])->name('profile.delete');
     
     // Addresses
@@ -67,8 +81,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile/addresses/{address}', [ProfileController::class, 'deleteAddress'])->name('profile.addresses.delete');
     
     // Payment Methods
-    Route::post('/profile/payment-methods', [ProfileController::class, 'storePaymentMethod'])->name('profile.payment.store');
-    Route::delete('/profile/payment-methods/{paymentMethod}', [ProfileController::class, 'deletePaymentMethod'])->name('profile.payment.delete');
+    Route::post('/profile/payment-methods', [ProfileController::class, 'storePaymentMethod'])->name('profile.payment-methods.store');
+    Route::delete('/profile/payment-methods/{paymentMethod}', [ProfileController::class, 'deletePaymentMethod'])->name('profile.payment-methods.delete');
 });
 
 // Admin routes

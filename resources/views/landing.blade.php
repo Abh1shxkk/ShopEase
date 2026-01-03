@@ -15,7 +15,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     {{-- Styles --}}
-    @vite(['resources/css/app.css', 'resources/css/landing.css', 'resources/js/landing.js'])
+    @vite(['resources/css/app.css', 'resources/css/landing.css', 'resources/js/app.js', 'resources/js/landing.js'])
 </head>
 <body class="bg-white text-slate-900 overflow-x-hidden" style="font-family: 'Inter', sans-serif;">
     

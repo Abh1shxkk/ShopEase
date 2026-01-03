@@ -17,7 +17,8 @@ class Product extends Model
         'description',
         'price',
         'discount_price',
-        'category',
+        'category_old',
+        'gender',
         'stock',
         'image',
         'status',
@@ -35,6 +36,21 @@ class Product extends Model
 
     public function getCategoryNameAttribute(): string
     {
-        return $this->category ? $this->category->name : ($this->category ?? 'Uncategorized');
+        return $this->category ? $this->category->name : ($this->category_old ?? 'Uncategorized');
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        if (!$this->image) {
+            return null;
+        }
+        
+        // If it's already a full URL (external image)
+        if (str_starts_with($this->image, 'http')) {
+            return $this->image;
+        }
+        
+        // Otherwise, it's a local storage path
+        return asset('storage/' . $this->image);
     }
 }
