@@ -1,4 +1,16 @@
 {{-- Heritage Narrative Component --}}
+@php
+use App\Models\FeaturedSection;
+$heritage = FeaturedSection::active()->byType('heritage')->first();
+
+// Fallback defaults
+$heritageTitle = $heritage?->title ?? 'Sustainability Through Rediscovery.';
+$heritageDescription = $heritage?->description ?? "We don't just make products; we preserve cultures. By sourcing kilims that are up to 100 years old, we reduce waste while honoring the geometric languages of nomadic tribes.";
+$heritageImage = $heritage?->image_url ?? 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=1000';
+$heritageLink = $heritage?->link ?? '#';
+$heritageLinkText = $heritage?->link_text ?? 'Read Our Ethos';
+@endphp
+
 <section class="py-32 bg-slate-50 overflow-hidden relative">
     <div class="max-w-[1440px] mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center gap-20">
         {{-- Text Content --}}
@@ -9,16 +21,20 @@
             </svg>
             
             <h2 class="text-5xl md:text-7xl font-serif leading-tight">
-                Sustainability Through <span class="italic">Rediscovery</span>.
+                @php
+                    $parts = explode(' ', $heritageTitle);
+                    $lastWord = array_pop($parts);
+                    echo implode(' ', $parts) . ' <span class="italic">' . $lastWord . '</span>';
+                @endphp
             </h2>
             
             <p class="text-lg text-slate-500 font-light leading-relaxed max-w-lg">
-                We don't just make products; we preserve cultures. By sourcing kilims that are up to 100 years old, we reduce waste while honoring the geometric languages of nomadic tribes.
+                {{ $heritageDescription }}
             </p>
             
             <div class="pt-6">
-                <a href="#" class="text-[11px] font-bold tracking-[0.2em] uppercase border-b border-slate-900 pb-2 hover:text-slate-500 hover:border-slate-500 transition-all">
-                    Read Our Ethos
+                <a href="{{ $heritageLink }}" class="text-[11px] font-bold tracking-[0.2em] uppercase border-b border-slate-900 pb-2 hover:text-slate-500 hover:border-slate-500 transition-all">
+                    {{ $heritageLinkText }}
                 </a>
             </div>
         </div>
@@ -27,8 +43,8 @@
         <div class="flex-1 relative">
             <div class="aspect-[4/5] bg-slate-200 overflow-hidden shadow-2xl">
                 <img 
-                    src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=1000" 
-                    alt="Artisan loom" 
+                    src="{{ $heritageImage }}" 
+                    alt="Heritage" 
                     class="w-full h-full object-cover image-zoom-slow" 
                 />
             </div>

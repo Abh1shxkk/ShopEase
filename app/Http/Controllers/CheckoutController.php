@@ -19,8 +19,8 @@ class CheckoutController extends Controller
         }
 
         $subtotal = $cartItems->sum('subtotal');
-        $shipping = $subtotal >= 50 ? 0 : 5.99;
-        $tax = $subtotal * 0.08;
+        $shipping = $subtotal >= 500 ? 0 : 49; // Free shipping above ₹500
+        $tax = $subtotal * 0.18; // 18% GST
         $total = $subtotal + $shipping + $tax;
 
         return view('checkout.index', compact('cartItems', 'subtotal', 'shipping', 'tax', 'total'));

@@ -5,13 +5,19 @@
 
 @section('content')
 {{-- Hero Image Slider --}}
+@php
+    $defaultBanners = [
+        ['image' => 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600', 'title' => 'New Season Arrivals', 'subtitle' => 'Discover the latest trends'],
+        ['image' => 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1600', 'title' => 'Summer Collection', 'subtitle' => 'Light & breezy styles'],
+        ['image' => 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600', 'title' => 'Premium Quality', 'subtitle' => 'Crafted with care']
+    ];
+    $bannerData = $shopBanners->count() > 0 
+        ? $shopBanners->map(fn($b) => ['image' => $b->image_url, 'title' => $b->title, 'subtitle' => $b->subtitle])->toArray()
+        : $defaultBanners;
+@endphp
 <div x-data="{ 
     currentSlide: 0, 
-    slides: [
-        { image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600', title: 'New Season Arrivals', subtitle: 'Discover the latest trends' },
-        { image: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1600', title: 'Summer Collection', subtitle: 'Light & breezy styles' },
-        { image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600', title: 'Premium Quality', subtitle: 'Crafted with care' }
-    ],
+    slides: {{ json_encode($bannerData) }},
     autoSlide: null,
     init() {
         this.autoSlide = setInterval(() => this.next(), 5000);
