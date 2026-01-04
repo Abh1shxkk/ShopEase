@@ -11,6 +11,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\CouponController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
@@ -86,6 +87,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/payment/verify', [PaymentController::class, 'verify'])->name('payment.verify');
     Route::post('/payment/failed', [PaymentController::class, 'failed'])->name('payment.failed');
     
+    // Coupon Routes
+    Route::post('/coupon/apply', [CouponController::class, 'apply'])->name('coupon.apply');
+    Route::post('/coupon/remove', [CouponController::class, 'remove'])->name('coupon.remove');
+    
     // Orders
     Route::get('/orders', [OrderController::class, 'index'])->name('orders');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
@@ -114,6 +119,10 @@ Route::middleware('auth')->group(function () {
     // Reviews
     Route::post('/product/{product}/review', [ReviewController::class, 'store'])->name('reviews.store');
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+    
+    // Stock Notifications (Notify me when back in stock)
+    Route::post('/stock-notification', [\App\Http\Controllers\StockNotificationController::class, 'store'])->name('stock-notification.store');
+    Route::delete('/stock-notification', [\App\Http\Controllers\StockNotificationController::class, 'destroy'])->name('stock-notification.destroy');
 });
 
 // Admin routes
@@ -189,4 +198,21 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->prefix('admin')->
     // Payment Settings
     Route::get('/settings/payment', [SettingsController::class, 'payment'])->name('settings.payment');
     Route::post('/settings/payment', [SettingsController::class, 'updatePayment'])->name('settings.payment.update');
+    
+    // Coupons
+    Route::get('/coupons', [\App\Http\Controllers\Admin\CouponController::class, 'index'])->name('coupons.index');
+    Route::get('/coupons/create', [\App\Http\Controllers\Admin\CouponController::class, 'create'])->name('coupons.create');
+    Route::post('/coupons', [\App\Http\Controllers\Admin\CouponController::class, 'store'])->name('coupons.store');
+    Route::get('/coupons/{coupon}/edit', [\App\Http\Controllers\Admin\CouponController::class, 'edit'])->name('coupons.edit');
+    Route::put('/coupons/{coupon}', [\App\Http\Controllers\Admin\CouponController::class, 'update'])->name('coupons.update');
+    Route::delete('/coupons/{coupon}', [\App\Http\Controllers\Admin\CouponController::class, 'destroy'])->name('coupons.destroy');
+    Route::patch('/coupons/{coupon}/toggle', [\App\Http\Controllers\Admin\CouponController::class, 'toggleStatus'])->name('coupons.toggle');
+    
+    // Inventory Management
+    Route::get('/inventory', [\App\Http\Controllers\Admin\InventoryController::class, 'index'])->name('inventory.index');
+    Route::get('/inventory/alerts', [\App\Http\Controllers\Admin\InventoryController::class, 'alerts'])->name('inventory.alerts');
+    Route::patch('/inventory/alerts/{alert}/read', [\App\Http\Controllers\Admin\InventoryController::class, 'markAlertRead'])->name('inventory.alerts.mark-read');
+    Route::post('/inventory/alerts/mark-all-read', [\App\Http\Controllers\Admin\InventoryController::class, 'markAllAlertsRead'])->name('inventory.alerts.mark-all-read');
+    Route::patch('/inventory/{product}/stock', [\App\Http\Controllers\Admin\InventoryController::class, 'updateStock'])->name('inventory.update-stock');
+    Route::get('/inventory/{product}/notifications', [\App\Http\Controllers\Admin\InventoryController::class, 'notifications'])->name('inventory.notifications');
 });

@@ -80,11 +80,52 @@
             <div class="lg:col-span-1">
                 <div class="bg-slate-50 p-8 sticky top-28">
                     <h2 class="text-[11px] font-bold tracking-[0.2em] uppercase mb-8">Order Summary</h2>
+                    
+                    {{-- Coupon Section --}}
+                    <div class="mb-6 pb-6 border-b border-slate-200">
+                        <template x-if="!appliedCoupon">
+                            <div>
+                                <label class="text-[11px] font-semibold tracking-widest uppercase text-slate-600 mb-2 block">Have a coupon?</label>
+                                <div class="flex gap-2">
+                                    <input type="text" x-model="couponCode" @keyup.enter="applyCoupon()" 
+                                           placeholder="Enter code" 
+                                           class="flex-1 px-3 py-2 text-sm border border-slate-200 focus:border-slate-400 focus:ring-0 uppercase font-mono">
+                                    <button @click="applyCoupon()" :disabled="couponLoading || !couponCode" 
+                                            class="px-4 py-2 bg-slate-900 text-white text-[10px] font-bold tracking-wider uppercase hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                        <span x-show="!couponLoading">Apply</span>
+                                        <svg x-show="couponLoading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                                    </button>
+                                </div>
+                                <p x-show="couponError" x-text="couponError" class="text-red-500 text-xs mt-2"></p>
+                            </div>
+                        </template>
+                        <template x-if="appliedCoupon">
+                            <div class="bg-green-50 border border-green-200 p-3 rounded">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-xs font-bold text-green-700 uppercase tracking-wider" x-text="appliedCoupon.code"></p>
+                                        <p class="text-xs text-green-600 mt-0.5" x-text="appliedCoupon.name"></p>
+                                    </div>
+                                    <button @click="removeCoupon()" class="text-green-600 hover:text-red-600 transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    </button>
+                                </div>
+                                <p class="text-sm font-semibold text-green-700 mt-2">-Rs. <span x-text="appliedCoupon.discount.toFixed(2)"></span></p>
+                            </div>
+                        </template>
+                    </div>
+                    
                     <div class="space-y-4 text-[13px]">
                         <div class="flex justify-between">
                             <span class="text-slate-500">Subtotal (<span x-text="items.length"></span> items)</span>
                             <span class="font-medium text-slate-900">Rs. <span x-text="subtotal.toFixed(2)"></span></span>
                         </div>
+                        <template x-if="appliedCoupon">
+                            <div class="flex justify-between text-green-600">
+                                <span>Discount</span>
+                                <span class="font-medium">-Rs. <span x-text="appliedCoupon.discount.toFixed(2)"></span></span>
+                            </div>
+                        </template>
                         <div class="flex justify-between">
                             <span class="text-slate-500">Shipping</span>
                             <span class="font-medium" :class="shipping == 0 ? 'text-green-600' : 'text-slate-900'" x-text="shipping == 0 ? 'FREE' : 'Rs. ' + shipping.toFixed(2)"></span>
@@ -145,29 +186,86 @@ $cartData = $cartItems->map(function($item) {
         'loading' => false
     ];
 });
+$appliedCoupon = session('applied_coupon');
 @endphp
 <script>
 function cartManager() {
     return {
         items: @json($cartData),
         toast: { show: false, message: '', type: 'success' },
+        couponCode: '',
+        couponLoading: false,
+        couponError: '',
+        appliedCoupon: @json($appliedCoupon),
         
         get subtotal() {
             return this.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         },
+        get discount() {
+            return this.appliedCoupon ? this.appliedCoupon.discount : 0;
+        },
         get shipping() {
-            return this.subtotal >= 250 ? 0 : 10;
+            return (this.subtotal - this.discount) >= 250 ? 0 : 10;
         },
         get tax() {
-            return this.subtotal * 0.08;
+            return (this.subtotal - this.discount) * 0.08;
         },
         get total() {
-            return this.subtotal + this.shipping + this.tax;
+            return this.subtotal - this.discount + this.shipping + this.tax;
         },
         
         showToast(message, type = 'success') {
             this.toast = { show: true, message, type };
             setTimeout(() => this.toast.show = false, 3000);
+        },
+        
+        async applyCoupon() {
+            if (!this.couponCode || this.couponLoading) return;
+            
+            this.couponLoading = true;
+            this.couponError = '';
+            
+            try {
+                const response = await fetch('{{ route("coupon.apply") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ code: this.couponCode })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    this.appliedCoupon = data.coupon;
+                    this.couponCode = '';
+                    this.showToast('Coupon applied successfully!');
+                } else {
+                    this.couponError = data.message;
+                }
+            } catch (error) {
+                this.couponError = 'Error applying coupon';
+            } finally {
+                this.couponLoading = false;
+            }
+        },
+        
+        async removeCoupon() {
+            try {
+                await fetch('{{ route("coupon.remove") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
+                });
+                this.appliedCoupon = null;
+                this.showToast('Coupon removed');
+            } catch (error) {
+                this.showToast('Error removing coupon', 'error');
+            }
         },
         
         async updateQuantity(itemId, newQuantity) {

@@ -21,6 +21,8 @@ class Product extends Model
         'category_old',
         'gender',
         'stock',
+        'low_stock_threshold',
+        'hide_when_out_of_stock',
         'image',
         'status',
     ];
@@ -28,6 +30,7 @@ class Product extends Model
     protected $casts = [
         'price' => 'decimal:2',
         'discount_price' => 'decimal:2',
+        'hide_when_out_of_stock' => 'boolean',
     ];
 
     public function category(): BelongsTo
@@ -38,6 +41,26 @@ class Product extends Model
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class);
+    }
+
+    public function stockNotifications(): HasMany
+    {
+        return $this->hasMany(StockNotification::class);
+    }
+
+    public function inventoryAlerts(): HasMany
+    {
+        return $this->hasMany(InventoryAlert::class);
+    }
+
+    public function isLowStock(): bool
+    {
+        return $this->stock > 0 && $this->stock <= $this->low_stock_threshold;
+    }
+
+    public function isOutOfStock(): bool
+    {
+        return $this->stock <= 0;
     }
 
     public function approvedReviews(): HasMany

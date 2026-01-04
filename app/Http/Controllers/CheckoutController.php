@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cart;
+use App\Models\Coupon;
+use App\Models\CouponUsage;
 use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
@@ -19,11 +21,16 @@ class CheckoutController extends Controller
         }
 
         $subtotal = $cartItems->sum('subtotal');
-        $shipping = $subtotal >= 500 ? 0 : 49; // Free shipping above ₹500
-        $tax = $subtotal * 0.18; // 18% GST
-        $total = $subtotal + $shipping + $tax;
+        
+        // Get applied coupon from session
+        $appliedCoupon = session('applied_coupon');
+        $discount = $appliedCoupon ? $appliedCoupon['discount'] : 0;
+        
+        $shipping = ($subtotal - $discount) >= 500 ? 0 : 49;
+        $tax = ($subtotal - $discount) * 0.18;
+        $total = $subtotal - $discount + $shipping + $tax;
 
-        return view('checkout.index', compact('cartItems', 'subtotal', 'shipping', 'tax', 'total'));
+        return view('checkout.index', compact('cartItems', 'subtotal', 'discount', 'appliedCoupon', 'shipping', 'tax', 'total'));
     }
 
     public function store(Request $request)
@@ -46,9 +53,25 @@ class CheckoutController extends Controller
         }
 
         $subtotal = $cartItems->sum('subtotal');
-        $shipping = $subtotal >= 50 ? 0 : 5.99;
-        $tax = $subtotal * 0.08;
-        $total = $subtotal + $shipping + $tax;
+        
+        // Handle coupon
+        $appliedCoupon = session('applied_coupon');
+        $discount = 0;
+        $couponId = null;
+        $couponCode = null;
+        
+        if ($appliedCoupon) {
+            $coupon = Coupon::find($appliedCoupon['id']);
+            if ($coupon && $coupon->canBeUsedByUser(auth()->id())) {
+                $discount = $coupon->calculateDiscount($subtotal);
+                $couponId = $coupon->id;
+                $couponCode = $coupon->code;
+            }
+        }
+        
+        $shipping = ($subtotal - $discount) >= 50 ? 0 : 5.99;
+        $tax = ($subtotal - $discount) * 0.08;
+        $total = $subtotal - $discount + $shipping + $tax;
 
         DB::beginTransaction();
         try {
@@ -56,6 +79,9 @@ class CheckoutController extends Controller
                 'order_number' => Order::generateOrderNumber(),
                 'user_id' => auth()->id(),
                 'subtotal' => $subtotal,
+                'discount' => $discount,
+                'coupon_id' => $couponId,
+                'coupon_code' => $couponCode,
                 'shipping' => $shipping,
                 'tax' => $tax,
                 'total' => $total,
@@ -86,9 +112,23 @@ class CheckoutController extends Controller
                 // Reduce stock
                 $item->product->decrement('stock', $item->quantity);
             }
+            
+            // Record coupon usage
+            if ($couponId && $discount > 0) {
+                CouponUsage::create([
+                    'coupon_id' => $couponId,
+                    'user_id' => auth()->id(),
+                    'order_id' => $order->id,
+                    'discount_amount' => $discount,
+                ]);
+                
+                // Increment coupon used count
+                Coupon::where('id', $couponId)->increment('used_count');
+            }
 
-            // Clear cart
+            // Clear cart and coupon session
             Cart::where('user_id', auth()->id())->delete();
+            session()->forget('applied_coupon');
 
             DB::commit();
             return redirect()->route('checkout.success', $order)->with('success', 'Order placed successfully!');
