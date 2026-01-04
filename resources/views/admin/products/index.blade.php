@@ -17,15 +17,15 @@
     </div>
 
     <!-- Filters -->
-    <div class="bg-white border border-slate-200 p-6 mb-6">
+    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6 mb-6">
         <form method="GET" class="flex flex-col lg:flex-row gap-4">
             <div class="flex-1">
-                <label class="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-400 block mb-2">Search</label>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search products..." class="w-full h-11 px-4 bg-slate-50 border border-slate-200 text-[13px] text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-900 transition-colors">
+                <label class="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-400 dark:text-slate-500 block mb-2">Search</label>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search products..." class="w-full h-11 px-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 text-[13px] text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-slate-900 dark:focus:border-slate-400 transition-colors">
             </div>
             <div class="w-full lg:w-48">
-                <label class="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-400 block mb-2">Category</label>
-                <select name="category" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 transition-colors">
+                <label class="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-400 dark:text-slate-500 block mb-2">Category</label>
+                <select name="category" class="w-full h-11 px-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 text-[13px] text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-slate-400 transition-colors">
                     <option value="">All Categories</option>
                     @foreach($categories as $cat)
                     <option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}>{{ $cat }}</option>
@@ -33,17 +33,17 @@
                 </select>
             </div>
             <div class="w-full lg:w-40">
-                <label class="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-400 block mb-2">Status</label>
-                <select name="status" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 transition-colors">
+                <label class="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-400 dark:text-slate-500 block mb-2">Status</label>
+                <select name="status" class="w-full h-11 px-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 text-[13px] text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-slate-400 transition-colors">
                     <option value="">All Status</option>
                     <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
                     <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
                 </select>
             </div>
             <div class="flex items-end gap-2">
-                <button type="submit" class="h-11 px-6 bg-slate-900 text-white text-[11px] font-bold tracking-[0.15em] uppercase hover:bg-slate-800 transition-colors">Filter</button>
+                <button type="submit" class="h-11 px-6 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[11px] font-bold tracking-[0.15em] uppercase hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors">Filter</button>
                 @if(request()->hasAny(['search', 'category', 'status']))
-                <a href="{{ route('admin.products.index') }}" class="h-11 px-6 bg-white text-slate-700 text-[11px] font-bold tracking-[0.15em] uppercase border border-slate-200 hover:bg-slate-50 transition-colors flex items-center">Clear</a>
+                <a href="{{ route('admin.products.index') }}" class="h-11 px-6 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-[11px] font-bold tracking-[0.15em] uppercase border border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors flex items-center">Clear</a>
                 @endif
             </div>
         </form>

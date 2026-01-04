@@ -16,8 +16,41 @@
     @vite(['resources/css/app.css', 'resources/css/landing.css', 'resources/js/app.js', 'resources/js/landing.js'])
     
     <style>
+        /* Hide Alpine.js elements until initialized */
+        [x-cloak] { display: none !important; }
+        
+        /* Mobile menu MUST be hidden on page load */
+        .mobile-menu { 
+            opacity: 0 !important; 
+            visibility: hidden !important; 
+            pointer-events: none !important;
+        }
+        .mobile-menu.open { 
+            opacity: 1 !important; 
+            visibility: visible !important; 
+            pointer-events: auto !important;
+        }
+        
+        /* Header/Navbar critical styles - prevent black border flash */
+        header {
+            background-color: #fff !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+        }
+        
         body { font-family: 'Inter', sans-serif; }
         .font-serif { font-family: 'Playfair Display', serif; }
+        
+        /* Custom select styling */
+        select {
+            background-image: url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27none%27 viewBox=%270 0 24 24%27 stroke=%27%23475569%27%3E%3Cpath stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M19 9l-7 7-7-7%27/%3E%3C/svg%3E');
+            background-position: right 0.75rem center;
+            background-repeat: no-repeat;
+            background-size: 1rem;
+            padding-right: 2.5rem;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
     </style>
 </head>
 <body class="bg-white text-slate-900 overflow-x-hidden">
@@ -58,10 +91,6 @@
             }, 3000);
         }
     </script>
-
-    <style>
-        [x-cloak] { display: none !important; }
-    </style>
     
     @stack('scripts')
 </body>

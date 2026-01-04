@@ -188,19 +188,22 @@ html {
     transform: scale(1);
 }
 
-/* Mobile menu */
+/* Mobile menu - NO transition on initial load */
 .mobile-menu {
-    transition: opacity 300ms ease-in-out, visibility 300ms ease-in-out;
+    opacity: 0;
+    visibility: hidden;
 }
 
 .mobile-menu.open {
     opacity: 1;
     visibility: visible;
+    transition: opacity 300ms ease-in-out, visibility 300ms ease-in-out;
 }
 
 .mobile-menu.closed {
     opacity: 0;
     visibility: hidden;
+    transition: opacity 300ms ease-in-out, visibility 300ms ease-in-out;
 }
 
 /* Snap scroll for product carousel */
