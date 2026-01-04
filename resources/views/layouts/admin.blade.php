@@ -92,6 +92,20 @@
                 <span class="ml-auto px-2 py-0.5 bg-amber-500 text-white text-[10px] font-bold">{{ $pendingOrders }}</span>
                 @endif
             </a>
+            
+            <a href="{{ route('admin.coupons.index') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.coupons.*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                <span>Coupons</span>
+            </a>
+            
+            <a href="{{ route('admin.inventory.index') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.inventory.*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                <span>Inventory</span>
+                @php $lowStockCount = \App\Services\InventoryService::getLowStockCount() + \App\Services\InventoryService::getOutOfStockCount(); @endphp
+                @if($lowStockCount > 0)
+                <span class="ml-auto px-2 py-0.5 bg-red-500 text-white text-[10px] font-bold">{{ $lowStockCount }}</span>
+                @endif
+            </a>
 
             <p class="px-3 mt-8 mb-4 text-[9px] font-bold tracking-[0.2em] uppercase text-slate-500">Customers</p>
             

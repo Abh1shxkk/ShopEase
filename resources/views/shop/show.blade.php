@@ -122,13 +122,59 @@
                 @endauth
             </div>
             @else
-            {{-- Out of Stock Message --}}
-            <div class="bg-slate-50 p-6 mb-10">
-                <p class="text-[13px] text-slate-600 mb-4">This item is currently out of stock. Enter your email to be notified when it's back.</p>
-                <div class="flex gap-3">
-                    <input type="email" placeholder="Your email" class="flex-1 h-12 px-4 bg-white border border-slate-200 text-[13px] focus:outline-none focus:border-slate-900">
-                    <button class="h-12 px-6 bg-slate-900 text-white text-[11px] font-bold tracking-widest uppercase hover:bg-slate-800 transition-colors">Notify Me</button>
-                </div>
+            {{-- Out of Stock - Notify Me Section --}}
+            <div class="bg-slate-50 p-6 mb-10" x-data="{ 
+                email: '{{ auth()->user()->email ?? '' }}', 
+                loading: false, 
+                success: false, 
+                error: '',
+                async subscribe() {
+                    if (!this.email) { this.error = 'Please enter your email'; return; }
+                    this.loading = true;
+                    this.error = '';
+                    try {
+                        const response = await fetch('{{ route('stock-notification.store') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({ product_id: {{ $product->id }}, email: this.email })
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            this.success = true;
+                        } else {
+                            this.error = data.message;
+                        }
+                    } catch (e) {
+                        this.error = 'Something went wrong. Please try again.';
+                    } finally {
+                        this.loading = false;
+                    }
+                }
+            }">
+                <template x-if="!success">
+                    <div>
+                        <p class="text-[13px] text-slate-600 mb-4">This item is currently out of stock. Enter your email to be notified when it's back.</p>
+                        <div class="flex gap-3">
+                            <input type="email" x-model="email" placeholder="Your email" class="flex-1 h-12 px-4 bg-white border border-slate-200 text-[13px] focus:outline-none focus:border-slate-900">
+                            <button @click="subscribe()" :disabled="loading" class="h-12 px-6 bg-slate-900 text-white text-[11px] font-bold tracking-widest uppercase hover:bg-slate-800 transition-colors disabled:opacity-50">
+                                <span x-show="!loading">Notify Me</span>
+                                <svg x-show="loading" class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+                            </button>
+                        </div>
+                        <p x-show="error" x-text="error" class="text-red-500 text-xs mt-2"></p>
+                    </div>
+                </template>
+                <template x-if="success">
+                    <div class="text-center py-4">
+                        <svg class="w-12 h-12 mx-auto text-green-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <p class="text-[13px] font-medium text-slate-900">You're on the list!</p>
+                        <p class="text-[12px] text-slate-500 mt-1">We'll email you when this item is back in stock.</p>
+                    </div>
+                </template>
             </div>
             @endif
 

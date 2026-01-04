@@ -1,7 +1,12 @@
 {{-- Navbar Component --}}
+<style>
+    /* Prevent FOUC - Critical CSS for navbar */
+    #main-header { position: fixed; top: 0; left: 0; right: 0; z-index: 50; }
+    #navbar { background: rgba(255,255,255,0.95); border-bottom: 1px solid #e2e8f0; }
+</style>
 <header id="main-header" class="fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ease-out">
     {{-- Main Navigation --}}
-    <nav id="navbar" class="border-b bg-white/95 backdrop-blur-md transition-all duration-300">
+    <nav id="navbar" class="border-b border-slate-200 bg-white/95 backdrop-blur-md transition-all duration-300">
         <div class="max-w-[1440px] mx-auto px-6 md:px-12 h-12 grid grid-cols-3 items-center">
             
             {{-- Left Navigation (Desktop) --}}

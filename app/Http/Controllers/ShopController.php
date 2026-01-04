@@ -13,6 +13,14 @@ class ShopController extends Controller
     {
         $query = Product::where('status', 'active');
 
+        // Hide out of stock products by default (unless explicitly filtering for them)
+        if (!$request->filled('stock') || $request->stock !== 'out_of_stock') {
+            $query->where(function($q) {
+                $q->where('stock', '>', 0)
+                  ->orWhere('hide_when_out_of_stock', false);
+            });
+        }
+
         // Search
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
