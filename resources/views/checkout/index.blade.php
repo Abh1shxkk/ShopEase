@@ -25,7 +25,12 @@
     </div>
     @endif
 
-    <form action="{{ route('checkout.store') }}" method="POST">
+    {{-- Error Alert --}}
+    <div id="payment-error" class="hidden mb-8 p-4 bg-red-50 border border-red-200">
+        <p class="text-[12px] text-red-700" id="error-message"></p>
+    </div>
+
+    <form id="checkout-form">
         @csrf
         <div class="grid lg:grid-cols-3 gap-12">
             {{-- Shipping & Payment --}}
@@ -90,11 +95,11 @@
                             <input type="radio" name="payment_method" value="upi" class="w-4 h-4 text-slate-900 border-slate-300 focus:ring-slate-900">
                             <div class="ml-4 flex-1">
                                 <span class="text-[13px] font-medium text-slate-900">UPI Payment</span>
-                                <p class="text-[11px] text-slate-500 mt-0.5">Pay using Google Pay, PhonePe, Paytm</p>
+                                <p class="text-[11px] text-slate-500 mt-0.5">Pay using Google Pay, PhonePe, Paytm, BHIM</p>
                             </div>
-                            <svg class="w-5 h-5 text-slate-300 group-hover:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                            </svg>
+                            <div class="flex items-center gap-1">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo-vector.svg/1200px-UPI-Logo-vector.svg.png" alt="UPI" class="h-5 w-auto">
+                            </div>
                         </label>
                         <label class="flex items-center p-4 bg-white border border-slate-200 cursor-pointer hover:border-slate-900 transition-colors group">
                             <input type="radio" name="payment_method" value="card" class="w-4 h-4 text-slate-900 border-slate-300 focus:ring-slate-900">
@@ -104,6 +109,16 @@
                             </div>
                             <svg class="w-5 h-5 text-slate-300 group-hover:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                            </svg>
+                        </label>
+                        <label class="flex items-center p-4 bg-white border border-slate-200 cursor-pointer hover:border-slate-900 transition-colors group">
+                            <input type="radio" name="payment_method" value="netbanking" class="w-4 h-4 text-slate-900 border-slate-300 focus:ring-slate-900">
+                            <div class="ml-4 flex-1">
+                                <span class="text-[13px] font-medium text-slate-900">Net Banking</span>
+                                <p class="text-[11px] text-slate-500 mt-0.5">All major banks supported</p>
+                            </div>
+                            <svg class="w-5 h-5 text-slate-300 group-hover:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                             </svg>
                         </label>
                     </div>
@@ -133,7 +148,7 @@
                                 <p class="text-[12px] font-medium text-slate-900 truncate">{{ $item->product->name }}</p>
                                 <p class="text-[11px] text-slate-500 mt-1">Qty: {{ $item->quantity }}</p>
                             </div>
-                            <p class="text-[13px] font-semibold text-slate-900">Rs. {{ number_format($item->subtotal, 2) }}</p>
+                            <p class="text-[13px] font-semibold text-slate-900">₹{{ number_format($item->subtotal, 2) }}</p>
                         </div>
                         @endforeach
                     </div>
@@ -142,27 +157,31 @@
                     <div class="border-t border-slate-200 pt-6 space-y-3 text-[13px]">
                         <div class="flex justify-between">
                             <span class="text-slate-500">Subtotal</span>
-                            <span class="font-medium text-slate-900">Rs. {{ number_format($subtotal, 2) }}</span>
+                            <span class="font-medium text-slate-900">₹{{ number_format($subtotal, 2) }}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-slate-500">Shipping</span>
                             <span class="font-medium {{ $shipping == 0 ? 'text-emerald-600' : 'text-slate-900' }}">
-                                {{ $shipping == 0 ? 'FREE' : 'Rs. ' . number_format($shipping, 2) }}
+                                {{ $shipping == 0 ? 'FREE' : '₹' . number_format($shipping, 2) }}
                             </span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-slate-500">Tax (8%)</span>
-                            <span class="font-medium text-slate-900">Rs. {{ number_format($tax, 2) }}</span>
+                            <span class="text-slate-500">GST (18%)</span>
+                            <span class="font-medium text-slate-900">₹{{ number_format($tax, 2) }}</span>
                         </div>
                         <div class="border-t border-slate-200 pt-3 flex justify-between">
                             <span class="font-semibold text-slate-900">Total</span>
-                            <span class="text-lg font-bold text-slate-900">Rs. {{ number_format($total, 2) }}</span>
+                            <span class="text-lg font-bold text-slate-900">₹{{ number_format($total, 2) }}</span>
                         </div>
                     </div>
 
                     {{-- Place Order Button --}}
-                    <button type="submit" class="mt-8 w-full h-12 bg-slate-900 text-white text-[11px] font-bold tracking-[0.2em] uppercase flex items-center justify-center hover:bg-slate-800 transition-colors">
-                        Place Order
+                    <button type="submit" id="pay-btn" class="mt-8 w-full h-12 bg-slate-900 text-white text-[11px] font-bold tracking-[0.2em] uppercase flex items-center justify-center hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span id="btn-text">Place Order</span>
+                        <svg id="btn-loader" class="hidden animate-spin ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
                     </button>
 
                     {{-- Back to Cart --}}
@@ -178,10 +197,139 @@
                             </svg>
                             <span class="text-[10px] tracking-widest uppercase">Secure Checkout</span>
                         </div>
+                        <p class="text-[10px] text-slate-400 mt-2">Powered by Razorpay</p>
                     </div>
                 </div>
             </div>
         </div>
     </form>
 </div>
+
+{{-- Razorpay Script --}}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+document.getElementById('checkout-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const btn = document.getElementById('pay-btn');
+    const btnText = document.getElementById('btn-text');
+    const btnLoader = document.getElementById('btn-loader');
+    const errorDiv = document.getElementById('payment-error');
+    const errorMsg = document.getElementById('error-message');
+    
+    // Disable button and show loader
+    btn.disabled = true;
+    btnText.textContent = 'Processing...';
+    btnLoader.classList.remove('hidden');
+    errorDiv.classList.add('hidden');
+    
+    const formData = new FormData(this);
+    
+    try {
+        const response = await fetch('{{ route("payment.create") }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+            },
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Something went wrong');
+        }
+        
+        // If COD, redirect directly
+        if (data.cod) {
+            window.location.href = data.redirect;
+            return;
+        }
+        
+        // Open Razorpay checkout
+        const options = {
+            key: data.razorpay_key,
+            amount: data.amount,
+            currency: data.currency,
+            name: data.name,
+            description: data.description,
+            order_id: data.razorpay_order_id,
+            prefill: data.prefill,
+            theme: {
+                color: '#0f172a'
+            },
+            handler: async function(response) {
+                // Verify payment
+                btnText.textContent = 'Verifying...';
+                
+                try {
+                    const verifyResponse = await fetch('{{ route("payment.verify") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                            order_id: data.order_id
+                        })
+                    });
+                    
+                    const verifyData = await verifyResponse.json();
+                    
+                    if (verifyData.success) {
+                        window.location.href = verifyData.redirect;
+                    } else {
+                        throw new Error(verifyData.error || 'Payment verification failed');
+                    }
+                } catch (err) {
+                    errorMsg.textContent = err.message;
+                    errorDiv.classList.remove('hidden');
+                    resetButton();
+                }
+            },
+            modal: {
+                ondismiss: function() {
+                    // Payment cancelled
+                    resetButton();
+                }
+            }
+        };
+        
+        const rzp = new Razorpay(options);
+        
+        rzp.on('payment.failed', async function(response) {
+            await fetch('{{ route("payment.failed") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                body: JSON.stringify({ order_id: data.order_id })
+            });
+            
+            errorMsg.textContent = response.error.description || 'Payment failed. Please try again.';
+            errorDiv.classList.remove('hidden');
+            resetButton();
+        });
+        
+        rzp.open();
+        
+    } catch (err) {
+        errorMsg.textContent = err.message;
+        errorDiv.classList.remove('hidden');
+        resetButton();
+    }
+    
+    function resetButton() {
+        btn.disabled = false;
+        btnText.textContent = 'Place Order';
+        btnLoader.classList.add('hidden');
+    }
+});
+</script>
 @endsection

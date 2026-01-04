@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ShopBanner;
 use Illuminate\Http\Request;
 
 class ShopController extends Controller
@@ -85,6 +86,9 @@ class ShopController extends Controller
         
         // Get current gender filter for view
         $currentGender = $request->gender;
+        
+        // Get shop banners from database
+        $shopBanners = ShopBanner::active()->get();
 
         // AJAX request - return JSON
         if ($request->ajax() || $request->wantsJson()) {
@@ -100,7 +104,7 @@ class ShopController extends Controller
             ]);
         }
 
-        return view('shop.index', compact('products', 'categories', 'totalProducts', 'currentGender'));
+        return view('shop.index', compact('products', 'categories', 'totalProducts', 'currentGender', 'shopBanners'));
     }
 
     public function show(Product $product)
