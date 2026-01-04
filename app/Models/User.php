@@ -14,7 +14,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name', 'email', 'password', 'role', 'phone', 'avatar',
         'date_of_birth', 'gender', 'last_login_at',
-        'email_notifications', 'sms_notifications', 'marketing_emails',
+        'email_notifications', 'sms_notifications', 'marketing_emails', 'dark_mode',
         'google_id', 'facebook_id', 'social_avatar', 'email_verified_at'
     ];
 
@@ -33,6 +33,7 @@ class User extends Authenticatable
             'email_notifications' => 'boolean',
             'sms_notifications' => 'boolean',
             'marketing_emails' => 'boolean',
+            'dark_mode' => 'boolean',
         ];
     }
 

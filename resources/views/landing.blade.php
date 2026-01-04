@@ -14,10 +14,39 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     
+    {{-- Critical CSS - Loads BEFORE everything else to prevent FOUC --}}
+    <style>
+        /* Hide Alpine.js elements until initialized */
+        [x-cloak] { display: none !important; }
+        
+        /* Mobile menu MUST be hidden on page load */
+        .mobile-menu { 
+            opacity: 0 !important; 
+            visibility: hidden !important; 
+            pointer-events: none !important;
+        }
+        .mobile-menu.open { 
+            opacity: 1 !important; 
+            visibility: visible !important; 
+            pointer-events: auto !important;
+        }
+        
+        /* Header/Navbar critical styles - prevent black border flash */
+        header {
+            background-color: #fff !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+        }
+        
+        /* Prevent any transition flicker on load */
+        html.loading * { 
+            transition: none !important; 
+        }
+    </style>
+    
     {{-- Styles --}}
     @vite(['resources/css/app.css', 'resources/css/landing.css', 'resources/js/app.js', 'resources/js/landing.js'])
 </head>
-<body class="bg-white text-slate-900 overflow-x-hidden" style="font-family: 'Inter', sans-serif;">
+<body class="bg-white text-slate-900 overflow-x-hidden antialiased" style="font-family: 'Inter', sans-serif;">
     
     {{-- Film Grain Overlay for Luxury Aesthetic --}}
     <div class="film-grain"></div>

@@ -69,4 +69,12 @@ class ProfileController extends Controller
 
         return back()->with('success', 'Password updated successfully!');
     }
+
+    public function toggleDarkMode(Request $request)
+    {
+        $user = auth()->user();
+        $user->update(['dark_mode' => $request->boolean('dark_mode')]);
+        
+        return response()->json(['success' => true]);
+    }
 }

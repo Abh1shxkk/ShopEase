@@ -27,6 +27,18 @@
         /* Hide scrollbar but keep scroll functionality */
         * { scrollbar-width: none; -ms-overflow-style: none; }
         *::-webkit-scrollbar { display: none; }
+        
+        /* Custom select styling */
+        select {
+            background-image: url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27none%27 viewBox=%270 0 24 24%27 stroke=%27%23475569%27%3E%3Cpath stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M19 9l-7 7-7-7%27/%3E%3C/svg%3E');
+            background-position: right 0.75rem center;
+            background-repeat: no-repeat;
+            background-size: 1rem;
+            padding-right: 2.5rem;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
     </style>
 </head>
 <body class="antialiased bg-white text-slate-900" x-data="{ sidebarOpen: false, profileOpen: false }">
@@ -146,7 +158,7 @@
                     </div>
                 </div>
 
-                <!-- Profile -->
+                <!-- Profile Dropdown -->
                 <div class="relative" @click.away="profileOpen = false">
                     <button @click="profileOpen = !profileOpen" class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-slate-900 flex items-center justify-center text-white font-medium overflow-hidden">
@@ -163,12 +175,14 @@
                         <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </button>
 
-                    <div x-show="profileOpen" x-cloak x-transition class="absolute right-0 mt-2 w-48 bg-white border border-slate-200 shadow-lg py-2">
-                        <a href="{{ route('admin.profile.index') }}" class="block px-4 py-2 text-[12px] text-slate-600 hover:bg-slate-50 hover:text-slate-900">My Profile</a>
-                        <hr class="my-2 border-slate-100">
+                    <!-- Dropdown Menu -->
+                    <div x-show="profileOpen" x-cloak x-transition:enter="transition ease-out duration-100" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-75" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95" class="absolute right-0 mt-2 w-48 bg-white border border-slate-200 shadow-lg py-1">
+                        <a href="{{ route('admin.profile.index') }}" class="block px-4 py-2.5 text-[12px] text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">My Profile</a>
+                        <a href="{{ route('admin.settings.index') }}" class="block px-4 py-2.5 text-[12px] text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">Settings</a>
+                        <hr class="my-1 border-slate-100">
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="w-full text-left px-4 py-2 text-[12px] text-red-600 hover:bg-red-50">Logout</button>
+                            <button type="submit" class="w-full text-left px-4 py-2.5 text-[12px] text-red-600 hover:bg-red-50 transition-colors">Logout</button>
                         </form>
                     </div>
                 </div>

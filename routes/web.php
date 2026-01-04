@@ -99,6 +99,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
     Route::post('/profile/preferences', [ProfileController::class, 'updatePreferences'])->name('profile.preferences');
+    Route::post('/profile/toggle-dark-mode', [ProfileController::class, 'toggleDarkMode'])->name('profile.toggle-dark-mode');
     Route::delete('/profile', [ProfileController::class, 'deleteAccount'])->name('profile.delete');
     
     // Addresses
@@ -145,6 +146,7 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->prefix('admin')->
     Route::get('/profile', [AdminProfileController::class, 'index'])->name('profile.index');
     Route::post('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/password', [AdminProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::post('/profile/toggle-dark-mode', [AdminProfileController::class, 'toggleDarkMode'])->name('profile.toggle-dark-mode');
     
     // Site Settings
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
@@ -183,4 +185,8 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->prefix('admin')->
     Route::get('/settings/footer-links/{link}/edit', [SettingsController::class, 'editFooterLink'])->name('settings.footer-links.edit');
     Route::put('/settings/footer-links/{link}', [SettingsController::class, 'updateFooterLink'])->name('settings.footer-links.update');
     Route::delete('/settings/footer-links/{link}', [SettingsController::class, 'destroyFooterLink'])->name('settings.footer-links.destroy');
+    
+    // Payment Settings
+    Route::get('/settings/payment', [SettingsController::class, 'payment'])->name('settings.payment');
+    Route::post('/settings/payment', [SettingsController::class, 'updatePayment'])->name('settings.payment.update');
 });

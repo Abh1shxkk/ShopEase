@@ -353,4 +353,53 @@ class SettingsController extends Controller
         $link->delete();
         return redirect()->route('admin.settings.footer')->with('success', 'Footer link deleted successfully!');
     }
+
+    // Payment Settings
+    public function payment()
+    {
+        $settings = [
+            'currency' => SiteSetting::get('currency', 'INR'),
+            'currency_symbol' => SiteSetting::get('currency_symbol', '₹'),
+            'tax_rate' => SiteSetting::get('tax_rate', '18'),
+            'tax_name' => SiteSetting::get('tax_name', 'GST'),
+            'razorpay_enabled' => SiteSetting::get('razorpay_enabled', '1'),
+            'razorpay_key_id' => SiteSetting::get('razorpay_key_id', ''),
+            'razorpay_key_secret' => SiteSetting::get('razorpay_key_secret', ''),
+            'cod_enabled' => SiteSetting::get('cod_enabled', '1'),
+            'min_order_amount' => SiteSetting::get('min_order_amount', '0'),
+            'free_shipping_threshold' => SiteSetting::get('free_shipping_threshold', '999'),
+            'shipping_charge' => SiteSetting::get('shipping_charge', '50'),
+        ];
+        return view('admin.settings.payment', compact('settings'));
+    }
+
+    public function updatePayment(Request $request)
+    {
+        $request->validate([
+            'currency' => 'required|string|max:10',
+            'currency_symbol' => 'required|string|max:5',
+            'tax_rate' => 'required|numeric|min:0|max:100',
+            'tax_name' => 'required|string|max:50',
+            'min_order_amount' => 'nullable|numeric|min:0',
+            'free_shipping_threshold' => 'nullable|numeric|min:0',
+            'shipping_charge' => 'nullable|numeric|min:0',
+        ]);
+
+        $fields = [
+            'currency', 'currency_symbol', 'tax_rate', 'tax_name',
+            'razorpay_enabled', 'razorpay_key_id', 'razorpay_key_secret',
+            'cod_enabled', 'min_order_amount', 'free_shipping_threshold', 'shipping_charge'
+        ];
+        
+        foreach ($fields as $field) {
+            $value = $request->input($field, '');
+            if (in_array($field, ['razorpay_enabled', 'cod_enabled'])) {
+                $value = $request->has($field) ? '1' : '0';
+            }
+            SiteSetting::set($field, $value, 'text', 'payment');
+        }
+        
+        SiteSetting::clearCache();
+        return back()->with('success', 'Payment settings updated successfully!');
+    }
 }

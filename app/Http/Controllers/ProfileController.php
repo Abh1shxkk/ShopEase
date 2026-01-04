@@ -87,12 +87,21 @@ class ProfileController extends Controller
         $user->email_notifications = $request->boolean('email_notifications');
         $user->sms_notifications = $request->boolean('sms_notifications');
         $user->marketing_emails = $request->boolean('marketing_emails');
+        $user->dark_mode = $request->boolean('dark_mode');
         $user->save();
 
         return response()->json([
             'success' => true,
             'message' => 'Preferences updated successfully!'
         ]);
+    }
+
+    public function toggleDarkMode(Request $request)
+    {
+        $user = auth()->user();
+        $user->update(['dark_mode' => $request->boolean('dark_mode')]);
+        
+        return response()->json(['success' => true]);
     }
 
     public function storeAddress(Request $request)
