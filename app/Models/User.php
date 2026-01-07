@@ -18,7 +18,8 @@ class User extends Authenticatable
         'email_notifications', 'sms_notifications', 'marketing_emails', 'dark_mode',
         'google_id', 'facebook_id', 'social_avatar', 'email_verified_at',
         'is_member', 'membership_expires_at',
-        'login_otp', 'login_otp_expires_at', 'hide_membership_popup'
+        'login_otp', 'login_otp_expires_at', 'hide_membership_popup',
+        'referral_code', 'referred_by', 'reward_points', 'total_earned_points', 'total_redeemed_points'
     ];
 
     protected $hidden = [
@@ -41,6 +42,9 @@ class User extends Authenticatable
             'membership_expires_at' => 'datetime',
             'login_otp_expires_at' => 'datetime',
             'hide_membership_popup' => 'boolean',
+            'reward_points' => 'decimal:2',
+            'total_earned_points' => 'decimal:2',
+            'total_redeemed_points' => 'decimal:2',
         ];
     }
 
@@ -183,5 +187,21 @@ class User extends Authenticatable
             return $this->social_avatar;
         }
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=3b82f6&color=fff';
+    }
+
+    // Referral relationships
+    public function referrer(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'referred_by');
+    }
+
+    public function referrals(): HasMany
+    {
+        return $this->hasMany(Referral::class, 'referrer_id');
+    }
+
+    public function rewardTransactions(): HasMany
+    {
+        return $this->hasMany(RewardTransaction::class);
     }
 }

@@ -149,6 +149,13 @@ class ShopController extends Controller
         
         $relatedProducts = $relatedQuery->take(6)->get();
 
-        return view('shop.show', compact('product', 'relatedProducts'));
+        // Get frequently bought together products
+        $bundleService = app(\App\Services\BundleService::class);
+        $frequentlyBought = $bundleService->getFrequentlyBoughtTogether($product);
+        
+        // Get bundles containing this product
+        $productBundles = $bundleService->getBundlesForProduct($product);
+
+        return view('shop.show', compact('product', 'relatedProducts', 'frequentlyBought', 'productBundles'));
     }
 }

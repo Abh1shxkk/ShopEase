@@ -33,6 +33,8 @@ class PaymentController extends Controller
             'shipping_state' => 'required|string|max:100',
             'shipping_zip' => 'required|string|max:20',
             'payment_method' => 'required|in:cod,upi,card,netbanking',
+            'use_reward_points' => 'nullable|boolean',
+            'redeem_points' => 'nullable|integer|min:100',
         ]);
 
         $cartItems = Cart::with('product')->where('user_id', auth()->id())->get();
@@ -41,10 +43,22 @@ class PaymentController extends Controller
             return response()->json(['error' => 'Your cart is empty'], 400);
         }
 
+        $user = auth()->user();
         $subtotal = $cartItems->sum('subtotal');
         $shipping = $subtotal >= 500 ? 0 : 49;
         $tax = $subtotal * 0.18; // 18% GST
-        $total = $subtotal + $shipping + $tax;
+        
+        // Handle reward points redemption
+        $pointsDiscount = 0;
+        $pointsRedeemed = 0;
+        if ($request->use_reward_points && $request->redeem_points >= 100) {
+            $pointsToRedeem = min($request->redeem_points, $user->reward_points);
+            $referralService = app(\App\Services\ReferralService::class);
+            $pointsDiscount = $referralService->getPointsValue($pointsToRedeem);
+            $pointsRedeemed = $pointsToRedeem;
+        }
+        
+        $total = $subtotal + $shipping + $tax - $pointsDiscount;
 
         DB::beginTransaction();
         try {
@@ -53,6 +67,7 @@ class PaymentController extends Controller
                 'order_number' => Order::generateOrderNumber(),
                 'user_id' => auth()->id(),
                 'subtotal' => $subtotal,
+                'discount' => $pointsDiscount,
                 'shipping' => $shipping,
                 'tax' => $tax,
                 'total' => $total,
@@ -67,7 +82,14 @@ class PaymentController extends Controller
                 'shipping_state' => $request->shipping_state,
                 'shipping_zip' => $request->shipping_zip,
                 'notes' => $request->notes,
+                'points_redeemed' => $pointsRedeemed,
             ]);
+            
+            // Redeem points if used
+            if ($pointsRedeemed > 0) {
+                $referralService = app(\App\Services\ReferralService::class);
+                $referralService->redeemPoints($user, $pointsRedeemed, $order, "Redeemed for order #{$order->order_number}");
+            }
 
             // Create order items
             foreach ($cartItems as $item) {
@@ -211,5 +233,18 @@ class PaymentController extends Controller
 
         // Update order status
         $order->update(['status' => 'processing']);
+
+        // Handle referral and reward points
+        $referralService = app(\App\Services\ReferralService::class);
+        
+        // Complete referral if this is user's first paid order
+        $referralService->completeReferral($order);
+        
+        // Earn points from order
+        $referralService->earnPointsFromOrder($order);
+
+        // Record frequently bought together data
+        $bundleService = app(\App\Services\BundleService::class);
+        $bundleService->recordOrderPurchases($order);
     }
 }

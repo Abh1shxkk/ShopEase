@@ -1,112 +1,191 @@
 @extends('layouts.admin')
 
-@section('title', 'Subscribers')
-@section('page-title', 'Membership Subscribers')
+@section('title', 'Membership Subscribers')
 
 @section('content')
-<div class="space-y-6">
-    {{-- Filters --}}
-    <div class="bg-white rounded-lg shadow-sm p-6">
-        <form action="" method="GET" class="flex flex-wrap items-end gap-4">
-            <div class="flex-1 min-w-[200px]">
-                <label class="block text-sm font-medium text-slate-700 mb-2">Search</label>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Name or email..."
-                       class="w-full px-4 py-2 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+<div class="space-y-8">
+    {{-- Header --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-2xl font-serif tracking-wide text-slate-900">Membership Subscribers</h1>
+            <p class="text-[12px] text-slate-500 mt-1">Manage your premium members</p>
+        </div>
+    </div>
+
+    {{-- Stats Cards --}}
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-6">
+        <div class="bg-white border border-slate-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-400">Total</p>
+                    <p class="text-3xl font-light text-slate-900 mt-2">{{ $stats['total'] ?? 0 }}</p>
+                </div>
+                <div class="w-12 h-12 bg-slate-100 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </div>
             </div>
-            <div class="w-40">
-                <label class="block text-sm font-medium text-slate-700 mb-2">Status</label>
-                <select name="status" class="w-full px-4 py-2 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="">All</option>
-                    <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
-                    <option value="cancelled" {{ request('status') === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                    <option value="expired" {{ request('status') === 'expired' ? 'selected' : '' }}>Expired</option>
+        </div>
+        
+        <div class="bg-white border border-slate-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-400">Active</p>
+                    <p class="text-3xl font-light text-emerald-600 mt-2">{{ $stats['active'] ?? 0 }}</p>
+                </div>
+                <div class="w-12 h-12 bg-emerald-50 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white border border-slate-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-400">Expired</p>
+                    <p class="text-3xl font-light text-amber-600 mt-2">{{ $stats['expired'] ?? 0 }}</p>
+                </div>
+                <div class="w-12 h-12 bg-amber-50 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white border border-slate-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-400">Cancelled</p>
+                    <p class="text-3xl font-light text-red-600 mt-2">{{ $stats['cancelled'] ?? 0 }}</p>
+                </div>
+                <div class="w-12 h-12 bg-red-50 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Filters --}}
+    <div class="bg-white border border-slate-200 p-6">
+        <form method="GET" class="flex flex-col lg:flex-row gap-4">
+            <div class="flex-1">
+                <label class="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-400 block mb-2">Search</label>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name or email..." 
+                    class="w-full h-11 px-4 bg-slate-50 border border-slate-200 text-[13px] text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-900 transition-colors">
+            </div>
+            <div class="w-full lg:w-48">
+                <label class="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-400 block mb-2">Status</label>
+                <select name="status" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 transition-colors">
+                    <option value="">All Status</option>
+                    <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                    <option value="expired" {{ request('status') == 'expired' ? 'selected' : '' }}>Expired</option>
+                    <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                 </select>
             </div>
-            <div class="w-48">
-                <label class="block text-sm font-medium text-slate-700 mb-2">Plan</label>
-                <select name="plan" class="w-full px-4 py-2 border border-slate-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <div class="w-full lg:w-48">
+                <label class="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-400 block mb-2">Plan</label>
+                <select name="plan" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 transition-colors">
                     <option value="">All Plans</option>
-                    @foreach($plans as $plan)
+                    @foreach(\App\Models\MembershipPlan::all() as $plan)
                     <option value="{{ $plan->id }}" {{ request('plan') == $plan->id ? 'selected' : '' }}>{{ $plan->name }}</option>
                     @endforeach
                 </select>
             </div>
-            <button type="submit" class="px-4 py-2 bg-slate-900 text-white rounded hover:bg-slate-800 transition-colors">
-                Filter
-            </button>
-            @if(request()->hasAny(['search', 'status', 'plan']))
-            <a href="{{ route('admin.membership.subscribers') }}" class="px-4 py-2 border border-slate-300 text-slate-700 rounded hover:bg-slate-50 transition-colors">
-                Clear
-            </a>
-            @endif
+            <div class="flex items-end gap-2">
+                <button type="submit" class="h-11 px-6 bg-slate-900 text-white text-[11px] font-bold tracking-[0.15em] uppercase hover:bg-slate-800 transition-colors">Filter</button>
+                @if(request()->hasAny(['search', 'status', 'plan']))
+                <a href="{{ route('admin.membership.subscribers') }}" class="h-11 px-6 bg-white text-slate-700 text-[11px] font-bold tracking-[0.15em] uppercase border border-slate-200 hover:bg-slate-50 transition-colors flex items-center">Clear</a>
+                @endif
+            </div>
         </form>
     </div>
 
-    {{-- Subscribers Table --}}
-    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-        <table class="w-full">
-            <thead class="bg-slate-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-bold tracking-wider uppercase text-slate-500">Subscriber</th>
-                    <th class="px-6 py-3 text-left text-xs font-bold tracking-wider uppercase text-slate-500">Plan</th>
-                    <th class="px-6 py-3 text-left text-xs font-bold tracking-wider uppercase text-slate-500">Period</th>
-                    <th class="px-6 py-3 text-left text-xs font-bold tracking-wider uppercase text-slate-500">Amount</th>
-                    <th class="px-6 py-3 text-left text-xs font-bold tracking-wider uppercase text-slate-500">Status</th>
-                    <th class="px-6 py-3 text-right text-xs font-bold tracking-wider uppercase text-slate-500">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-200">
-                @forelse($subscriptions as $subscription)
-                <tr>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-3">
-                            <img src="{{ $subscription->user->avatar_url }}" alt="" class="w-10 h-10 rounded-full object-cover">
-                            <div>
-                                <p class="font-medium text-slate-900">{{ $subscription->user->name }}</p>
-                                <p class="text-xs text-slate-500">{{ $subscription->user->email }}</p>
+    {{-- Table --}}
+    <div class="bg-white border border-slate-200">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-slate-200 bg-slate-50">
+                        <th class="text-left px-6 py-4 text-[10px] font-bold tracking-[0.15em] uppercase text-slate-500">Member</th>
+                        <th class="text-left px-6 py-4 text-[10px] font-bold tracking-[0.15em] uppercase text-slate-500">Plan</th>
+                        <th class="text-left px-6 py-4 text-[10px] font-bold tracking-[0.15em] uppercase text-slate-500">Status</th>
+                        <th class="text-left px-6 py-4 text-[10px] font-bold tracking-[0.15em] uppercase text-slate-500">Started</th>
+                        <th class="text-left px-6 py-4 text-[10px] font-bold tracking-[0.15em] uppercase text-slate-500">Expires</th>
+                        <th class="text-right px-6 py-4 text-[10px] font-bold tracking-[0.15em] uppercase text-slate-500">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($subscriptions as $subscription)
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-slate-100 flex items-center justify-center text-[13px] font-medium text-slate-600">
+                                    {{ substr($subscription->user->name ?? 'U', 0, 1) }}
+                                </div>
+                                <div>
+                                    <p class="text-[13px] font-medium text-slate-900">{{ $subscription->user->name ?? 'Unknown' }}</p>
+                                    <p class="text-[11px] text-slate-500">{{ $subscription->user->email ?? '' }}</p>
+                                </div>
                             </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <p class="font-medium">{{ $subscription->plan->name }}</p>
-                        <p class="text-xs text-slate-500">{{ ucfirst($subscription->plan->billing_cycle) }}</p>
-                    </td>
-                    <td class="px-6 py-4 text-sm text-slate-600">
-                        {{ $subscription->starts_at?->format('M d, Y') }} - {{ $subscription->ends_at?->format('M d, Y') }}
-                    </td>
-                    <td class="px-6 py-4 font-medium">
-                        ₹{{ number_format($subscription->amount_paid, 2) }}
-                    </td>
-                    <td class="px-6 py-4">
-                        <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full
-                            @if($subscription->status === 'active') bg-emerald-100 text-emerald-700
-                            @elseif($subscription->status === 'cancelled') bg-red-100 text-red-700
-                            @elseif($subscription->status === 'expired') bg-slate-100 text-slate-700
-                            @else bg-amber-100 text-amber-700 @endif">
-                            {{ ucfirst($subscription->status) }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-right">
-                        <a href="{{ route('admin.membership.subscribers.show', $subscription) }}" class="text-blue-600 hover:text-blue-800 text-sm">
-                            View Details
-                        </a>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="6" class="px-6 py-12 text-center text-slate-500">
-                        No subscribers found.
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-        
-        @if($subscriptions->hasPages())
-        <div class="p-6 border-t border-slate-200">
-            {{ $subscriptions->withQueryString()->links() }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-[13px] text-slate-900">{{ $subscription->plan->name ?? 'N/A' }}</span>
+                            <p class="text-[11px] text-slate-400">₹{{ number_format($subscription->plan->price ?? 0) }}/{{ $subscription->plan->billing_cycle ?? 'month' }}</p>
+                        </td>
+                        <td class="px-6 py-4">
+                            @php
+                                $statusConfig = [
+                                    'active' => ['color' => 'emerald', 'label' => 'Active'],
+                                    'expired' => ['color' => 'amber', 'label' => 'Expired'],
+                                    'cancelled' => ['color' => 'red', 'label' => 'Cancelled'],
+                                ];
+                                $config = $statusConfig[$subscription->status] ?? ['color' => 'slate', 'label' => ucfirst($subscription->status)];
+                            @endphp
+                            <span class="inline-flex items-center gap-1.5 text-[11px] font-medium text-{{ $config['color'] }}-700">
+                                <span class="w-1.5 h-1.5 bg-{{ $config['color'] }}-500 rounded-full"></span>
+                                {{ $config['label'] }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-[12px] text-slate-500">{{ $subscription->starts_at ? $subscription->starts_at->format('M d, Y') : '—' }}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-[12px] text-slate-500">{{ $subscription->ends_at ? $subscription->ends_at->format('M d, Y') : '—' }}</span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <a href="{{ route('admin.membership.subscribers.show', $subscription) }}" class="text-[12px] font-medium text-slate-600 hover:text-slate-900 transition-colors">
+                                View →
+                            </a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="px-6 py-16 text-center">
+                            <div class="flex flex-col items-center">
+                                <svg class="w-12 h-12 text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                <p class="text-[13px] text-slate-500">No subscribers found</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
-        @endif
     </div>
+
+    {{-- Pagination --}}
+    @if($subscriptions->hasPages())
+    <div>
+        {{ $subscriptions->withQueryString()->links('vendor.pagination.admin') }}
+    </div>
+    @endif
 </div>
 @endsection

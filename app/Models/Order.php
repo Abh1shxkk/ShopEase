@@ -14,7 +14,8 @@ class Order extends Model
         'status', 'payment_status', 'payment_method',
         'razorpay_order_id', 'razorpay_payment_id', 'razorpay_signature', 'paid_at',
         'shipping_name', 'shipping_email', 'shipping_phone',
-        'shipping_address', 'shipping_city', 'shipping_state', 'shipping_zip', 'notes'
+        'shipping_address', 'shipping_city', 'shipping_state', 'shipping_zip', 'notes',
+        'points_redeemed', 'points_earned'
     ];
 
     protected $casts = [

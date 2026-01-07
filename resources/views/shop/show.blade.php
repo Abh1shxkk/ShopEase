@@ -541,6 +541,129 @@
         </div>
     </div>
 
+    {{-- Frequently Bought Together --}}
+    @if(isset($frequentlyBought) && $frequentlyBought->isNotEmpty())
+    <div class="mt-12 border-t border-slate-100 pt-12">
+        <h2 class="text-xl font-serif tracking-wide mb-6">Frequently Bought Together</h2>
+        <div class="bg-slate-50 p-6">
+            <div class="flex flex-wrap items-center gap-4 mb-6">
+                {{-- Current Product --}}
+                <div class="flex items-center gap-3 p-3 bg-white border border-slate-200">
+                    <input type="checkbox" checked disabled class="w-4 h-4 rounded border-slate-300">
+                    <div class="w-16 h-16 bg-slate-100">
+                        @if($product->image_url)
+                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
+                        @endif
+                    </div>
+                    <div>
+                        <p class="text-[12px] font-medium text-slate-900">{{ Str::limit($product->name, 20) }}</p>
+                        <p class="text-[13px] font-semibold text-slate-900">₹{{ number_format($product->price) }}</p>
+                    </div>
+                </div>
+
+                @foreach($frequentlyBought as $fbt)
+                <span class="text-2xl text-slate-300">+</span>
+                <div class="flex items-center gap-3 p-3 bg-white border border-slate-200 fbt-item" data-product-id="{{ $fbt->id }}" data-price="{{ $fbt->price }}">
+                    <input type="checkbox" checked class="w-4 h-4 rounded border-slate-300 fbt-checkbox" onchange="updateFbtTotal()">
+                    <div class="w-16 h-16 bg-slate-100">
+                        @if($fbt->image_url)
+                        <img src="{{ $fbt->image_url }}" alt="{{ $fbt->name }}" class="w-full h-full object-cover">
+                        @endif
+                    </div>
+                    <div>
+                        <a href="{{ route('shop.show', $fbt) }}" class="text-[12px] font-medium text-slate-900 hover:underline">{{ Str::limit($fbt->name, 20) }}</a>
+                        <p class="text-[13px] font-semibold text-slate-900">₹{{ number_format($fbt->price) }}</p>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+
+            {{-- Total & Add All --}}
+            <div class="flex items-center justify-between p-4 bg-white border border-slate-200">
+                <div>
+                    <p class="text-[12px] text-slate-500">Total for selected items:</p>
+                    <p class="text-xl font-bold text-slate-900" id="fbtTotal">₹{{ number_format($product->price + $frequentlyBought->sum('price')) }}</p>
+                </div>
+                <button type="button" onclick="addFbtToCart()" class="h-11 px-6 bg-slate-900 text-white text-[11px] font-bold tracking-[0.15em] uppercase hover:bg-slate-800 transition-colors">
+                    Add All to Cart
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function updateFbtTotal() {
+        const basePrice = {{ $product->price }};
+        let total = basePrice;
+        
+        document.querySelectorAll('.fbt-checkbox:checked').forEach(checkbox => {
+            const item = checkbox.closest('.fbt-item');
+            total += parseFloat(item.dataset.price);
+        });
+        
+        document.getElementById('fbtTotal').textContent = '₹' + total.toLocaleString('en-IN');
+    }
+
+    function addFbtToCart() {
+        const productIds = [{{ $product->id }}];
+        document.querySelectorAll('.fbt-checkbox:checked').forEach(checkbox => {
+            const item = checkbox.closest('.fbt-item');
+            productIds.push(parseInt(item.dataset.productId));
+        });
+        
+        // Add each product to cart
+        productIds.forEach(id => {
+            fetch('{{ route("cart.add") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ product_id: id, quantity: 1 })
+            });
+        });
+        
+        window.location.href = '{{ route("cart") }}';
+    }
+    </script>
+    @endif
+
+    {{-- Bundle Offers --}}
+    @if(isset($productBundles) && $productBundles->isNotEmpty())
+    <div class="mt-12 border-t border-slate-100 pt-12">
+        <h2 class="text-xl font-serif tracking-wide mb-6">Bundle Offers</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            @foreach($productBundles as $bundle)
+            <div class="bg-slate-50 p-6 border border-slate-200">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 class="font-medium text-slate-900">{{ $bundle->name }}</h3>
+                        <p class="text-[12px] text-slate-500">{{ $bundle->items->count() }} products included</p>
+                    </div>
+                    <span class="px-3 py-1 bg-red-500 text-white text-[11px] font-bold">SAVE {{ $bundle->savings_percentage }}%</span>
+                </div>
+                <div class="flex items-center gap-2 mb-4">
+                    @foreach($bundle->items->take(4) as $item)
+                    <div class="w-12 h-12 bg-white border border-slate-200">
+                        @if($item->product->image_url)
+                        <img src="{{ $item->product->image_url }}" alt="" class="w-full h-full object-cover">
+                        @endif
+                    </div>
+                    @endforeach
+                </div>
+                <div class="flex items-baseline gap-3 mb-4">
+                    <span class="text-xl font-bold text-slate-900">₹{{ number_format($bundle->bundle_price) }}</span>
+                    <span class="text-sm text-slate-400 line-through">₹{{ number_format($bundle->original_price) }}</span>
+                </div>
+                <a href="{{ route('bundles.show', $bundle) }}" class="block w-full h-10 bg-slate-900 text-white text-[11px] font-bold tracking-[0.15em] uppercase hover:bg-slate-800 transition-colors flex items-center justify-center">
+                    View Bundle
+                </a>
+            </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     {{-- Related Products --}}
     @if($relatedProducts->count() > 0)
     <div class="mt-20 border-t border-slate-100 pt-12">
