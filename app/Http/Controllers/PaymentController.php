@@ -115,8 +115,10 @@ class PaymentController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Payment order creation failed: ' . $e->getMessage());
-            return response()->json(['error' => 'Something went wrong. Please try again.'], 500);
+            Log::error('Payment order creation failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['error' => 'Failed to create payment order: ' . $e->getMessage()], 500);
         }
     }
 

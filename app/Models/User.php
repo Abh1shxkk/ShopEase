@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -15,7 +16,9 @@ class User extends Authenticatable
         'name', 'email', 'password', 'role', 'phone', 'avatar',
         'date_of_birth', 'gender', 'last_login_at',
         'email_notifications', 'sms_notifications', 'marketing_emails', 'dark_mode',
-        'google_id', 'facebook_id', 'social_avatar', 'email_verified_at'
+        'google_id', 'facebook_id', 'social_avatar', 'email_verified_at',
+        'is_member', 'membership_expires_at',
+        'login_otp', 'login_otp_expires_at', 'hide_membership_popup'
     ];
 
     protected $hidden = [
@@ -34,7 +37,106 @@ class User extends Authenticatable
             'sms_notifications' => 'boolean',
             'marketing_emails' => 'boolean',
             'dark_mode' => 'boolean',
+            'is_member' => 'boolean',
+            'membership_expires_at' => 'datetime',
+            'login_otp_expires_at' => 'datetime',
+            'hide_membership_popup' => 'boolean',
         ];
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    // Membership relationships
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(UserSubscription::class);
+    }
+
+    public function activeSubscription(): HasOne
+    {
+        return $this->hasOne(UserSubscription::class)
+                    ->where('status', 'active')
+                    ->where('ends_at', '>', now())
+                    ->latest();
+    }
+
+    public function subscriptionPayments(): HasMany
+    {
+        return $this->hasMany(SubscriptionPayment::class);
+    }
+
+    // Membership methods
+    public function isMember(): bool
+    {
+        return $this->is_member && 
+               $this->membership_expires_at && 
+               $this->membership_expires_at > now();
+    }
+
+    public function hasActiveMembership(): bool
+    {
+        return $this->activeSubscription()->exists();
+    }
+
+    public function getCurrentPlan(): ?MembershipPlan
+    {
+        $subscription = $this->activeSubscription;
+        return $subscription ? $subscription->plan : null;
+    }
+
+    public function getMembershipBenefits(): array
+    {
+        $plan = $this->getCurrentPlan();
+        if (!$plan) return [];
+
+        return [
+            'free_shipping' => $plan->free_shipping,
+            'discount_percentage' => $plan->discount_percentage,
+            'early_access_days' => $plan->early_access_days,
+            'priority_support' => $plan->priority_support,
+            'exclusive_products' => $plan->exclusive_products,
+        ];
+    }
+
+    public function getMemberDiscount(): float
+    {
+        $plan = $this->getCurrentPlan();
+        return $plan ? (float) $plan->discount_percentage : 0;
+    }
+
+    public function hasFreeShipping(): bool
+    {
+        $plan = $this->getCurrentPlan();
+        return $plan ? $plan->free_shipping : false;
+    }
+
+    public function getEarlyAccessDays(): int
+    {
+        $plan = $this->getCurrentPlan();
+        return $plan ? $plan->early_access_days : 0;
+    }
+
+    public function canAccessEarlySale(EarlyAccessSale $sale): bool
+    {
+        if ($sale->isAccessibleByPublic()) return true;
+        if (!$this->isMember()) return false;
+        return $sale->isAccessibleByMembers();
+    }
+
+    public function updateMembershipStatus(): void
+    {
+        $activeSubscription = $this->subscriptions()
+            ->where('status', 'active')
+            ->where('ends_at', '>', now())
+            ->first();
+
+        $this->update([
+            'is_member' => (bool) $activeSubscription,
+            'membership_expires_at' => $activeSubscription?->ends_at,
+        ]);
     }
 
     public function addresses(): HasMany

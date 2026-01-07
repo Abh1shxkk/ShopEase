@@ -57,8 +57,8 @@
                         </div>
                         <span class="text-lg font-serif tracking-[0.15em] uppercase text-slate-900">ShopEase</span>
                     </a>
-                    <h1 class="text-2xl font-serif text-slate-900 mb-2">Sign in</h1>
-                    <p class="text-slate-400 text-[11px] tracking-wide">Enter your credentials to access your account</p>
+                    <h1 class="text-2xl font-serif text-slate-900 mb-2">{{ __('messages.auth.login_title') }}</h1>
+                    <p class="text-slate-400 text-[11px] tracking-wide">{{ __('messages.auth.login_subtitle') }}</p>
                 </div>
 
                 {{-- Success Message --}}
@@ -84,7 +84,7 @@
                     
                     {{-- Email Field --}}
                     <div class="space-y-1">
-                        <label for="email" class="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-500 block">Email Address</label>
+                        <label for="email" class="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-500 block">{{ __('messages.auth.email') }}</label>
                         <input 
                             type="email" 
                             id="email"
@@ -101,7 +101,7 @@
 
                     {{-- Password Field --}}
                     <div class="space-y-1">
-                        <label for="password" class="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-500 block">Password</label>
+                        <label for="password" class="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-500 block">{{ __('messages.auth.password') }}</label>
                         <div class="relative">
                             <input 
                                 :type="showPassword ? 'text' : 'password'" 
@@ -132,10 +132,10 @@
                                 <input type="checkbox" name="remember" class="absolute opacity-0 w-full h-full cursor-pointer peer" />
                                 <div class="w-1.5 h-1.5 bg-slate-900 scale-0 peer-checked:scale-100 transition-transform"></div>
                             </div>
-                            <span class="text-[10px] font-medium text-slate-500 group-hover:text-slate-900 transition-colors uppercase tracking-wider">Remember me</span>
+                            <span class="text-[10px] font-medium text-slate-500 group-hover:text-slate-900 transition-colors uppercase tracking-wider">{{ __('messages.auth.remember_me') }}</span>
                         </label>
                         <a href="{{ route('password.request') }}" class="text-[10px] font-medium text-slate-400 hover:text-slate-900 transition-colors uppercase tracking-wider">
-                            Forgot?
+                            {{ __('messages.auth.forgot_password') }}
                         </a>
                     </div>
 
@@ -158,7 +158,7 @@
                             <div class="w-full border-t border-slate-100"></div>
                         </div>
                         <div class="relative flex justify-center text-[9px] uppercase font-bold tracking-[0.2em]">
-                            <span class="bg-slate-50 px-3 text-slate-300">Or continue with</span>
+                            <span class="bg-slate-50 px-3 text-slate-300">{{ __('messages.auth.or_continue_with') }}</span>
                         </div>
                     </div>
 
@@ -189,7 +189,7 @@
                             <div class="w-full border-t border-slate-100"></div>
                         </div>
                         <div class="relative flex justify-center text-[9px] uppercase font-bold tracking-[0.2em]">
-                            <span class="bg-slate-50 px-3 text-slate-300">New to ShopEase?</span>
+                            <span class="bg-slate-50 px-3 text-slate-300">{{ __('messages.auth.no_account') }}</span>
                         </div>
                     </div>
 
@@ -198,7 +198,7 @@
                         href="{{ route('register') }}"
                         class="block w-full text-center border border-slate-200 py-3 text-[10px] font-bold tracking-[0.2em] uppercase hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all rounded-none"
                     >
-                        Create Account
+                        {{ __('messages.auth.create_account') }}
                     </a>
                 </form>
             </div>

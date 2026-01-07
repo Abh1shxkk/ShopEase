@@ -81,57 +81,62 @@
             {{-- Navigation Links --}}
             <div class="grid grid-cols-2 gap-8 md:col-span-2">
                 <div>
-                    <h4 class="text-[10px] font-bold tracking-[0.2em] uppercase mb-8">Shop</h4>
+                    <h4 class="text-[10px] font-bold tracking-[0.2em] uppercase mb-8">{{ __('messages.nav.shop') }}</h4>
                     <ul class="space-y-4 text-[12px]">
                         @if(isset($footerLinks['shop']) && $footerLinks['shop']->count() > 0)
                             @foreach($footerLinks['shop'] as $link)
                             <li><a href="{{ $link->url }}" class="hover:underline">{{ $link->title }}</a></li>
                             @endforeach
                         @else
-                            <li><a href="{{ route('shop.index', ['gender' => 'women']) }}" class="hover:underline">Women</a></li>
-                            <li><a href="{{ route('shop.index', ['gender' => 'men']) }}" class="hover:underline">Men</a></li>
-                            <li><a href="{{ route('shop.index') }}" class="hover:underline">All Products</a></li>
+                            <li><a href="{{ route('shop.index', ['gender' => 'women']) }}" class="hover:underline">{{ __('messages.nav.women') }}</a></li>
+                            <li><a href="{{ route('shop.index', ['gender' => 'men']) }}" class="hover:underline">{{ __('messages.nav.men') }}</a></li>
+                            <li><a href="{{ route('shop.index') }}" class="hover:underline">{{ __('messages.common.view_all') }}</a></li>
                         @endif
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-[10px] font-bold tracking-[0.2em] uppercase mb-8">Account</h4>
+                    <h4 class="text-[10px] font-bold tracking-[0.2em] uppercase mb-8">{{ __('messages.footer.help') }}</h4>
                     <ul class="space-y-4 text-[12px]">
-                        @if(isset($footerLinks['account']) && $footerLinks['account']->count() > 0)
-                            @foreach($footerLinks['account'] as $link)
-                            <li><a href="{{ $link->url }}" class="hover:underline">{{ $link->title }}</a></li>
-                            @endforeach
-                        @else
-                            @auth
-                                <li><a href="{{ route('profile') }}" class="hover:underline">My Profile</a></li>
-                                <li><a href="{{ route('orders') }}" class="hover:underline">My Orders</a></li>
-                                <li><a href="{{ route('wishlist') }}" class="hover:underline">Wishlist</a></li>
-                                <li><a href="{{ route('cart') }}" class="hover:underline">Shopping Cart</a></li>
-                            @else
-                                <li><a href="{{ route('login') }}" class="hover:underline">Login</a></li>
-                                <li><a href="{{ route('register') }}" class="hover:underline">Create Account</a></li>
-                            @endauth
-                        @endif
+                        <li><a href="{{ route('support.index') }}" class="hover:underline">{{ __('messages.support.title') }}</a></li>
+                        <li><a href="{{ route('support.faq') }}" class="hover:underline">{{ __('messages.support.faq') }}</a></li>
+                        <li><a href="{{ route('support.ticket.create') }}" class="hover:underline">{{ __('messages.support.contact_us') }}</a></li>
+                        <li><a href="{{ route('support.ticket.track') }}" class="hover:underline">{{ __('messages.support.track_ticket') }}</a></li>
                     </ul>
                 </div>
             </div>
 
+            {{-- Account Links --}}
+            <div>
+                <h4 class="text-[10px] font-bold tracking-[0.2em] uppercase mb-8">{{ __('messages.nav.account') }}</h4>
+                <ul class="space-y-4 text-[12px]">
+                    @auth
+                        <li><a href="{{ route('profile') }}" class="hover:underline">{{ __('messages.nav.profile') }}</a></li>
+                        <li><a href="{{ route('orders') }}" class="hover:underline">{{ __('messages.account.my_orders') }}</a></li>
+                        <li><a href="{{ route('wishlist') }}" class="hover:underline">{{ __('messages.account.my_wishlist') }}</a></li>
+                        <li><a href="{{ route('cart') }}" class="hover:underline">{{ __('messages.cart.title') }}</a></li>
+                    @else
+                        <li><a href="{{ route('login') }}" class="hover:underline">{{ __('messages.nav.login') }}</a></li>
+                        <li><a href="{{ route('register') }}" class="hover:underline">{{ __('messages.nav.register') }}</a></li>
+                    @endauth
+                </ul>
+            </div>
+
             {{-- Newsletter --}}
             <div>
-                <h4 class="text-[12px] font-bold tracking-[0.1em] mb-6">Subscribe to our newsletter and don't miss a thing.</h4>
+                <h4 class="text-[12px] font-bold tracking-[0.1em] mb-6">{{ __('messages.footer.newsletter_text') }}</h4>
                 <form action="#" method="POST" class="space-y-4">
                     @csrf
                     <div class="border-b border-slate-900">
                         <input 
                             type="email" 
                             name="email"
-                            placeholder="Email Address" 
+                            placeholder="{{ __('messages.auth.email') }}" 
                             class="w-full py-3 text-[13px] bg-transparent focus:outline-none placeholder:text-slate-300"
                             required
                         />
                     </div>
                     <button type="submit" class="w-full bg-slate-900 text-white py-4 text-[11px] font-bold tracking-[0.2em] uppercase hover:bg-slate-800 transition-all rounded-none">
-                        Subscribe
+                        {{ __('messages.footer.subscribe') }}
                     </button>
                 </form>
             </div>

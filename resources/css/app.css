@@ -9,3 +9,93 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Modern Scrollbar Styles */
+:root {
+    --scrollbar-width: 6px;
+    --scrollbar-track: transparent;
+    --scrollbar-thumb: #cbd5e1;
+    --scrollbar-thumb-hover: #94a3b8;
+}
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+    width: var(--scrollbar-width);
+    height: var(--scrollbar-width);
+}
+
+::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 10px;
+    transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* Hide scrollbar but keep functionality for specific elements */
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Dark theme scrollbar (for admin sidebar, dark sections) */
+.dark-scrollbar,
+.dark-scrollbar * {
+    scrollbar-color: #475569 #1e293b;
+}
+
+.dark-scrollbar::-webkit-scrollbar-track {
+    background: #1e293b;
+}
+
+.dark-scrollbar::-webkit-scrollbar-thumb {
+    background: #475569;
+}
+
+.dark-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+/* Thin scrollbar variant */
+.thin-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+/* Auto-hide scrollbar - shows only on hover */
+.auto-hide-scrollbar {
+    overflow: auto;
+}
+
+.auto-hide-scrollbar::-webkit-scrollbar-thumb {
+    background: transparent;
+}
+
+.auto-hide-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+}
+
+.auto-hide-scrollbar:hover::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+}

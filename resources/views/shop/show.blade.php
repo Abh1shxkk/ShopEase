@@ -6,7 +6,99 @@
 <div x-data="{ 
     quantity: 1,
     activeTab: 'details',
-    maxStock: {{ min(10, $product->stock) }},
+    selectedVariant: null,
+    selectedSize: null,
+    selectedColor: null,
+    selectedMaterial: null,
+    variants: {{ $product->has_variants ? json_encode($product->activeVariants) : '[]' }},
+    hasVariants: {{ $product->has_variants ? 'true' : 'false' }},
+    get maxStock() {
+        if (this.hasVariants && this.selectedVariant) {
+            return Math.min(10, this.selectedVariant.stock);
+        }
+        return {{ min(10, $product->stock) }};
+    },
+    get currentPrice() {
+        if (this.hasVariants && this.selectedVariant) {
+            return this.selectedVariant.discount_price || this.selectedVariant.price || {{ $product->discount_price ?? $product->price }};
+        }
+        return {{ $product->discount_price ?? $product->price }};
+    },
+    get originalPrice() {
+        if (this.hasVariants && this.selectedVariant && this.selectedVariant.price) {
+            return this.selectedVariant.price;
+        }
+        return {{ $product->price }};
+    },
+    get isOnSale() {
+        if (this.hasVariants && this.selectedVariant) {
+            return this.selectedVariant.discount_price && this.selectedVariant.discount_price < (this.selectedVariant.price || {{ $product->price }});
+        }
+        return {{ $product->discount_price ? 'true' : 'false' }};
+    },
+    get currentStock() {
+        if (this.hasVariants && this.selectedVariant) {
+            return this.selectedVariant.stock;
+        }
+        return {{ $product->stock }};
+    },
+    get currentImage() {
+        if (this.hasVariants && this.selectedVariant && this.selectedVariant.image) {
+            if (this.selectedVariant.image.startsWith('http')) {
+                return this.selectedVariant.image;
+            }
+            return '/storage/' + this.selectedVariant.image;
+        }
+        return '{{ $product->image_url }}';
+    },
+    get availableSizes() {
+        return [...new Set(this.variants.filter(v => v.size).map(v => v.size))];
+    },
+    get availableColors() {
+        let filtered = this.variants;
+        if (this.selectedSize) {
+            filtered = filtered.filter(v => v.size === this.selectedSize);
+        }
+        return filtered.filter(v => v.color).map(v => ({ color: v.color, code: v.color_code }))
+            .filter((v, i, a) => a.findIndex(t => t.color === v.color) === i);
+    },
+    get availableMaterials() {
+        let filtered = this.variants;
+        if (this.selectedSize) {
+            filtered = filtered.filter(v => v.size === this.selectedSize);
+        }
+        if (this.selectedColor) {
+            filtered = filtered.filter(v => v.color === this.selectedColor);
+        }
+        return [...new Set(filtered.filter(v => v.material).map(v => v.material))];
+    },
+    selectSize(size) {
+        this.selectedSize = size;
+        this.selectedColor = null;
+        this.selectedMaterial = null;
+        this.updateSelectedVariant();
+    },
+    selectColor(color) {
+        this.selectedColor = color;
+        this.selectedMaterial = null;
+        this.updateSelectedVariant();
+    },
+    selectMaterial(material) {
+        this.selectedMaterial = material;
+        this.updateSelectedVariant();
+    },
+    updateSelectedVariant() {
+        this.selectedVariant = this.variants.find(v => 
+            (!this.selectedSize || v.size === this.selectedSize) &&
+            (!this.selectedColor || v.color === this.selectedColor) &&
+            (!this.selectedMaterial || v.material === this.selectedMaterial)
+        ) || null;
+        this.quantity = 1;
+    },
+    get canAddToCart() {
+        if (!this.hasVariants) return this.currentStock > 0;
+        return this.selectedVariant && this.selectedVariant.stock > 0;
+    },
     increment() { if (this.quantity < this.maxStock) this.quantity++ },
     decrement() { if (this.quantity > 1) this.quantity-- }
 }" class="max-w-[1440px] mx-auto px-6 md:px-12 py-12">
@@ -27,19 +119,11 @@
         {{-- Product Image --}}
         <div class="relative">
             <div class="aspect-[4/5] bg-[#f7f7f7] overflow-hidden">
-                @if($product->image_url)
-                <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
-                @else
-                <div class="w-full h-full flex items-center justify-center">
-                    <svg class="w-24 h-24 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                </div>
-                @endif
+                <img :src="currentImage" alt="{{ $product->name }}" class="w-full h-full object-cover">
             </div>
-            @if($product->discount_price)
-            <div class="absolute top-4 left-4 bg-slate-900 text-white text-[10px] font-bold tracking-widest uppercase px-3 py-2">
+            <div x-show="isOnSale" class="absolute top-4 left-4 bg-slate-900 text-white text-[10px] font-bold tracking-widest uppercase px-3 py-2">
                 Sale
             </div>
-            @endif
         </div>
 
         {{-- Product Info --}}
@@ -54,15 +138,15 @@
 
             {{-- Price --}}
             <div class="flex items-baseline gap-4 mb-8">
-                @if($product->discount_price)
-                <span class="text-2xl font-semibold text-slate-900">Rs. {{ number_format($product->discount_price, 2) }}</span>
-                <span class="text-lg text-slate-400 line-through">Rs. {{ number_format($product->price, 2) }}</span>
-                <span class="text-[11px] font-bold tracking-wider uppercase text-red-600">
-                    Save {{ round((($product->price - $product->discount_price) / $product->price) * 100) }}%
-                </span>
-                @else
-                <span class="text-2xl font-semibold text-slate-900">Rs. {{ number_format($product->price, 2) }}</span>
-                @endif
+                <span class="text-2xl font-semibold text-slate-900">Rs. <span x-text="currentPrice.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
+                <template x-if="isOnSale">
+                    <span class="text-lg text-slate-400 line-through">Rs. <span x-text="originalPrice.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
+                </template>
+                <template x-if="isOnSale">
+                    <span class="text-[11px] font-bold tracking-wider uppercase text-red-600">
+                        Save <span x-text="Math.round(((originalPrice - currentPrice) / originalPrice) * 100)"></span>%
+                    </span>
+                </template>
             </div>
 
             {{-- Description --}}
@@ -70,17 +154,87 @@
 
             {{-- Stock Status --}}
             <div class="flex items-center gap-3 mb-8 pb-8 border-b border-slate-100">
-                @if($product->stock > 0)
-                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                <span class="text-[12px] font-medium text-green-700">In Stock</span>
-                <span class="text-[12px] text-slate-400">{{ $product->stock }} available</span>
-                @else
-                <span class="w-2 h-2 bg-red-500 rounded-full"></span>
-                <span class="text-[12px] font-medium text-red-700">Out of Stock</span>
-                @endif
+                <template x-if="currentStock > 0">
+                    <div class="flex items-center gap-3">
+                        <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                        <span class="text-[12px] font-medium text-green-700">In Stock</span>
+                        <span class="text-[12px] text-slate-400"><span x-text="currentStock"></span> available</span>
+                    </div>
+                </template>
+                <template x-if="currentStock <= 0">
+                    <div class="flex items-center gap-3">
+                        <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                        <span class="text-[12px] font-medium text-red-700">Out of Stock</span>
+                    </div>
+                </template>
             </div>
 
-            @if($product->stock > 0)
+            {{-- Variant Selection --}}
+            @if($product->has_variants)
+            <div class="space-y-6 mb-8 pb-8 border-b border-slate-100">
+                {{-- Size Selection --}}
+                <template x-if="availableSizes.length > 0">
+                    <div>
+                        <span class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-500 block mb-3">Size</span>
+                        <div class="flex flex-wrap gap-2">
+                            <template x-for="size in availableSizes" :key="size">
+                                <button type="button" @click="selectSize(size)" 
+                                    :class="selectedSize === size ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 hover:border-slate-400'"
+                                    class="min-w-[44px] h-11 px-4 border text-[12px] font-medium transition-colors">
+                                    <span x-text="size"></span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                {{-- Color Selection --}}
+                <template x-if="availableColors.length > 0">
+                    <div>
+                        <span class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-500 block mb-3">
+                            Color<span x-show="selectedColor" class="font-normal text-slate-400">: <span x-text="selectedColor"></span></span>
+                        </span>
+                        <div class="flex flex-wrap gap-3">
+                            <template x-for="colorObj in availableColors" :key="colorObj.color">
+                                <button type="button" @click="selectColor(colorObj.color)" 
+                                    :class="selectedColor === colorObj.color ? 'ring-2 ring-slate-900 ring-offset-2' : ''"
+                                    class="w-10 h-10 rounded-full border border-slate-200 transition-all"
+                                    :style="colorObj.code ? 'background-color: ' + colorObj.code : ''"
+                                    :title="colorObj.color">
+                                    <span x-show="!colorObj.code" x-text="colorObj.color.charAt(0)" class="text-[11px] font-bold text-slate-600"></span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                {{-- Material Selection --}}
+                <template x-if="availableMaterials.length > 0">
+                    <div>
+                        <span class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-500 block mb-3">Material</span>
+                        <div class="flex flex-wrap gap-2">
+                            <template x-for="material in availableMaterials" :key="material">
+                                <button type="button" @click="selectMaterial(material)" 
+                                    :class="selectedMaterial === material ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 hover:border-slate-400'"
+                                    class="h-10 px-4 border text-[12px] font-medium transition-colors">
+                                    <span x-text="material"></span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                {{-- Selected Variant SKU --}}
+                <template x-if="selectedVariant">
+                    <div class="text-[11px] text-slate-400">
+                        SKU: <span x-text="selectedVariant.sku" class="font-mono"></span>
+                    </div>
+                </template>
+            </div>
+            @endif
+
+            <template x-if="canAddToCart">
+            <div>
             {{-- Quantity --}}
             <div class="flex items-center gap-6 mb-8">
                 <span class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-500">Quantity</span>
@@ -101,10 +255,11 @@
                 <form action="{{ route('cart.add') }}" method="POST" class="flex-1">
                     @csrf
                     <input type="hidden" name="product_id" value="{{ $product->id }}">
+                    <input type="hidden" name="variant_id" :value="selectedVariant ? selectedVariant.id : ''">
                     <input type="hidden" name="quantity" :value="quantity">
-                    <button type="submit" class="w-full h-14 bg-slate-900 text-white text-[11px] font-bold tracking-[0.2em] uppercase hover:bg-slate-800 transition-colors flex items-center justify-center gap-3">
+                    <button type="submit" :disabled="hasVariants && !selectedVariant" class="w-full h-14 bg-slate-900 text-white text-[11px] font-bold tracking-[0.2em] uppercase hover:bg-slate-800 transition-colors flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                        Add to Cart
+                        <span x-text="hasVariants && !selectedVariant ? 'Select Options' : 'Add to Cart'"></span>
                     </button>
                 </form>
                 <form action="{{ route('wishlist.toggle') }}" method="POST">
@@ -121,7 +276,9 @@
                 </a>
                 @endauth
             </div>
-            @else
+            </div>
+            </template>
+            <template x-if="!canAddToCart">
             {{-- Out of Stock - Notify Me Section --}}
             <div class="bg-slate-50 p-6 mb-10" x-data="{ 
                 email: '{{ auth()->user()->email ?? '' }}', 
@@ -176,7 +333,7 @@
                     </div>
                 </template>
             </div>
-            @endif
+            </template>
 
             {{-- Features --}}
             <div class="grid grid-cols-3 gap-6 py-8 border-t border-slate-100">

@@ -69,6 +69,12 @@
     {{-- Footer --}}
     @include('partials.landing.footer')
     
+    {{-- Chat Widget --}}
+    @include('partials.landing.chat-widget')
+    
+    {{-- Membership Popup --}}
+    @include('components.membership-popup')
+    
     {{-- Toast Container --}}
     <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-3"></div>
 

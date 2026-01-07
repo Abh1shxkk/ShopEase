@@ -153,10 +153,14 @@
 
                 {{-- Actions --}}
                 <div class="mt-8 space-y-3">
+                    <a href="{{ route('orders.invoice.download', $order) }}" class="w-full h-12 bg-slate-900 text-white text-[11px] font-bold tracking-[0.2em] uppercase flex items-center justify-center gap-2 hover:bg-slate-800 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        Download Invoice
+                    </a>
                     <a href="{{ route('orders') }}" class="w-full h-12 bg-white text-slate-900 text-[11px] font-bold tracking-[0.2em] uppercase flex items-center justify-center border border-slate-200 hover:bg-slate-100 transition-colors">
                         ← Back to Orders
                     </a>
-                    <a href="{{ route('shop.index') }}" class="w-full h-12 bg-slate-900 text-white text-[11px] font-bold tracking-[0.2em] uppercase flex items-center justify-center hover:bg-slate-800 transition-colors">
+                    <a href="{{ route('shop.index') }}" class="w-full h-12 bg-white text-slate-900 text-[11px] font-bold tracking-[0.2em] uppercase flex items-center justify-center border border-slate-200 hover:bg-slate-100 transition-colors">
                         Continue Shopping
                     </a>
                 </div>

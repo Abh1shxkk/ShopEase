@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OrderInvoiceMail;
 use App\Models\Cart;
 use App\Models\Coupon;
 use App\Models\CouponUsage;
@@ -9,6 +10,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class CheckoutController extends Controller
 {
@@ -20,17 +22,37 @@ class CheckoutController extends Controller
             return redirect()->route('cart')->with('error', 'Your cart is empty');
         }
 
+        $user = auth()->user();
         $subtotal = $cartItems->sum('subtotal');
         
         // Get applied coupon from session
         $appliedCoupon = session('applied_coupon');
-        $discount = $appliedCoupon ? $appliedCoupon['discount'] : 0;
+        $couponDiscount = $appliedCoupon ? $appliedCoupon['discount'] : 0;
         
-        $shipping = ($subtotal - $discount) >= 500 ? 0 : 49;
+        // Apply member discount
+        $memberDiscount = 0;
+        $memberDiscountPercent = 0;
+        if ($user->isMember()) {
+            $memberDiscountPercent = $user->getMemberDiscount();
+            if ($memberDiscountPercent > 0) {
+                $memberDiscount = ($subtotal - $couponDiscount) * ($memberDiscountPercent / 100);
+            }
+        }
+        
+        $discount = $couponDiscount + $memberDiscount;
+        
+        // Free shipping for members or orders over ₹500
+        $hasFreeShipping = $user->hasFreeShipping();
+        $shipping = $hasFreeShipping || ($subtotal - $discount) >= 500 ? 0 : 49;
+        
         $tax = ($subtotal - $discount) * 0.18;
         $total = $subtotal - $discount + $shipping + $tax;
 
-        return view('checkout.index', compact('cartItems', 'subtotal', 'discount', 'appliedCoupon', 'shipping', 'tax', 'total'));
+        return view('checkout.index', compact(
+            'cartItems', 'subtotal', 'discount', 'appliedCoupon', 
+            'couponDiscount', 'memberDiscount', 'memberDiscountPercent',
+            'shipping', 'hasFreeShipping', 'tax', 'total'
+        ));
     }
 
     public function store(Request $request)
@@ -52,25 +74,40 @@ class CheckoutController extends Controller
             return redirect()->route('cart')->with('error', 'Your cart is empty');
         }
 
+        $user = auth()->user();
         $subtotal = $cartItems->sum('subtotal');
         
         // Handle coupon
         $appliedCoupon = session('applied_coupon');
-        $discount = 0;
+        $couponDiscount = 0;
         $couponId = null;
         $couponCode = null;
         
         if ($appliedCoupon) {
             $coupon = Coupon::find($appliedCoupon['id']);
             if ($coupon && $coupon->canBeUsedByUser(auth()->id())) {
-                $discount = $coupon->calculateDiscount($subtotal);
+                $couponDiscount = $coupon->calculateDiscount($subtotal);
                 $couponId = $coupon->id;
                 $couponCode = $coupon->code;
             }
         }
         
-        $shipping = ($subtotal - $discount) >= 50 ? 0 : 5.99;
-        $tax = ($subtotal - $discount) * 0.08;
+        // Apply member discount
+        $memberDiscount = 0;
+        if ($user->isMember()) {
+            $memberDiscountPercent = $user->getMemberDiscount();
+            if ($memberDiscountPercent > 0) {
+                $memberDiscount = ($subtotal - $couponDiscount) * ($memberDiscountPercent / 100);
+            }
+        }
+        
+        $discount = $couponDiscount + $memberDiscount;
+        
+        // Free shipping for members or orders over ₹500
+        $hasFreeShipping = $user->hasFreeShipping();
+        $shipping = $hasFreeShipping || ($subtotal - $discount) >= 500 ? 0 : 49;
+        
+        $tax = ($subtotal - $discount) * 0.18;
         $total = $subtotal - $discount + $shipping + $tax;
 
         DB::beginTransaction();
@@ -114,12 +151,12 @@ class CheckoutController extends Controller
             }
             
             // Record coupon usage
-            if ($couponId && $discount > 0) {
+            if ($couponId && $couponDiscount > 0) {
                 CouponUsage::create([
                     'coupon_id' => $couponId,
                     'user_id' => auth()->id(),
                     'order_id' => $order->id,
-                    'discount_amount' => $discount,
+                    'discount_amount' => $couponDiscount,
                 ]);
                 
                 // Increment coupon used count
@@ -131,6 +168,15 @@ class CheckoutController extends Controller
             session()->forget('applied_coupon');
 
             DB::commit();
+            
+            // Send invoice email
+            try {
+                Mail::to($order->shipping_email)->send(new OrderInvoiceMail($order));
+            } catch (\Exception $e) {
+                // Log error but don't fail the order
+                \Log::error('Failed to send invoice email: ' . $e->getMessage());
+            }
+            
             return redirect()->route('checkout.success', $order)->with('success', 'Order placed successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
