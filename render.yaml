@@ -1,17 +1,15 @@
 services:
   - type: web
     name: shopease
-    runtime: php
-    buildCommand: |
-      composer install --no-dev --optimize-autoloader
-      npm ci
-      npm run build
-    startCommand: heroku-php-apache2 public/
+    runtime: docker
+    dockerfilePath: ./Dockerfile
     envVars:
+      - key: APP_NAME
+        value: ShopEase
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
-        value: false
+        value: "false"
       - key: APP_KEY
         generateValue: true
       - key: APP_URL
@@ -24,8 +22,10 @@ services:
         fromDatabase:
           name: shopease-db
           property: connectionString
+      - key: DB_SSLMODE
+        value: require
       - key: SESSION_DRIVER
-        value: database
+        value: cookie
       - key: CACHE_STORE
         value: file
       - key: QUEUE_CONNECTION
