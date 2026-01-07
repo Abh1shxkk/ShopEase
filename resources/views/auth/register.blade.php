@@ -145,6 +145,31 @@
                         </div>
                     </div>
 
+                    {{-- Referral Code Field --}}
+                    <div class="space-y-1" x-data="{ showReferral: {{ request('ref') || old('referral_code') ? 'true' : 'false' }} }">
+                        <button type="button" @click="showReferral = !showReferral" class="text-[10px] font-bold tracking-[0.15em] uppercase text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                            <span x-text="showReferral ? 'Hide Referral Code' : 'Have a Referral Code?'"></span>
+                        </button>
+                        <div x-show="showReferral" x-collapse>
+                            <input 
+                                type="text" 
+                                id="referral_code"
+                                name="referral_code"
+                                value="{{ request('ref') ?? old('referral_code') }}"
+                                placeholder="Enter referral code"
+                                maxlength="8"
+                                class="w-full px-0 py-2.5 bg-transparent border-b border-slate-200 focus:border-slate-900 focus:outline-none transition-all text-[12px] text-slate-900 placeholder:text-slate-300 rounded-none uppercase tracking-widest @error('referral_code') border-red-500 @enderror"
+                            />
+                            <p class="text-[10px] text-emerald-600 mt-1">🎁 Get bonus points on signup!</p>
+                            @error('referral_code')
+                                <p class="text-[10px] text-red-500 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
                     {{-- Terms Checkbox --}}
                     <div class="flex items-start gap-3 py-3">
                         <div class="relative flex items-center justify-center w-3.5 h-3.5 border border-slate-200 mt-0.5">

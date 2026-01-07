@@ -226,6 +226,35 @@
                     </div>
                     @endif
 
+                    {{-- Reward Points Redemption --}}
+                    @if(auth()->user()->reward_points >= 100)
+                    <div class="mt-4 p-4 bg-amber-50 border border-amber-200" x-data="{ usePoints: false, pointsToUse: 0 }">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span class="text-[12px] font-medium text-amber-800">Reward Points</span>
+                            </div>
+                            <span class="text-[12px] font-bold text-amber-700">{{ number_format(auth()->user()->reward_points) }} pts</span>
+                        </div>
+                        <p class="text-[11px] text-amber-700 mb-3">Worth ₹{{ number_format(auth()->user()->reward_points * 0.25) }} (1 pt = ₹0.25)</p>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="use_reward_points" x-model="usePoints" class="w-4 h-4 text-amber-600 border-amber-300 focus:ring-amber-500">
+                            <span class="text-[11px] text-amber-800">Use reward points for this order</span>
+                        </label>
+                        <div x-show="usePoints" x-collapse class="mt-3">
+                            <label class="text-[10px] text-amber-700 block mb-1">Points to redeem (min 100)</label>
+                            <input type="number" name="redeem_points" x-model="pointsToUse" min="100" max="{{ min(auth()->user()->reward_points, $total * 4) }}" step="10" class="w-full h-10 px-3 bg-white border border-amber-300 text-[12px] focus:outline-none focus:border-amber-500">
+                            <p class="text-[10px] text-amber-600 mt-1">Discount: ₹<span x-text="(pointsToUse * 0.25).toFixed(2)">0.00</span></p>
+                        </div>
+                    </div>
+                    @elseif(auth()->user()->reward_points > 0)
+                    <div class="mt-4 p-3 bg-slate-100 border border-slate-200">
+                        <p class="text-[11px] text-slate-600">You have {{ number_format(auth()->user()->reward_points) }} reward points. Earn {{ 100 - auth()->user()->reward_points }} more to redeem!</p>
+                    </div>
+                    @endif
+
                     {{-- Place Order Button --}}
                     <button type="submit" id="pay-btn" class="mt-8 w-full h-12 bg-slate-900 text-white text-[11px] font-bold tracking-[0.2em] uppercase flex items-center justify-center hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                         <span id="btn-text">{{ __('messages.checkout.place_order') }}</span>

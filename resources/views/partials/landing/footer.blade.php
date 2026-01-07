@@ -105,10 +105,10 @@
                 </div>
             </div>
 
-            {{-- Account Links --}}
+            {{-- Account Links + Newsletter --}}
             <div>
                 <h4 class="text-[10px] font-bold tracking-[0.2em] uppercase mb-8">{{ __('messages.nav.account') }}</h4>
-                <ul class="space-y-4 text-[12px]">
+                <ul class="space-y-4 text-[12px] mb-10">
                     @auth
                         <li><a href="{{ route('profile') }}" class="hover:underline">{{ __('messages.nav.profile') }}</a></li>
                         <li><a href="{{ route('orders') }}" class="hover:underline">{{ __('messages.account.my_orders') }}</a></li>
@@ -119,25 +119,25 @@
                         <li><a href="{{ route('register') }}" class="hover:underline">{{ __('messages.nav.register') }}</a></li>
                     @endauth
                 </ul>
-            </div>
-
-            {{-- Newsletter --}}
-            <div>
+                
+                {{-- Newsletter --}}
                 <h4 class="text-[12px] font-bold tracking-[0.1em] mb-6">{{ __('messages.footer.newsletter_text') }}</h4>
-                <form action="#" method="POST" class="space-y-4">
+                <form id="newsletter-form" class="space-y-4">
                     @csrf
                     <div class="border-b border-slate-900">
                         <input 
                             type="email" 
                             name="email"
+                            id="newsletter-email"
                             placeholder="{{ __('messages.auth.email') }}" 
                             class="w-full py-3 text-[13px] bg-transparent focus:outline-none placeholder:text-slate-300"
                             required
                         />
                     </div>
-                    <button type="submit" class="w-full bg-slate-900 text-white py-4 text-[11px] font-bold tracking-[0.2em] uppercase hover:bg-slate-800 transition-all rounded-none">
+                    <button type="submit" id="newsletter-btn" class="w-full bg-slate-900 text-white py-4 text-[11px] font-bold tracking-[0.2em] uppercase hover:bg-slate-800 transition-all rounded-none">
                         {{ __('messages.footer.subscribe') }}
                     </button>
+                    <p id="newsletter-message" class="text-[11px] hidden"></p>
                 </form>
             </div>
         </div>
@@ -158,3 +158,50 @@
         </div>
     </div>
 </footer>
+
+{{-- Newsletter Script --}}
+<script>
+document.getElementById('newsletter-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const email = document.getElementById('newsletter-email').value;
+    const btn = document.getElementById('newsletter-btn');
+    const msg = document.getElementById('newsletter-message');
+    const originalText = btn.textContent;
+    
+    btn.disabled = true;
+    btn.textContent = '...';
+    msg.classList.add('hidden');
+    
+    try {
+        const response = await fetch('{{ route("newsletter.subscribe") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ email: email })
+        });
+        
+        const data = await response.json();
+        
+        msg.classList.remove('hidden');
+        if (data.success) {
+            msg.textContent = data.message;
+            msg.className = 'text-[11px] text-green-600';
+            document.getElementById('newsletter-email').value = '';
+        } else {
+            msg.textContent = data.message;
+            msg.className = 'text-[11px] text-red-600';
+        }
+    } catch (error) {
+        msg.classList.remove('hidden');
+        msg.textContent = 'Something went wrong. Please try again.';
+        msg.className = 'text-[11px] text-red-600';
+    }
+    
+    btn.disabled = false;
+    btn.textContent = originalText;
+});
+</script>

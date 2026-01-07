@@ -172,6 +172,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:8|confirmed',
+            'referral_code' => 'nullable|string|size:8',
         ]);
 
         $user = User::create([
@@ -179,6 +180,16 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
         ]);
+
+        // Apply referral code if provided
+        if (!empty($validated['referral_code'])) {
+            $referralService = app(\App\Services\ReferralService::class);
+            $referralService->applyReferralCode($user, strtoupper($validated['referral_code']));
+        }
+
+        // Generate referral code for new user
+        $referralService = app(\App\Services\ReferralService::class);
+        $referralService->generateReferralCode($user);
 
         Auth::login($user);
 

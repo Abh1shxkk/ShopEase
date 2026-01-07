@@ -209,4 +209,13 @@ return [
         'login_required' => 'Please login to continue',
         'order_placed' => 'Your order has been placed successfully',
     ],
+    
+    // Newsletter
+    'newsletter' => [
+        'subscribed' => 'Thank you for subscribing to our newsletter!',
+        'already_subscribed' => 'This email is already subscribed.',
+        'resubscribed' => 'Welcome back! You have been resubscribed.',
+        'invalid_token' => 'Invalid unsubscribe link.',
+        'unsubscribed' => 'You have been unsubscribed successfully.',
+    ],
 ];

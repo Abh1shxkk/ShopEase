@@ -21,6 +21,10 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Route;
 
+// Newsletter Routes (Public)
+Route::post('/newsletter/subscribe', [\App\Http\Controllers\NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+Route::get('/newsletter/unsubscribe/{token}', [\App\Http\Controllers\NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
+
 // Landing Page
 Route::get('/', function () {
     $curatedProducts = \App\Models\Product::with('category')
@@ -42,6 +46,10 @@ Route::get('/', function () {
 
 // Language Switch
 Route::get('/language/{locale}', [\App\Http\Controllers\LanguageController::class, 'switch'])->name('language.switch');
+
+// Bundle routes (Public)
+Route::get('/bundles', [\App\Http\Controllers\BundleController::class, 'index'])->name('bundles.index');
+Route::get('/bundles/{bundle:slug}', [\App\Http\Controllers\BundleController::class, 'show'])->name('bundles.show');
 
 // Shop routes (Public - everyone can browse)
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
@@ -176,6 +184,13 @@ Route::middleware('auth')->group(function () {
     // Reviews
     Route::post('/product/{product}/review', [ReviewController::class, 'store'])->name('reviews.store');
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+    
+    // Referral System
+    Route::get('/referrals', [\App\Http\Controllers\ReferralController::class, 'index'])->name('referrals.index');
+    Route::post('/referrals/apply-code', [\App\Http\Controllers\ReferralController::class, 'applyCode'])->name('referrals.apply-code');
+    
+    // Bundle Routes
+    Route::post('/bundles/{bundle}/add-to-cart', [\App\Http\Controllers\BundleController::class, 'addToCart'])->name('bundles.add-to-cart');
     
     // Stock Notifications (Notify me when back in stock)
     Route::post('/stock-notification', [\App\Http\Controllers\StockNotificationController::class, 'store'])->name('stock-notification.store');
@@ -325,4 +340,48 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->prefix('admin')->
     Route::get('/membership/sales/{sale}/edit', [\App\Http\Controllers\Admin\MembershipController::class, 'editSale'])->name('membership.sales.edit');
     Route::put('/membership/sales/{sale}', [\App\Http\Controllers\Admin\MembershipController::class, 'updateSale'])->name('membership.sales.update');
     Route::delete('/membership/sales/{sale}', [\App\Http\Controllers\Admin\MembershipController::class, 'destroySale'])->name('membership.sales.destroy');
+    
+    // Newsletter Management
+    Route::get('/newsletter', [\App\Http\Controllers\Admin\NewsletterController::class, 'index'])->name('newsletter.index');
+    Route::delete('/newsletter/{subscriber}', [\App\Http\Controllers\Admin\NewsletterController::class, 'destroy'])->name('newsletter.destroy');
+    Route::get('/newsletter/export', [\App\Http\Controllers\Admin\NewsletterController::class, 'export'])->name('newsletter.export');
+    
+    // Analytics
+    Route::get('/analytics', [\App\Http\Controllers\Admin\AnalyticsController::class, 'index'])->name('analytics.index');
+    Route::get('/analytics/sales', [\App\Http\Controllers\Admin\AnalyticsController::class, 'salesReport'])->name('analytics.sales');
+    Route::get('/analytics/best-selling', [\App\Http\Controllers\Admin\AnalyticsController::class, 'bestSelling'])->name('analytics.best-selling');
+    Route::get('/analytics/customers', [\App\Http\Controllers\Admin\AnalyticsController::class, 'customers'])->name('analytics.customers');
+    Route::get('/analytics/abandoned-carts', [\App\Http\Controllers\Admin\AnalyticsController::class, 'abandonedCarts'])->name('analytics.abandoned-carts');
+    Route::get('/analytics/export-sales', [\App\Http\Controllers\Admin\AnalyticsController::class, 'exportSales'])->name('analytics.export-sales');
+
+    // Product Bundles Management
+    Route::get('/bundles', [\App\Http\Controllers\Admin\BundleController::class, 'index'])->name('bundles.index');
+    Route::get('/bundles/create', [\App\Http\Controllers\Admin\BundleController::class, 'create'])->name('bundles.create');
+    Route::post('/bundles', [\App\Http\Controllers\Admin\BundleController::class, 'store'])->name('bundles.store');
+    Route::get('/bundles/{bundle}/edit', [\App\Http\Controllers\Admin\BundleController::class, 'edit'])->name('bundles.edit');
+    Route::put('/bundles/{bundle}', [\App\Http\Controllers\Admin\BundleController::class, 'update'])->name('bundles.update');
+    Route::delete('/bundles/{bundle}', [\App\Http\Controllers\Admin\BundleController::class, 'destroy'])->name('bundles.destroy');
+    Route::patch('/bundles/{bundle}/toggle', [\App\Http\Controllers\Admin\BundleController::class, 'toggleStatus'])->name('bundles.toggle');
+    Route::get('/bundles/frequently-bought', [\App\Http\Controllers\Admin\BundleController::class, 'frequentlyBought'])->name('bundles.frequently-bought');
+    Route::patch('/bundles/frequently-bought/{pair}', [\App\Http\Controllers\Admin\BundleController::class, 'updateFrequentlyBought'])->name('bundles.update-fbt');
+    Route::post('/bundles/regenerate-fbt', [\App\Http\Controllers\Admin\BundleController::class, 'regenerateFrequentlyBought'])->name('bundles.regenerate-fbt');
+
+    // Referral Management
+    Route::get('/referrals', [\App\Http\Controllers\Admin\ReferralController::class, 'index'])->name('referrals.index');
+    Route::get('/referrals/transactions', [\App\Http\Controllers\Admin\ReferralController::class, 'transactions'])->name('referrals.transactions');
+    Route::get('/referrals/settings', [\App\Http\Controllers\Admin\ReferralController::class, 'settings'])->name('referrals.settings');
+    Route::post('/referrals/settings', [\App\Http\Controllers\Admin\ReferralController::class, 'updateSettings'])->name('referrals.settings.update');
+    Route::post('/referrals/users/{user}/adjust-points', [\App\Http\Controllers\Admin\ReferralController::class, 'adjustPoints'])->name('referrals.adjust-points');
+
+    // Newsletter Campaigns
+    Route::get('/newsletter/campaigns', [\App\Http\Controllers\Admin\NewsletterController::class, 'campaigns'])->name('newsletter.campaigns');
+    Route::get('/newsletter/campaigns/create', [\App\Http\Controllers\Admin\NewsletterController::class, 'createCampaign'])->name('newsletter.campaigns.create');
+    Route::post('/newsletter/campaigns', [\App\Http\Controllers\Admin\NewsletterController::class, 'storeCampaign'])->name('newsletter.campaigns.store');
+    Route::get('/newsletter/campaigns/{campaign}', [\App\Http\Controllers\Admin\NewsletterController::class, 'showCampaign'])->name('newsletter.campaigns.show');
+    Route::get('/newsletter/campaigns/{campaign}/edit', [\App\Http\Controllers\Admin\NewsletterController::class, 'editCampaign'])->name('newsletter.campaigns.edit');
+    Route::put('/newsletter/campaigns/{campaign}', [\App\Http\Controllers\Admin\NewsletterController::class, 'updateCampaign'])->name('newsletter.campaigns.update');
+    Route::delete('/newsletter/campaigns/{campaign}', [\App\Http\Controllers\Admin\NewsletterController::class, 'destroyCampaign'])->name('newsletter.campaigns.destroy');
+    Route::post('/newsletter/campaigns/{campaign}/send-test', [\App\Http\Controllers\Admin\NewsletterController::class, 'sendTestEmail'])->name('newsletter.campaigns.send-test');
+    Route::post('/newsletter/campaigns/{campaign}/send', [\App\Http\Controllers\Admin\NewsletterController::class, 'sendCampaign'])->name('newsletter.campaigns.send');
+    Route::get('/newsletter/campaigns/{campaign}/preview', [\App\Http\Controllers\Admin\NewsletterController::class, 'previewCampaign'])->name('newsletter.campaigns.preview');
 });
