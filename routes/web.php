@@ -80,6 +80,10 @@ Route::middleware('auth')->prefix('support')->name('support.')->group(function (
     Route::post('/ticket/{ticket}/reply', [\App\Http\Controllers\SupportController::class, 'replyTicket'])->name('ticket.reply');
 });
 
+// Social Login Callback Routes (outside guest middleware to avoid session issues)
+Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
+Route::get('/auth/facebook/callback', [SocialAuthController::class, 'handleFacebookCallback']);
+
 // Guest routes (only for non-logged in users)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -98,11 +102,9 @@ Route::middleware('guest')->group(function () {
     Route::get('/password/reset/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
     Route::post('/password/reset', [PasswordResetController::class, 'resetPassword'])->name('password.update');
     
-    // Social Login Routes
+    // Social Login Redirect Routes
     Route::get('/auth/google', [SocialAuthController::class, 'redirectToGoogle'])->name('auth.google');
-    Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
     Route::get('/auth/facebook', [SocialAuthController::class, 'redirectToFacebook'])->name('auth.facebook');
-    Route::get('/auth/facebook/callback', [SocialAuthController::class, 'handleFacebookCallback']);
 });
 
 // Auth routes (logged in users)
