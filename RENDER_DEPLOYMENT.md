@@ -12,8 +12,10 @@
 2. Go to Render Dashboard → **New** → **Blueprint**
 3. Connect your GitHub repository
 4. Render will detect `render.yaml` and create:
-   - Web Service (PHP)
+   - Web Service (Docker)
    - PostgreSQL Database
+5. Set `APP_URL` to your Render URL (e.g., `https://shopease.onrender.com`)
+6. Deploy!
 
 ### Option 2: Manual Deployment
 
@@ -37,15 +39,8 @@
    - Name: `shopease`
    - Region: Same as database
    - Branch: `main`
-   - Runtime: **PHP**
-   - Build Command:
-     ```
-     composer install --no-dev --optimize-autoloader && npm ci && npm run build
-     ```
-   - Start Command:
-     ```
-     php artisan migrate --force && heroku-php-apache2 public/
-     ```
+   - Runtime: **Docker**
+   - Dockerfile Path: `./Dockerfile`
 
 #### Step 3: Set Environment Variables
 
@@ -62,7 +57,7 @@ In your Web Service settings, add these environment variables:
 | `DB_CONNECTION` | pgsql |
 | `DATABASE_URL` | (paste Internal Database URL from Step 1) |
 | `DB_SSLMODE` | require |
-| `SESSION_DRIVER` | database |
+| `SESSION_DRIVER` | cookie |
 | `CACHE_STORE` | file |
 | `QUEUE_CONNECTION` | sync |
 | `FILESYSTEM_DISK` | local |
