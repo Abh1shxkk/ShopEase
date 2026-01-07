@@ -40,14 +40,45 @@ Route::get('/', function () {
     return view('landing', compact('curatedProducts', 'newArrivals'));
 })->name('home');
 
+// Language Switch
+Route::get('/language/{locale}', [\App\Http\Controllers\LanguageController::class, 'switch'])->name('language.switch');
+
 // Shop routes (Public - everyone can browse)
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/product/{product}', [ShopController::class, 'show'])->name('shop.show');
+
+// Membership routes (Public)
+Route::get('/membership', [\App\Http\Controllers\MembershipController::class, 'index'])->name('membership.index');
+
+// Search routes (Public)
+Route::get('/search', [\App\Http\Controllers\SearchController::class, 'search'])->name('search');
+Route::get('/search/suggestions', [\App\Http\Controllers\SearchController::class, 'suggestions'])->name('search.suggestions');
+
+// Support routes (Public)
+Route::prefix('support')->name('support.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\SupportController::class, 'index'])->name('index');
+    Route::get('/faq', [\App\Http\Controllers\SupportController::class, 'faq'])->name('faq');
+    Route::post('/faq/{faq}/feedback', [\App\Http\Controllers\SupportController::class, 'faqFeedback'])->name('faq.feedback');
+    Route::get('/contact', [\App\Http\Controllers\SupportController::class, 'contact'])->name('contact');
+    Route::get('/ticket/create', [\App\Http\Controllers\SupportController::class, 'createTicket'])->name('ticket.create');
+    Route::post('/ticket', [\App\Http\Controllers\SupportController::class, 'storeTicket'])->name('ticket.store');
+    Route::get('/ticket/{ticket}', [\App\Http\Controllers\SupportController::class, 'showTicket'])->name('ticket.show');
+    Route::match(['get', 'post'], '/ticket/track', [\App\Http\Controllers\SupportController::class, 'trackTicket'])->name('ticket.track');
+});
+
+// Support routes (Authenticated)
+Route::middleware('auth')->prefix('support')->name('support.')->group(function () {
+    Route::get('/tickets', [\App\Http\Controllers\SupportController::class, 'tickets'])->name('tickets');
+    Route::post('/ticket/{ticket}/reply', [\App\Http\Controllers\SupportController::class, 'replyTicket'])->name('ticket.reply');
+});
 
 // Guest routes (only for non-logged in users)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/login/otp', [AuthController::class, 'showOtpForm'])->name('login.otp');
+    Route::post('/login/otp/verify', [AuthController::class, 'verifyOtp'])->name('login.otp.verify');
+    Route::post('/login/otp/resend', [AuthController::class, 'resendOtp'])->name('login.otp.resend');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
     
@@ -69,6 +100,19 @@ Route::middleware('guest')->group(function () {
 // Auth routes (logged in users)
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::post('/membership/popup/hide', [AuthController::class, 'hideMembershipPopup'])->name('membership.popup.hide');
+    Route::post('/membership/popup/dismiss', [AuthController::class, 'dismissMembershipPopup'])->name('membership.popup.dismiss');
+    
+    // Debug route to test popup
+    Route::get('/test-popup', function() {
+        session(['show_membership_popup' => true]);
+        return redirect('/shop')->with('success', 'Popup session set!');
+    });
+    
+    // Search History
+    Route::get('/search/history', [\App\Http\Controllers\SearchController::class, 'history'])->name('search.history');
+    Route::post('/search/history/clear', [\App\Http\Controllers\SearchController::class, 'clearHistory'])->name('search.history.clear');
+    Route::post('/search/history/remove', [\App\Http\Controllers\SearchController::class, 'removeFromHistory'])->name('search.history.remove');
     
     // Cart
     Route::get('/cart', [CartController::class, 'index'])->name('cart');
@@ -91,9 +135,22 @@ Route::middleware('auth')->group(function () {
     Route::post('/coupon/apply', [CouponController::class, 'apply'])->name('coupon.apply');
     Route::post('/coupon/remove', [CouponController::class, 'remove'])->name('coupon.remove');
     
+    // Membership Routes
+    Route::prefix('membership')->name('membership.')->group(function () {
+        Route::get('/subscribe/{plan}', [\App\Http\Controllers\MembershipController::class, 'subscribe'])->name('subscribe');
+        Route::post('/subscribe/{plan}/process', [\App\Http\Controllers\MembershipController::class, 'processPayment'])->name('process-payment');
+        Route::post('/verify-payment', [\App\Http\Controllers\MembershipController::class, 'verifyPayment'])->name('verify-payment');
+        Route::get('/success/{subscription}', [\App\Http\Controllers\MembershipController::class, 'success'])->name('success');
+        Route::get('/manage', [\App\Http\Controllers\MembershipController::class, 'manage'])->name('manage');
+        Route::post('/cancel/{subscription}', [\App\Http\Controllers\MembershipController::class, 'cancel'])->name('cancel');
+        Route::post('/toggle-auto-renew/{subscription}', [\App\Http\Controllers\MembershipController::class, 'toggleAutoRenew'])->name('toggle-auto-renew');
+    });
+    
     // Orders
     Route::get('/orders', [OrderController::class, 'index'])->name('orders');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::get('/orders/{order}/invoice', [\App\Http\Controllers\InvoiceController::class, 'download'])->name('orders.invoice.download');
+    Route::get('/orders/{order}/invoice/view', [\App\Http\Controllers\InvoiceController::class, 'view'])->name('orders.invoice.view');
     
     // Wishlist
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist');
@@ -134,6 +191,16 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->prefix('admin')->
     
     // Products
     Route::resource('products', ProductController::class)->except(['show']);
+    
+    // Product Variants
+    Route::get('/products/{product}/variants', [\App\Http\Controllers\Admin\ProductVariantController::class, 'index'])->name('products.variants.index');
+    Route::get('/products/{product}/variants/create', [\App\Http\Controllers\Admin\ProductVariantController::class, 'create'])->name('products.variants.create');
+    Route::post('/products/{product}/variants', [\App\Http\Controllers\Admin\ProductVariantController::class, 'store'])->name('products.variants.store');
+    Route::post('/products/{product}/variants/bulk', [\App\Http\Controllers\Admin\ProductVariantController::class, 'bulkCreate'])->name('products.variants.bulk-create');
+    Route::get('/products/{product}/variants/{variant}/edit', [\App\Http\Controllers\Admin\ProductVariantController::class, 'edit'])->name('products.variants.edit');
+    Route::put('/products/{product}/variants/{variant}', [\App\Http\Controllers\Admin\ProductVariantController::class, 'update'])->name('products.variants.update');
+    Route::patch('/products/{product}/variants/{variant}/stock', [\App\Http\Controllers\Admin\ProductVariantController::class, 'updateStock'])->name('products.variants.update-stock');
+    Route::delete('/products/{product}/variants/{variant}', [\App\Http\Controllers\Admin\ProductVariantController::class, 'destroy'])->name('products.variants.destroy');
     
     // Users
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
@@ -215,4 +282,47 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->prefix('admin')->
     Route::post('/inventory/alerts/mark-all-read', [\App\Http\Controllers\Admin\InventoryController::class, 'markAllAlertsRead'])->name('inventory.alerts.mark-all-read');
     Route::patch('/inventory/{product}/stock', [\App\Http\Controllers\Admin\InventoryController::class, 'updateStock'])->name('inventory.update-stock');
     Route::get('/inventory/{product}/notifications', [\App\Http\Controllers\Admin\InventoryController::class, 'notifications'])->name('inventory.notifications');
+    
+    // Support Management
+    Route::get('/support/tickets', [\App\Http\Controllers\Admin\SupportController::class, 'tickets'])->name('support.tickets');
+    Route::get('/support/tickets/{ticket}', [\App\Http\Controllers\Admin\SupportController::class, 'showTicket'])->name('support.tickets.show');
+    Route::patch('/support/tickets/{ticket}', [\App\Http\Controllers\Admin\SupportController::class, 'updateTicket'])->name('support.tickets.update');
+    Route::post('/support/tickets/{ticket}/reply', [\App\Http\Controllers\Admin\SupportController::class, 'replyTicket'])->name('support.tickets.reply');
+    
+    // FAQ Management
+    Route::get('/support/faq/categories', [\App\Http\Controllers\Admin\SupportController::class, 'faqCategories'])->name('support.faq.categories');
+    Route::get('/support/faq/categories/create', [\App\Http\Controllers\Admin\SupportController::class, 'createFaqCategory'])->name('support.faq.categories.create');
+    Route::post('/support/faq/categories', [\App\Http\Controllers\Admin\SupportController::class, 'storeFaqCategory'])->name('support.faq.categories.store');
+    Route::get('/support/faq/categories/{category}/edit', [\App\Http\Controllers\Admin\SupportController::class, 'editFaqCategory'])->name('support.faq.categories.edit');
+    Route::put('/support/faq/categories/{category}', [\App\Http\Controllers\Admin\SupportController::class, 'updateFaqCategory'])->name('support.faq.categories.update');
+    Route::delete('/support/faq/categories/{category}', [\App\Http\Controllers\Admin\SupportController::class, 'destroyFaqCategory'])->name('support.faq.categories.destroy');
+    
+    Route::get('/support/faqs', [\App\Http\Controllers\Admin\SupportController::class, 'faqs'])->name('support.faqs');
+    Route::get('/support/faqs/create', [\App\Http\Controllers\Admin\SupportController::class, 'createFaq'])->name('support.faqs.create');
+    Route::post('/support/faqs', [\App\Http\Controllers\Admin\SupportController::class, 'storeFaq'])->name('support.faqs.store');
+    Route::get('/support/faqs/{faq}/edit', [\App\Http\Controllers\Admin\SupportController::class, 'editFaq'])->name('support.faqs.edit');
+    Route::put('/support/faqs/{faq}', [\App\Http\Controllers\Admin\SupportController::class, 'updateFaq'])->name('support.faqs.update');
+    Route::delete('/support/faqs/{faq}', [\App\Http\Controllers\Admin\SupportController::class, 'destroyFaq'])->name('support.faqs.destroy');
+    
+    // Live Chat Settings
+    Route::get('/support/live-chat', [\App\Http\Controllers\Admin\SupportController::class, 'liveChatSettings'])->name('support.live-chat');
+    Route::post('/support/live-chat', [\App\Http\Controllers\Admin\SupportController::class, 'updateLiveChatSettings'])->name('support.live-chat.update');
+    
+    // Membership Management
+    Route::get('/membership/plans', [\App\Http\Controllers\Admin\MembershipController::class, 'plans'])->name('membership.plans');
+    Route::get('/membership/plans/create', [\App\Http\Controllers\Admin\MembershipController::class, 'createPlan'])->name('membership.plans.create');
+    Route::post('/membership/plans', [\App\Http\Controllers\Admin\MembershipController::class, 'storePlan'])->name('membership.plans.store');
+    Route::get('/membership/plans/{plan}/edit', [\App\Http\Controllers\Admin\MembershipController::class, 'editPlan'])->name('membership.plans.edit');
+    Route::put('/membership/plans/{plan}', [\App\Http\Controllers\Admin\MembershipController::class, 'updatePlan'])->name('membership.plans.update');
+    Route::delete('/membership/plans/{plan}', [\App\Http\Controllers\Admin\MembershipController::class, 'destroyPlan'])->name('membership.plans.destroy');
+    
+    Route::get('/membership/subscribers', [\App\Http\Controllers\Admin\MembershipController::class, 'subscribers'])->name('membership.subscribers');
+    Route::get('/membership/subscribers/{subscription}', [\App\Http\Controllers\Admin\MembershipController::class, 'showSubscriber'])->name('membership.subscribers.show');
+    
+    Route::get('/membership/sales', [\App\Http\Controllers\Admin\MembershipController::class, 'sales'])->name('membership.sales');
+    Route::get('/membership/sales/create', [\App\Http\Controllers\Admin\MembershipController::class, 'createSale'])->name('membership.sales.create');
+    Route::post('/membership/sales', [\App\Http\Controllers\Admin\MembershipController::class, 'storeSale'])->name('membership.sales.store');
+    Route::get('/membership/sales/{sale}/edit', [\App\Http\Controllers\Admin\MembershipController::class, 'editSale'])->name('membership.sales.edit');
+    Route::put('/membership/sales/{sale}', [\App\Http\Controllers\Admin\MembershipController::class, 'updateSale'])->name('membership.sales.update');
+    Route::delete('/membership/sales/{sale}', [\App\Http\Controllers\Admin\MembershipController::class, 'destroySale'])->name('membership.sales.destroy');
 });

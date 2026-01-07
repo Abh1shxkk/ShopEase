@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\SearchHistory;
 use App\Models\ShopBanner;
 use Illuminate\Http\Request;
 
@@ -100,6 +101,11 @@ class ShopController extends Controller
 
         // AJAX request - return JSON
         if ($request->ajax() || $request->wantsJson()) {
+            // Record search for AJAX requests too
+            if ($request->filled('search')) {
+                SearchHistory::record($request->search, $products->total());
+            }
+            
             return response()->json([
                 'success' => true,
                 'html' => view('shop.partials.products', compact('products'))->render(),
@@ -112,6 +118,11 @@ class ShopController extends Controller
             ]);
         }
 
+        // Record search for regular requests
+        if ($request->filled('search')) {
+            SearchHistory::record($request->search, $products->total());
+        }
+
         return view('shop.index', compact('products', 'categories', 'totalProducts', 'currentGender', 'shopBanners'));
     }
 
@@ -120,6 +131,11 @@ class ShopController extends Controller
         if ($product->status !== 'active') {
             abort(404);
         }
+
+        // Load variants for products with variants
+        $product->load(['activeVariants' => function($query) {
+            $query->orderBy('size')->orderBy('color')->orderBy('material');
+        }]);
 
         // Get related products - try category_id first, then fallback
         $relatedQuery = Product::where('status', 'active')

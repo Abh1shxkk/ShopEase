@@ -1,19 +1,19 @@
 @extends('layouts.shop')
 
-@section('title', 'Checkout')
+@section('title', __('messages.checkout.title'))
 
 @section('content')
 <div class="max-w-[1200px] mx-auto px-6 md:px-12 py-12">
     {{-- Breadcrumb --}}
     <nav class="flex items-center gap-2 text-[11px] tracking-widest uppercase text-slate-400 mb-12">
-        <a href="{{ route('home') }}" class="hover:text-slate-900 transition-colors">Home</a>
+        <a href="{{ route('home') }}" class="hover:text-slate-900 transition-colors">{{ __('messages.nav.home') }}</a>
         <span>/</span>
-        <a href="{{ route('cart') }}" class="hover:text-slate-900 transition-colors">Cart</a>
+        <a href="{{ route('cart') }}" class="hover:text-slate-900 transition-colors">{{ __('messages.nav.cart') }}</a>
         <span>/</span>
-        <span class="text-slate-900">Checkout</span>
+        <span class="text-slate-900">{{ __('messages.checkout.title') }}</span>
     </nav>
 
-    <h1 class="text-3xl font-serif tracking-wide mb-12">Checkout</h1>
+    <h1 class="text-3xl font-serif tracking-wide mb-12">{{ __('messages.checkout.title') }}</h1>
 
     @if($errors->any())
     <div class="mb-8 p-4 bg-red-50 border border-red-200">
@@ -37,40 +37,40 @@
             <div class="lg:col-span-2 space-y-8">
                 {{-- Shipping Information --}}
                 <div class="bg-slate-50 p-8">
-                    <h2 class="text-[11px] font-bold tracking-[0.2em] uppercase mb-8">Shipping Information</h2>
+                    <h2 class="text-[11px] font-bold tracking-[0.2em] uppercase mb-8">{{ __('messages.checkout.shipping_address') }}</h2>
                     <div class="grid sm:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-3">Full Name</label>
+                            <label class="block text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-3">{{ __('messages.checkout.full_name') }}</label>
                             <input type="text" name="shipping_name" value="{{ old('shipping_name', auth()->user()->name) }}" required 
                                 class="w-full h-12 px-4 bg-white border border-slate-200 text-[13px] focus:outline-none focus:ring-1 focus:ring-slate-900">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-3">Email</label>
+                            <label class="block text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-3">{{ __('messages.auth.email') }}</label>
                             <input type="email" name="shipping_email" value="{{ old('shipping_email', auth()->user()->email) }}" required 
                                 class="w-full h-12 px-4 bg-white border border-slate-200 text-[13px] focus:outline-none focus:ring-1 focus:ring-slate-900">
                         </div>
                         <div class="sm:col-span-2">
-                            <label class="block text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-3">Phone</label>
+                            <label class="block text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-3">{{ __('messages.checkout.phone') }}</label>
                             <input type="tel" name="shipping_phone" value="{{ old('shipping_phone', auth()->user()->phone) }}" required placeholder="+91 9876543210"
                                 class="w-full h-12 px-4 bg-white border border-slate-200 text-[13px] focus:outline-none focus:ring-1 focus:ring-slate-900">
                         </div>
                         <div class="sm:col-span-2">
-                            <label class="block text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-3">Address</label>
-                            <textarea name="shipping_address" required rows="2" placeholder="House/Flat No., Building, Street, Area"
+                            <label class="block text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-3">{{ __('messages.checkout.address') }}</label>
+                            <textarea name="shipping_address" required rows="2" placeholder="{{ __('messages.checkout.address_placeholder') }}"
                                 class="w-full px-4 py-3 bg-white border border-slate-200 text-[13px] focus:outline-none focus:ring-1 focus:ring-slate-900 resize-none">{{ old('shipping_address') }}</textarea>
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-3">City</label>
+                            <label class="block text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-3">{{ __('messages.checkout.city') }}</label>
                             <input type="text" name="shipping_city" value="{{ old('shipping_city') }}" required 
                                 class="w-full h-12 px-4 bg-white border border-slate-200 text-[13px] focus:outline-none focus:ring-1 focus:ring-slate-900">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-3">State</label>
+                            <label class="block text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-3">{{ __('messages.checkout.state') }}</label>
                             <input type="text" name="shipping_state" value="{{ old('shipping_state') }}" required 
                                 class="w-full h-12 px-4 bg-white border border-slate-200 text-[13px] focus:outline-none focus:ring-1 focus:ring-slate-900">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-3">PIN Code</label>
+                            <label class="block text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-3">{{ __('messages.checkout.pin_code') }}</label>
                             <input type="text" name="shipping_zip" value="{{ old('shipping_zip') }}" required 
                                 class="w-full h-12 px-4 bg-white border border-slate-200 text-[13px] focus:outline-none focus:ring-1 focus:ring-slate-900">
                         </div>
@@ -79,13 +79,13 @@
 
                 {{-- Payment Method --}}
                 <div class="bg-slate-50 p-8">
-                    <h2 class="text-[11px] font-bold tracking-[0.2em] uppercase mb-8">Payment Method</h2>
+                    <h2 class="text-[11px] font-bold tracking-[0.2em] uppercase mb-8">{{ __('messages.checkout.payment_method') }}</h2>
                     <div class="space-y-3">
                         <label class="flex items-center p-4 bg-white border border-slate-200 cursor-pointer hover:border-slate-900 transition-colors group">
                             <input type="radio" name="payment_method" value="cod" checked class="w-4 h-4 text-slate-900 border-slate-300 focus:ring-slate-900">
                             <div class="ml-4 flex-1">
-                                <span class="text-[13px] font-medium text-slate-900">Cash on Delivery</span>
-                                <p class="text-[11px] text-slate-500 mt-0.5">Pay when you receive your order</p>
+                                <span class="text-[13px] font-medium text-slate-900">{{ __('messages.checkout.cod') }}</span>
+                                <p class="text-[11px] text-slate-500 mt-0.5">{{ __('messages.checkout.cod_desc') }}</p>
                             </div>
                             <svg class="w-5 h-5 text-slate-300 group-hover:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
@@ -94,8 +94,8 @@
                         <label class="flex items-center p-4 bg-white border border-slate-200 cursor-pointer hover:border-slate-900 transition-colors group">
                             <input type="radio" name="payment_method" value="upi" class="w-4 h-4 text-slate-900 border-slate-300 focus:ring-slate-900">
                             <div class="ml-4 flex-1">
-                                <span class="text-[13px] font-medium text-slate-900">UPI Payment</span>
-                                <p class="text-[11px] text-slate-500 mt-0.5">Pay using Google Pay, PhonePe, Paytm, BHIM</p>
+                                <span class="text-[13px] font-medium text-slate-900">{{ __('messages.checkout.upi') }}</span>
+                                <p class="text-[11px] text-slate-500 mt-0.5">{{ __('messages.checkout.upi_desc') }}</p>
                             </div>
                             <div class="flex items-center gap-1">
                                 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo-vector.svg/1200px-UPI-Logo-vector.svg.png" alt="UPI" class="h-5 w-auto">
@@ -104,8 +104,8 @@
                         <label class="flex items-center p-4 bg-white border border-slate-200 cursor-pointer hover:border-slate-900 transition-colors group">
                             <input type="radio" name="payment_method" value="card" class="w-4 h-4 text-slate-900 border-slate-300 focus:ring-slate-900">
                             <div class="ml-4 flex-1">
-                                <span class="text-[13px] font-medium text-slate-900">Credit/Debit Card</span>
-                                <p class="text-[11px] text-slate-500 mt-0.5">Visa, Mastercard, RuPay accepted</p>
+                                <span class="text-[13px] font-medium text-slate-900">{{ __('messages.checkout.card') }}</span>
+                                <p class="text-[11px] text-slate-500 mt-0.5">{{ __('messages.checkout.card_desc') }}</p>
                             </div>
                             <svg class="w-5 h-5 text-slate-300 group-hover:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
@@ -114,8 +114,8 @@
                         <label class="flex items-center p-4 bg-white border border-slate-200 cursor-pointer hover:border-slate-900 transition-colors group">
                             <input type="radio" name="payment_method" value="netbanking" class="w-4 h-4 text-slate-900 border-slate-300 focus:ring-slate-900">
                             <div class="ml-4 flex-1">
-                                <span class="text-[13px] font-medium text-slate-900">Net Banking</span>
-                                <p class="text-[11px] text-slate-500 mt-0.5">All major banks supported</p>
+                                <span class="text-[13px] font-medium text-slate-900">{{ __('messages.checkout.netbanking') }}</span>
+                                <p class="text-[11px] text-slate-500 mt-0.5">{{ __('messages.checkout.netbanking_desc') }}</p>
                             </div>
                             <svg class="w-5 h-5 text-slate-300 group-hover:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
@@ -126,8 +126,8 @@
 
                 {{-- Order Notes --}}
                 <div class="bg-slate-50 p-8">
-                    <label class="block text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-3">Order Notes (Optional)</label>
-                    <textarea name="notes" rows="3" placeholder="Any special instructions for delivery..."
+                    <label class="block text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-3">{{ __('messages.checkout.order_notes') }}</label>
+                    <textarea name="notes" rows="3" placeholder="{{ __('messages.checkout.order_notes_placeholder') }}"
                         class="w-full px-4 py-3 bg-white border border-slate-200 text-[13px] focus:outline-none focus:ring-1 focus:ring-slate-900 resize-none">{{ old('notes') }}</textarea>
                 </div>
             </div>
@@ -135,7 +135,7 @@
             {{-- Order Summary --}}
             <div class="lg:col-span-1">
                 <div class="bg-slate-50 p-8 sticky top-28">
-                    <h2 class="text-[11px] font-bold tracking-[0.2em] uppercase mb-8">Order Summary</h2>
+                    <h2 class="text-[11px] font-bold tracking-[0.2em] uppercase mb-8">{{ __('messages.checkout.order_summary') }}</h2>
                     
                     {{-- Cart Items --}}
                     <div class="space-y-4 mb-8">
@@ -146,7 +146,7 @@
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-[12px] font-medium text-slate-900 truncate">{{ $item->product->name }}</p>
-                                <p class="text-[11px] text-slate-500 mt-1">Qty: {{ $item->quantity }}</p>
+                                <p class="text-[11px] text-slate-500 mt-1">{{ __('messages.common.quantity') }}: {{ $item->quantity }}</p>
                             </div>
                             <p class="text-[13px] font-semibold text-slate-900">₹{{ number_format($item->subtotal, 2) }}</p>
                         </div>
@@ -156,13 +156,46 @@
                     {{-- Totals --}}
                     <div class="border-t border-slate-200 pt-6 space-y-3 text-[13px]">
                         <div class="flex justify-between">
-                            <span class="text-slate-500">Subtotal</span>
+                            <span class="text-slate-500">{{ __('messages.common.subtotal') }}</span>
                             <span class="font-medium text-slate-900">₹{{ number_format($subtotal, 2) }}</span>
                         </div>
+                        
+                        @if(isset($appliedCoupon) && $appliedCoupon)
+                        <div class="flex justify-between text-emerald-600">
+                            <span>Coupon ({{ $appliedCoupon['code'] }})</span>
+                            <span class="font-medium">-₹{{ number_format($couponDiscount ?? $discount, 2) }}</span>
+                        </div>
+                        @endif
+                        
+                        @if(isset($memberDiscount) && $memberDiscount > 0)
+                        <div class="flex justify-between text-purple-600">
+                            <span class="flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                                </svg>
+                                Member Discount ({{ $memberDiscountPercent }}%)
+                            </span>
+                            <span class="font-medium">-₹{{ number_format($memberDiscount, 2) }}</span>
+                        </div>
+                        @endif
+                        
                         <div class="flex justify-between">
-                            <span class="text-slate-500">Shipping</span>
+                            <span class="text-slate-500">{{ __('messages.common.shipping') }}</span>
                             <span class="font-medium {{ $shipping == 0 ? 'text-emerald-600' : 'text-slate-900' }}">
-                                {{ $shipping == 0 ? 'FREE' : '₹' . number_format($shipping, 2) }}
+                                @if($shipping == 0)
+                                    @if(isset($hasFreeShipping) && $hasFreeShipping)
+                                    <span class="flex items-center gap-1">
+                                        <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                                        </svg>
+                                        {{ __('messages.common.free_shipping') }}
+                                    </span>
+                                    @else
+                                    {{ __('messages.common.free_shipping') }}
+                                    @endif
+                                @else
+                                ₹{{ number_format($shipping, 2) }}
+                                @endif
                             </span>
                         </div>
                         <div class="flex justify-between">
@@ -170,14 +203,32 @@
                             <span class="font-medium text-slate-900">₹{{ number_format($tax, 2) }}</span>
                         </div>
                         <div class="border-t border-slate-200 pt-3 flex justify-between">
-                            <span class="font-semibold text-slate-900">Total</span>
+                            <span class="font-semibold text-slate-900">{{ __('messages.common.total') }}</span>
                             <span class="text-lg font-bold text-slate-900">₹{{ number_format($total, 2) }}</span>
                         </div>
                     </div>
+                    
+                    @if(auth()->user()->isMember())
+                    <div class="mt-4 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                        <div class="flex items-center gap-2 text-purple-700 text-[11px] font-medium">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                            </svg>
+                            Member benefits applied!
+                        </div>
+                    </div>
+                    @elseif(!auth()->user()->isMember())
+                    <div class="mt-4 p-3 bg-slate-100 border border-slate-200 rounded-lg">
+                        <p class="text-[11px] text-slate-600 mb-2">Become a member for exclusive benefits!</p>
+                        <a href="{{ route('membership.index') }}" class="text-[11px] text-purple-600 hover:text-purple-800 font-medium">
+                            View Membership Plans →
+                        </a>
+                    </div>
+                    @endif
 
                     {{-- Place Order Button --}}
                     <button type="submit" id="pay-btn" class="mt-8 w-full h-12 bg-slate-900 text-white text-[11px] font-bold tracking-[0.2em] uppercase flex items-center justify-center hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                        <span id="btn-text">Place Order</span>
+                        <span id="btn-text">{{ __('messages.checkout.place_order') }}</span>
                         <svg id="btn-loader" class="hidden animate-spin ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -186,7 +237,7 @@
 
                     {{-- Back to Cart --}}
                     <a href="{{ route('cart') }}" class="mt-3 w-full h-12 bg-white text-slate-900 text-[11px] font-bold tracking-[0.2em] uppercase flex items-center justify-center border border-slate-200 hover:bg-slate-100 transition-colors">
-                        ← Back to Cart
+                        ← {{ __('messages.checkout.back_to_cart') }}
                     </a>
 
                     {{-- Security Badge --}}
@@ -195,7 +246,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                             </svg>
-                            <span class="text-[10px] tracking-widest uppercase">Secure Checkout</span>
+                            <span class="text-[10px] tracking-widest uppercase">{{ __('messages.checkout.secure_checkout') }}</span>
                         </div>
                         <p class="text-[10px] text-slate-400 mt-2">Powered by Razorpay</p>
                     </div>

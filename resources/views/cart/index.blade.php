@@ -1,17 +1,17 @@
 @extends('layouts.shop')
 
-@section('title', 'Shopping Cart')
+@section('title', __('messages.cart.title'))
 
 @section('content')
 <div class="max-w-[1440px] mx-auto px-6 md:px-12 py-12" x-data="cartManager()">
     {{-- Breadcrumb --}}
     <nav class="flex items-center gap-2 text-[11px] tracking-widest uppercase text-slate-400 mb-12">
-        <a href="{{ route('home') }}" class="hover:text-slate-900 transition-colors">Home</a>
+        <a href="{{ route('home') }}" class="hover:text-slate-900 transition-colors">{{ __('messages.nav.home') }}</a>
         <span>/</span>
-        <span class="text-slate-900">Shopping Cart</span>
+        <span class="text-slate-900">{{ __('messages.cart.title') }}</span>
     </nav>
 
-    <h1 class="text-3xl font-serif tracking-wide mb-12">Shopping Cart</h1>
+    <h1 class="text-3xl font-serif tracking-wide mb-12">{{ __('messages.cart.title') }}</h1>
 
     {{-- Toast Notification --}}
     <div x-show="toast.show" 
@@ -68,7 +68,7 @@
                                 <button @click="removeItem(item.id)" 
                                         :disabled="item.loading"
                                         class="text-[11px] tracking-widest uppercase text-slate-400 hover:text-red-600 transition-colors disabled:opacity-50">
-                                    Remove
+                                    {{ __('messages.common.remove') }}
                                 </button>
                             </div>
                         </div>
@@ -79,20 +79,20 @@
             {{-- Order Summary --}}
             <div class="lg:col-span-1">
                 <div class="bg-slate-50 p-8 sticky top-28">
-                    <h2 class="text-[11px] font-bold tracking-[0.2em] uppercase mb-8">Order Summary</h2>
+                    <h2 class="text-[11px] font-bold tracking-[0.2em] uppercase mb-8">{{ __('messages.checkout.order_summary') }}</h2>
                     
                     {{-- Coupon Section --}}
                     <div class="mb-6 pb-6 border-b border-slate-200">
                         <template x-if="!appliedCoupon">
                             <div>
-                                <label class="text-[11px] font-semibold tracking-widest uppercase text-slate-600 mb-2 block">Have a coupon?</label>
+                                <label class="text-[11px] font-semibold tracking-widest uppercase text-slate-600 mb-2 block">{{ __('messages.cart.coupon_placeholder') }}</label>
                                 <div class="flex gap-2">
                                     <input type="text" x-model="couponCode" @keyup.enter="applyCoupon()" 
-                                           placeholder="Enter code" 
+                                           placeholder="{{ __('messages.cart.coupon_placeholder') }}" 
                                            class="flex-1 px-3 py-2 text-sm border border-slate-200 focus:border-slate-400 focus:ring-0 uppercase font-mono">
                                     <button @click="applyCoupon()" :disabled="couponLoading || !couponCode" 
                                             class="px-4 py-2 bg-slate-900 text-white text-[10px] font-bold tracking-wider uppercase hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                                        <span x-show="!couponLoading">Apply</span>
+                                        <span x-show="!couponLoading">{{ __('messages.cart.apply_coupon') }}</span>
                                         <svg x-show="couponLoading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
                                     </button>
                                 </div>
@@ -117,25 +117,25 @@
                     
                     <div class="space-y-4 text-[13px]">
                         <div class="flex justify-between">
-                            <span class="text-slate-500">Subtotal (<span x-text="items.length"></span> items)</span>
+                            <span class="text-slate-500">{{ __('messages.common.subtotal') }} (<span x-text="items.length"></span> {{ __('messages.common.items') }})</span>
                             <span class="font-medium text-slate-900">Rs. <span x-text="subtotal.toFixed(2)"></span></span>
                         </div>
                         <template x-if="appliedCoupon">
                             <div class="flex justify-between text-green-600">
-                                <span>Discount</span>
+                                <span>{{ __('messages.common.discount') }}</span>
                                 <span class="font-medium">-Rs. <span x-text="appliedCoupon.discount.toFixed(2)"></span></span>
                             </div>
                         </template>
                         <div class="flex justify-between">
-                            <span class="text-slate-500">Shipping</span>
-                            <span class="font-medium" :class="shipping == 0 ? 'text-green-600' : 'text-slate-900'" x-text="shipping == 0 ? 'FREE' : 'Rs. ' + shipping.toFixed(2)"></span>
+                            <span class="text-slate-500">{{ __('messages.common.shipping') }}</span>
+                            <span class="font-medium" :class="shipping == 0 ? 'text-green-600' : 'text-slate-900'" x-text="shipping == 0 ? '{{ __('messages.common.free_shipping') }}' : 'Rs. ' + shipping.toFixed(2)"></span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-slate-500">Tax (8%)</span>
+                            <span class="text-slate-500">{{ __('messages.common.tax') }} (8%)</span>
                             <span class="font-medium text-slate-900">Rs. <span x-text="tax.toFixed(2)"></span></span>
                         </div>
                         <div class="border-t border-slate-200 pt-4 flex justify-between">
-                            <span class="font-semibold text-slate-900">Total</span>
+                            <span class="font-semibold text-slate-900">{{ __('messages.common.total') }}</span>
                             <span class="text-lg font-bold text-slate-900">Rs. <span x-text="total.toFixed(2)"></span></span>
                         </div>
                     </div>
@@ -145,10 +145,10 @@
                         </p>
                     </template>
                     <a href="{{ route('checkout') }}" class="mt-8 w-full h-12 bg-slate-900 text-white text-[11px] font-bold tracking-[0.2em] uppercase flex items-center justify-center hover:bg-slate-800 transition-colors">
-                        Proceed to Checkout
+                        {{ __('messages.cart.checkout') }}
                     </a>
                     <a href="{{ route('shop.index') }}" class="mt-3 w-full h-12 bg-white text-slate-900 text-[11px] font-bold tracking-[0.2em] uppercase flex items-center justify-center border border-slate-200 hover:bg-slate-50 transition-colors">
-                        Continue Shopping
+                        {{ __('messages.cart.continue_shopping') }}
                     </a>
                 </div>
             </div>
@@ -160,10 +160,10 @@
             <div class="w-20 h-20 bg-white border border-slate-200 flex items-center justify-center mx-auto mb-8">
                 <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
             </div>
-            <h3 class="text-xl font-serif tracking-wide text-slate-900 mb-3">Your cart is empty</h3>
-            <p class="text-[13px] text-slate-500 mb-8">Looks like you haven't added anything to your cart yet.</p>
+            <h3 class="text-xl font-serif tracking-wide text-slate-900 mb-3">{{ __('messages.cart.empty') }}</h3>
+            <p class="text-[13px] text-slate-500 mb-8">{{ __('messages.cart.empty_message') }}</p>
             <a href="{{ route('shop.index') }}" class="inline-flex h-12 px-10 bg-slate-900 text-white text-[11px] font-bold tracking-[0.2em] uppercase items-center justify-center hover:bg-slate-800 transition-colors">
-                Start Shopping
+                {{ __('messages.cart.start_shopping') }}
             </a>
         </div>
     </template>
@@ -172,17 +172,20 @@
 
 @push('scripts')
 @php
-$cartData = $cartItems->map(function($item) {
+$cartData = $cartItems->filter(fn($item) => $item->product)->map(function($item) {
     return [
         'id' => $item->id,
         'product_id' => $item->product_id,
-        'name' => $item->product->name,
+        'variant_id' => $item->variant_id,
+        'name' => $item->item_name,
         'category' => $item->product->category_name,
-        'price' => (float)($item->product->discount_price ?? $item->product->price),
+        'price' => (float)$item->subtotal / $item->quantity,
         'quantity' => $item->quantity,
-        'max_stock' => min(10, $item->product->stock),
-        'image' => $item->product->image_url,
+        'max_stock' => min(10, $item->available_stock),
+        'image' => $item->item_image,
         'url' => route('shop.show', $item->product_id),
+        'variant_info' => $item->variant ? $item->variant->variant_name : null,
+        'sku' => $item->variant ? $item->variant->sku : null,
         'loading' => false
     ];
 });

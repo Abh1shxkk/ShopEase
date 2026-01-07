@@ -13,19 +13,19 @@
             <div class="hidden lg:flex items-center gap-6">
                 <a href="{{ route('shop.index', ['gender' => 'women']) }}" 
                    class="text-[11px] font-semibold tracking-widest uppercase text-slate-800 hover:text-slate-500 transition-colors">
-                    Women
+                    {{ __('messages.nav.women') }}
                 </a>
                 <a href="{{ route('shop.index', ['gender' => 'men']) }}" 
                    class="text-[11px] font-semibold tracking-widest uppercase text-slate-800 hover:text-slate-500 transition-colors">
-                    Men
+                    {{ __('messages.nav.men') }}
                 </a>
                 <a href="{{ route('shop.index', ['category' => 'Accessories']) }}" 
                    class="text-[11px] font-semibold tracking-widest uppercase text-slate-800 hover:text-slate-500 transition-colors">
-                    Accessories
+                    {{ __('messages.nav.accessories') }}
                 </a>
                 <a href="{{ route('shop.index') }}" 
                    class="text-[11px] font-semibold tracking-widest uppercase text-slate-800 hover:text-slate-500 transition-colors">
-                    Shop All
+                    {{ __('messages.nav.shop') }}
                 </a>
             </div>
 
@@ -46,21 +46,43 @@
             </div>
 
             {{-- Right Icons --}}
-            <div class="flex items-center gap-4 justify-end">
+            <div class="flex items-center gap-3 justify-end">
+                {{-- Language Switcher --}}
+                @include('components.language-switcher')
+
                 {{-- Search --}}
-                <a href="{{ route('shop.index') }}" class="p-1 hover:text-slate-500 transition-colors" title="Search">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
-                </a>
+                <div class="relative" x-data="{ searchOpen: false }">
+                    <button @click="searchOpen = !searchOpen" class="p-1 hover:text-slate-500 transition-colors" title="Search">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </button>
+                    
+                    {{-- Search Dropdown --}}
+                    <div x-show="searchOpen" 
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 translate-y-1"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 translate-y-1"
+                         @click.away="searchOpen = false"
+                         class="absolute right-0 top-full mt-2 w-80 z-50"
+                         style="display: none;">
+                        @include('components.search-box')
+                    </div>
+                </div>
 
                 {{-- User Account with Dropdown --}}
                 @auth
                     <div class="relative hidden sm:block" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
-                        <button class="p-1 hover:text-slate-500 transition-colors" title="My Account">
+                        <button class="p-1 hover:text-slate-500 transition-colors relative" title="My Account">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                             </svg>
+                            @if(auth()->user()->isMember())
+                            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-purple-500 rounded-full border border-white"></span>
+                            @endif
                         </button>
                         {{-- Profile Dropdown --}}
                         <div x-show="open"
@@ -76,23 +98,42 @@
                                 <div class="px-4 py-3 bg-slate-50 border-b border-slate-100">
                                     <p class="text-[12px] font-semibold text-slate-900">{{ auth()->user()->name }}</p>
                                     <p class="text-[10px] text-slate-500">{{ auth()->user()->email }}</p>
+                                    @if(auth()->user()->isMember())
+                                    <div class="mt-2 inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-[9px] font-semibold">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                                        </svg>
+                                        {{ auth()->user()->getCurrentPlan()?->name ?? 'Member' }}
+                                    </div>
+                                    @endif
                                 </div>
                                 <div class="py-1">
                                     <a href="{{ route('profile') }}" class="flex items-center gap-2 px-4 py-2 text-[11px] text-slate-700 hover:bg-slate-50">
                                         <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                                        My Profile
+                                        {{ __('messages.nav.profile') }}
                                     </a>
+                                    @if(auth()->user()->isMember())
+                                    <a href="{{ route('membership.manage') }}" class="flex items-center gap-2 px-4 py-2 text-[11px] text-purple-700 hover:bg-purple-50">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                                        My Membership
+                                    </a>
+                                    @else
+                                    <a href="{{ route('membership.index') }}" class="flex items-center gap-2 px-4 py-2 text-[11px] text-purple-700 hover:bg-purple-50">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                                        Become a Member
+                                    </a>
+                                    @endif
                                     <a href="{{ route('orders') }}" class="flex items-center gap-2 px-4 py-2 text-[11px] text-slate-700 hover:bg-slate-50">
                                         <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                                        My Orders
+                                        {{ __('messages.account.my_orders') }}
                                     </a>
                                     <a href="{{ route('wishlist') }}" class="flex items-center gap-2 px-4 py-2 text-[11px] text-slate-700 hover:bg-slate-50">
                                         <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-                                        Wishlist
+                                        {{ __('messages.nav.wishlist') }}
                                     </a>
                                     <a href="{{ route('cart') }}" class="flex items-center gap-2 px-4 py-2 text-[11px] text-slate-700 hover:bg-slate-50">
                                         <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                                        Cart
+                                        {{ __('messages.nav.cart') }}
                                     </a>
                                 </div>
                                 <div class="border-t border-slate-100 py-1">
@@ -100,7 +141,7 @@
                                         @csrf
                                         <button type="submit" class="flex items-center gap-2 w-full px-4 py-2 text-[11px] text-red-600 hover:bg-red-50">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                                            Logout
+                                            {{ __('messages.nav.logout') }}
                                         </button>
                                     </form>
                                 </div>
@@ -158,25 +199,51 @@
             </button>
             
             <div class="flex flex-col gap-6 mt-12">
-                <a href="{{ route('shop.index', ['gender' => 'women']) }}" class="text-2xl font-serif tracking-wide">Women</a>
-                <a href="{{ route('shop.index', ['gender' => 'men']) }}" class="text-2xl font-serif tracking-wide">Men</a>
-                <a href="{{ route('shop.index', ['category' => 'Accessories']) }}" class="text-2xl font-serif tracking-wide">Accessories</a>
-                <a href="{{ route('shop.index') }}" class="text-2xl font-serif tracking-wide">Shop All</a>
+                <a href="{{ route('shop.index', ['gender' => 'women']) }}" class="text-2xl font-serif tracking-wide">{{ __('messages.nav.women') }}</a>
+                <a href="{{ route('shop.index', ['gender' => 'men']) }}" class="text-2xl font-serif tracking-wide">{{ __('messages.nav.men') }}</a>
+                <a href="{{ route('shop.index', ['category' => 'Accessories']) }}" class="text-2xl font-serif tracking-wide">{{ __('messages.nav.accessories') }}</a>
+                <a href="{{ route('shop.index') }}" class="text-2xl font-serif tracking-wide">{{ __('messages.nav.shop') }}</a>
                 
                 <div class="border-t border-slate-200 pt-6 mt-4">
                     @auth
-                        <a href="{{ route('profile') }}" class="text-lg font-medium block mb-3">My Account</a>
-                        <a href="{{ route('orders') }}" class="text-lg font-medium block mb-3">My Orders</a>
-                        <a href="{{ route('wishlist') }}" class="text-lg font-medium block mb-3">Wishlist</a>
-                        <a href="{{ route('cart') }}" class="text-lg font-medium block mb-3">Cart</a>
+                        <a href="{{ route('profile') }}" class="text-lg font-medium block mb-3">{{ __('messages.account.my_account') }}</a>
+                        @if(auth()->user()->isMember())
+                        <a href="{{ route('membership.manage') }}" class="text-lg font-medium block mb-3 text-purple-600 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                            My Membership
+                        </a>
+                        @else
+                        <a href="{{ route('membership.index') }}" class="text-lg font-medium block mb-3 text-purple-600 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                            Become a Member
+                        </a>
+                        @endif
+                        <a href="{{ route('orders') }}" class="text-lg font-medium block mb-3">{{ __('messages.account.my_orders') }}</a>
+                        <a href="{{ route('wishlist') }}" class="text-lg font-medium block mb-3">{{ __('messages.account.my_wishlist') }}</a>
+                        <a href="{{ route('cart') }}" class="text-lg font-medium block mb-3">{{ __('messages.nav.cart') }}</a>
                         <form action="{{ route('logout') }}" method="POST" class="inline">
                             @csrf
-                            <button type="submit" class="text-lg font-medium text-red-600">Logout</button>
+                            <button type="submit" class="text-lg font-medium text-red-600">{{ __('messages.nav.logout') }}</button>
                         </form>
                     @else
-                        <a href="{{ route('login') }}" class="text-lg font-medium block mb-3">Login</a>
-                        <a href="{{ route('register') }}" class="text-lg font-medium block">Create Account</a>
+                        <a href="{{ route('login') }}" class="text-lg font-medium block mb-3">{{ __('messages.nav.login') }}</a>
+                        <a href="{{ route('register') }}" class="text-lg font-medium block">{{ __('messages.nav.register') }}</a>
                     @endauth
+                </div>
+
+                {{-- Language Switch (Mobile) --}}
+                <div class="border-t border-slate-200 pt-6 mt-4">
+                    <p class="text-sm text-slate-500 mb-3">{{ __('messages.common.language') }}</p>
+                    <div class="flex gap-3">
+                        <a href="{{ route('language.switch', 'en') }}" 
+                           class="flex items-center gap-2 px-4 py-2 border {{ app()->getLocale() === 'en' ? 'border-slate-900 bg-slate-50' : 'border-slate-200' }}">
+                            <span>🇬🇧</span> English
+                        </a>
+                        <a href="{{ route('language.switch', 'hi') }}" 
+                           class="flex items-center gap-2 px-4 py-2 border {{ app()->getLocale() === 'hi' ? 'border-slate-900 bg-slate-50' : 'border-slate-200' }}">
+                            <span>🇮🇳</span> हिंदी
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

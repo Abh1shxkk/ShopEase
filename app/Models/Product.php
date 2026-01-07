@@ -25,12 +25,14 @@ class Product extends Model
         'hide_when_out_of_stock',
         'image',
         'status',
+        'has_variants',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
         'discount_price' => 'decimal:2',
         'hide_when_out_of_stock' => 'boolean',
+        'has_variants' => 'boolean',
     ];
 
     public function category(): BelongsTo
@@ -51,6 +53,41 @@ class Product extends Model
     public function inventoryAlerts(): HasMany
     {
         return $this->hasMany(InventoryAlert::class);
+    }
+
+    public function variants(): HasMany
+    {
+        return $this->hasMany(ProductVariant::class);
+    }
+
+    public function activeVariants(): HasMany
+    {
+        return $this->variants()->where('is_active', true);
+    }
+
+    public function getAvailableSizesAttribute(): array
+    {
+        return $this->activeVariants()->whereNotNull('size')->distinct()->pluck('size')->toArray();
+    }
+
+    public function getAvailableColorsAttribute(): array
+    {
+        return $this->activeVariants()->whereNotNull('color')->distinct()->get(['color', 'color_code'])->toArray();
+    }
+
+    public function getAvailableMaterialsAttribute(): array
+    {
+        return $this->activeVariants()->whereNotNull('material')->distinct()->pluck('material')->toArray();
+    }
+
+    public function getTotalVariantStockAttribute(): int
+    {
+        return $this->activeVariants()->sum('stock');
+    }
+
+    public function getEffectiveStockAttribute(): int
+    {
+        return $this->has_variants ? $this->total_variant_stock : $this->stock;
     }
 
     public function isLowStock(): bool

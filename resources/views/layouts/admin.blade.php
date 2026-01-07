@@ -25,8 +25,11 @@
         }
         [x-cloak] { display: none !important; }
         /* Hide scrollbar but keep scroll functionality */
-        * { scrollbar-width: none; -ms-overflow-style: none; }
-        *::-webkit-scrollbar { display: none; }
+        .sidebar-nav { scrollbar-width: thin; scrollbar-color: #475569 transparent; }
+        .sidebar-nav::-webkit-scrollbar { width: 4px; }
+        .sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+        .sidebar-nav::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        .sidebar-nav::-webkit-scrollbar-thumb:hover { background: #64748b; }
         
         /* Custom select styling */
         select {
@@ -62,7 +65,7 @@
         </div>
 
         <!-- Navigation -->
-        <nav class="flex-1 px-4 py-8 space-y-1 overflow-y-auto">
+        <nav class="sidebar-nav flex-1 px-4 py-8 space-y-1 overflow-y-auto">
             <p class="px-3 mb-4 text-[9px] font-bold tracking-[0.2em] uppercase text-slate-500">Main</p>
             
             <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.dashboard') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
@@ -112,6 +115,44 @@
             <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.users.*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                 <span>Users</span>
+            </a>
+
+            <p class="px-3 mt-8 mb-4 text-[9px] font-bold tracking-[0.2em] uppercase text-slate-500">Support</p>
+            
+            <a href="{{ route('admin.support.tickets') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.support.tickets*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <span>Tickets</span>
+                @php $openTickets = \App\Models\SupportTicket::whereIn('status', ['open', 'in_progress'])->count(); @endphp
+                @if($openTickets > 0)
+                <span class="ml-auto px-2 py-0.5 bg-blue-500 text-white text-[10px] font-bold">{{ $openTickets }}</span>
+                @endif
+            </a>
+            
+            <a href="{{ route('admin.support.faqs') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.support.faq*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>FAQs</span>
+            </a>
+            
+            <a href="{{ route('admin.support.live-chat') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.support.live-chat*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                <span>Live Chat</span>
+            </a>
+
+            <p class="px-3 mt-8 mb-4 text-[9px] font-bold tracking-[0.2em] uppercase text-slate-500">Membership</p>
+            
+            <a href="{{ route('admin.membership.plans') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.membership.plans*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                <span>Plans</span>
+            </a>
+            
+            <a href="{{ route('admin.membership.subscribers') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.membership.subscribers*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <span>Subscribers</span>
+            </a>
+            
+            <a href="{{ route('admin.membership.sales') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.membership.sales*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>Early Access Sales</span>
             </a>
 
             <p class="px-3 mt-8 mb-4 text-[9px] font-bold tracking-[0.2em] uppercase text-slate-500">Content</p>

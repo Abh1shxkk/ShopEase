@@ -4,13 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
     public function index()
     {
-        $cartItems = Cart::with('product')->where('user_id', auth()->id())->get();
+        $cartItems = Cart::with(['product', 'variant'])->where('user_id', auth()->id())->get();
+        
+        // Remove cart items with deleted products (orphaned items)
+        $orphanedItems = $cartItems->filter(fn($item) => !$item->product);
+        if ($orphanedItems->isNotEmpty()) {
+            Cart::whereIn('id', $orphanedItems->pluck('id'))->delete();
+            $cartItems = $cartItems->filter(fn($item) => $item->product);
+        }
+        
         $subtotal = $cartItems->sum('subtotal');
         $shipping = $subtotal >= 250 ? 0 : 10;
         $tax = $subtotal * 0.08;
@@ -23,12 +32,27 @@ class CartController extends Controller
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
+            'variant_id' => 'nullable|exists:product_variants,id',
             'quantity' => 'integer|min:1|max:10'
         ]);
 
         $product = Product::findOrFail($request->product_id);
+        $variant = $request->variant_id ? ProductVariant::find($request->variant_id) : null;
         
-        if ($product->stock < ($request->quantity ?? 1)) {
+        // Check if product has variants but none selected
+        if ($product->has_variants && !$variant) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please select a variant'
+                ], 400);
+            }
+            return back()->with('error', 'Please select a variant');
+        }
+        
+        // Check stock
+        $availableStock = $variant ? $variant->stock : $product->stock;
+        if ($availableStock < ($request->quantity ?? 1)) {
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -40,11 +64,12 @@ class CartController extends Controller
 
         $cart = Cart::where('user_id', auth()->id())
             ->where('product_id', $request->product_id)
+            ->where('variant_id', $request->variant_id)
             ->first();
 
         if ($cart) {
             $newQuantity = $cart->quantity + ($request->quantity ?? 1);
-            if ($product->stock < $newQuantity) {
+            if ($availableStock < $newQuantity) {
                 if ($request->ajax() || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
@@ -58,6 +83,7 @@ class CartController extends Controller
             $cart = Cart::create([
                 'user_id' => auth()->id(),
                 'product_id' => $request->product_id,
+                'variant_id' => $request->variant_id,
                 'quantity' => $request->quantity ?? 1
             ]);
         }
@@ -87,7 +113,17 @@ class CartController extends Controller
             abort(403);
         }
 
-        if ($cartItem->product->stock < $request->quantity) {
+        // Handle deleted product
+        if (!$cartItem->product) {
+            $cartItem->delete();
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Product no longer available'], 400);
+            }
+            return back()->with('error', 'Product no longer available');
+        }
+
+        $availableStock = $cartItem->available_stock;
+        if ($availableStock < $request->quantity) {
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['success' => false, 'message' => 'Not enough stock available'], 400);
             }
