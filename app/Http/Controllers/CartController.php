@@ -2,13 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AbandonedCart;
 use App\Models\Cart;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Services\AbandonedCartService;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
+    public function __construct(protected AbandonedCartService $abandonedCartService)
+    {
+    }
+
     public function index()
     {
         $cartItems = Cart::with(['product', 'variant'])->where('user_id', auth()->id())->get();
@@ -25,7 +31,34 @@ class CartController extends Controller
         $tax = $subtotal * 0.08;
         $total = $subtotal + $shipping + $tax;
 
+        // Capture abandoned cart snapshot
+        if ($cartItems->isNotEmpty()) {
+            $this->abandonedCartService->capture(auth()->user());
+        }
+
         return view('cart.index', compact('cartItems', 'subtotal', 'shipping', 'tax', 'total'));
+    }
+
+    /**
+     * Recover abandoned cart
+     */
+    public function recover(string $token)
+    {
+        $abandonedCart = $this->abandonedCartService->processRecoveryClick($token);
+        
+        if (!$abandonedCart) {
+            return redirect()->route('cart')->with('error', 'Invalid or expired recovery link.');
+        }
+
+        // Auto-login if not logged in
+        if (!auth()->check()) {
+            auth()->login($abandonedCart->user);
+        }
+
+        // Restore cart items
+        $this->abandonedCartService->restoreCart($abandonedCart);
+
+        return redirect()->route('cart')->with('success', 'Your cart has been restored! Complete your purchase now.');
     }
 
     public function add(Request $request)

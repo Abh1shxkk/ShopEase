@@ -8,12 +8,20 @@ use App\Models\Coupon;
 use App\Models\CouponUsage;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Services\LoyaltyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class CheckoutController extends Controller
 {
+    protected LoyaltyService $loyaltyService;
+
+    public function __construct(LoyaltyService $loyaltyService)
+    {
+        $this->loyaltyService = $loyaltyService;
+    }
+
     public function index()
     {
         $cartItems = Cart::with('product')->where('user_id', auth()->id())->get();
@@ -48,10 +56,18 @@ class CheckoutController extends Controller
         $tax = ($subtotal - $discount) * 0.18;
         $total = $subtotal - $discount + $shipping + $tax;
 
+        // Loyalty points info
+        $loyaltySettings = $this->loyaltyService->getSettings();
+        $earnablePoints = $this->loyaltyService->calculateEarnablePoints($user, $total);
+        $maxRedeemablePoints = $this->loyaltyService->getMaxRedeemablePoints($user, $total);
+        $userTier = $this->loyaltyService->getUserTier($user);
+        $loyaltyEnabled = $this->loyaltyService->isEnabled();
+
         return view('checkout.index', compact(
             'cartItems', 'subtotal', 'discount', 'appliedCoupon', 
             'couponDiscount', 'memberDiscount', 'memberDiscountPercent',
-            'shipping', 'hasFreeShipping', 'tax', 'total'
+            'shipping', 'hasFreeShipping', 'tax', 'total',
+            'loyaltySettings', 'earnablePoints', 'maxRedeemablePoints', 'userTier', 'loyaltyEnabled'
         ));
     }
 
