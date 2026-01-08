@@ -4,12 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\RecentlyViewed;
 use App\Models\SearchHistory;
 use App\Models\ShopBanner;
+use App\Services\FlashSaleService;
 use Illuminate\Http\Request;
 
 class ShopController extends Controller
 {
+    public function __construct(protected FlashSaleService $flashSaleService)
+    {
+    }
+
     public function index(Request $request)
     {
         $query = Product::where('status', 'active');
@@ -132,10 +138,18 @@ class ShopController extends Controller
             abort(404);
         }
 
+        // Track recently viewed
+        if (auth()->check()) {
+            RecentlyViewed::track(auth()->id(), $product->id);
+        }
+
         // Load variants for products with variants
         $product->load(['activeVariants' => function($query) {
             $query->orderBy('size')->orderBy('color')->orderBy('material');
         }]);
+
+        // Check for flash sale price
+        $flashSaleInfo = $this->flashSaleService->getFlashSalePrice($product->id);
 
         // Get related products - try category_id first, then fallback
         $relatedQuery = Product::where('status', 'active')
@@ -149,6 +163,14 @@ class ShopController extends Controller
         
         $relatedProducts = $relatedQuery->take(6)->get();
 
+        // Get recently viewed products
+        $recentlyViewed = collect();
+        if (auth()->check()) {
+            $recentlyViewed = RecentlyViewed::getForUser(auth()->id(), 6)
+                ->filter(fn($p) => $p->id !== $product->id)
+                ->take(4);
+        }
+
         // Get frequently bought together products
         $bundleService = app(\App\Services\BundleService::class);
         $frequentlyBought = $bundleService->getFrequentlyBoughtTogether($product);
@@ -156,6 +178,6 @@ class ShopController extends Controller
         // Get bundles containing this product
         $productBundles = $bundleService->getBundlesForProduct($product);
 
-        return view('shop.show', compact('product', 'relatedProducts', 'frequentlyBought', 'productBundles'));
+        return view('shop.show', compact('product', 'relatedProducts', 'frequentlyBought', 'productBundles', 'recentlyViewed', 'flashSaleInfo'));
     }
 }

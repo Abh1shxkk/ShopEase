@@ -51,6 +51,11 @@ Route::get('/language/{locale}', [\App\Http\Controllers\LanguageController::clas
 Route::get('/bundles', [\App\Http\Controllers\BundleController::class, 'index'])->name('bundles.index');
 Route::get('/bundles/{bundle:slug}', [\App\Http\Controllers\BundleController::class, 'show'])->name('bundles.show');
 
+// Flash Sales routes (Public)
+Route::get('/flash-sales', [\App\Http\Controllers\FlashSaleController::class, 'index'])->name('flash-sales.index');
+Route::get('/flash-sales/{flashSale:slug}', [\App\Http\Controllers\FlashSaleController::class, 'show'])->name('flash-sales.show');
+Route::get('/flash-sales/{flashSale}/data', [\App\Http\Controllers\FlashSaleController::class, 'getData'])->name('flash-sales.data');
+
 // Shop routes (Public - everyone can browse)
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/product/{product}', [ShopController::class, 'show'])->name('shop.show');
@@ -130,6 +135,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/cart/count', [CartController::class, 'count'])->name('cart.count');
     Route::patch('/cart/update/{cartItem}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/remove/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::get('/cart/recover/{token}', [CartController::class, 'recover'])->name('cart.recover');
     
     // Checkout
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
@@ -190,6 +196,11 @@ Route::middleware('auth')->group(function () {
     // Referral System
     Route::get('/referrals', [\App\Http\Controllers\ReferralController::class, 'index'])->name('referrals.index');
     Route::post('/referrals/apply-code', [\App\Http\Controllers\ReferralController::class, 'applyCode'])->name('referrals.apply-code');
+    
+    // Loyalty Points
+    Route::get('/loyalty', [\App\Http\Controllers\LoyaltyController::class, 'index'])->name('loyalty.index');
+    Route::get('/loyalty/history', [\App\Http\Controllers\LoyaltyController::class, 'history'])->name('loyalty.history');
+    Route::post('/loyalty/calculate-preview', [\App\Http\Controllers\LoyaltyController::class, 'calculatePreview'])->name('loyalty.calculate-preview');
     
     // Bundle Routes
     Route::post('/bundles/{bundle}/add-to-cart', [\App\Http\Controllers\BundleController::class, 'addToCart'])->name('bundles.add-to-cart');
@@ -374,6 +385,31 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->prefix('admin')->
     Route::get('/referrals/settings', [\App\Http\Controllers\Admin\ReferralController::class, 'settings'])->name('referrals.settings');
     Route::post('/referrals/settings', [\App\Http\Controllers\Admin\ReferralController::class, 'updateSettings'])->name('referrals.settings.update');
     Route::post('/referrals/users/{user}/adjust-points', [\App\Http\Controllers\Admin\ReferralController::class, 'adjustPoints'])->name('referrals.adjust-points');
+
+    // Loyalty Program Management
+    Route::get('/loyalty', [\App\Http\Controllers\Admin\LoyaltyController::class, 'index'])->name('loyalty.index');
+    Route::get('/loyalty/transactions', [\App\Http\Controllers\Admin\LoyaltyController::class, 'transactions'])->name('loyalty.transactions');
+    Route::get('/loyalty/members', [\App\Http\Controllers\Admin\LoyaltyController::class, 'members'])->name('loyalty.members');
+    Route::get('/loyalty/settings', [\App\Http\Controllers\Admin\LoyaltyController::class, 'settings'])->name('loyalty.settings');
+    Route::post('/loyalty/settings', [\App\Http\Controllers\Admin\LoyaltyController::class, 'updateSettings'])->name('loyalty.settings.update');
+    Route::post('/loyalty/toggle', [\App\Http\Controllers\Admin\LoyaltyController::class, 'toggleStatus'])->name('loyalty.toggle');
+    Route::post('/loyalty/members/{user}/adjust', [\App\Http\Controllers\Admin\LoyaltyController::class, 'adjustPoints'])->name('loyalty.adjust-points');
+    Route::post('/loyalty/bulk-award', [\App\Http\Controllers\Admin\LoyaltyController::class, 'bulkAward'])->name('loyalty.bulk-award');
+
+    // Flash Sales Management
+    Route::get('/flash-sales', [\App\Http\Controllers\Admin\FlashSaleController::class, 'index'])->name('flash-sales.index');
+    Route::get('/flash-sales/create', [\App\Http\Controllers\Admin\FlashSaleController::class, 'create'])->name('flash-sales.create');
+    Route::post('/flash-sales', [\App\Http\Controllers\Admin\FlashSaleController::class, 'store'])->name('flash-sales.store');
+    Route::get('/flash-sales/{flashSale}/edit', [\App\Http\Controllers\Admin\FlashSaleController::class, 'edit'])->name('flash-sales.edit');
+    Route::put('/flash-sales/{flashSale}', [\App\Http\Controllers\Admin\FlashSaleController::class, 'update'])->name('flash-sales.update');
+    Route::delete('/flash-sales/{flashSale}', [\App\Http\Controllers\Admin\FlashSaleController::class, 'destroy'])->name('flash-sales.destroy');
+    Route::patch('/flash-sales/{flashSale}/toggle', [\App\Http\Controllers\Admin\FlashSaleController::class, 'toggle'])->name('flash-sales.toggle');
+
+    // Abandoned Carts Management
+    Route::get('/abandoned-carts', [\App\Http\Controllers\Admin\AbandonedCartController::class, 'index'])->name('abandoned-carts.index');
+    Route::get('/abandoned-carts/{abandonedCart}', [\App\Http\Controllers\Admin\AbandonedCartController::class, 'show'])->name('abandoned-carts.show');
+    Route::post('/abandoned-carts/{abandonedCart}/send-reminder', [\App\Http\Controllers\Admin\AbandonedCartController::class, 'sendReminder'])->name('abandoned-carts.send-reminder');
+    Route::post('/abandoned-carts/send-bulk-reminders', [\App\Http\Controllers\Admin\AbandonedCartController::class, 'sendBulkReminders'])->name('abandoned-carts.send-bulk');
 
     // Newsletter Campaigns
     Route::get('/newsletter/campaigns', [\App\Http\Controllers\Admin\NewsletterController::class, 'campaigns'])->name('newsletter.campaigns');

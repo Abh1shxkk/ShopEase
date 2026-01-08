@@ -136,8 +136,53 @@
             {{-- Title --}}
             <h1 class="text-3xl lg:text-4xl font-serif tracking-wide text-slate-900 mt-3 mb-6">{{ $product->name }}</h1>
 
+            {{-- Flash Sale Banner --}}
+            @if(isset($flashSaleInfo) && $flashSaleInfo)
+            <div class="bg-gradient-to-r from-red-600 to-red-500 text-white p-4 mb-6" x-data="{ 
+                endTime: new Date('{{ $flashSaleInfo['ends_at'] }}').getTime(),
+                timeLeft: '',
+                init() {
+                    this.updateTimer();
+                    setInterval(() => this.updateTimer(), 1000);
+                },
+                updateTimer() {
+                    const now = new Date().getTime();
+                    const distance = this.endTime - now;
+                    if (distance < 0) {
+                        this.timeLeft = 'Sale Ended';
+                        return;
+                    }
+                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                    this.timeLeft = hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+                }
+            }">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        <div>
+                            <p class="text-[11px] font-bold tracking-widest uppercase">Flash Sale</p>
+                            <p class="text-[10px] opacity-90">{{ $flashSaleInfo['name'] }}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] opacity-90">Ends in</p>
+                        <p class="text-lg font-bold font-mono" x-text="timeLeft"></p>
+                    </div>
+                </div>
+            </div>
+            @endif
+
             {{-- Price --}}
             <div class="flex items-baseline gap-4 mb-8">
+                @if(isset($flashSaleInfo) && $flashSaleInfo)
+                <span class="text-2xl font-semibold text-red-600">Rs. {{ number_format($flashSaleInfo['sale_price'], 2) }}</span>
+                <span class="text-lg text-slate-400 line-through">Rs. {{ number_format($product->price, 2) }}</span>
+                <span class="text-[11px] font-bold tracking-wider uppercase text-red-600">
+                    Save {{ round((($product->price - $flashSaleInfo['sale_price']) / $product->price) * 100) }}%
+                </span>
+                @else
                 <span class="text-2xl font-semibold text-slate-900">Rs. <span x-text="currentPrice.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
                 <template x-if="isOnSale">
                     <span class="text-lg text-slate-400 line-through">Rs. <span x-text="originalPrice.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})"></span></span>
@@ -147,6 +192,7 @@
                         Save <span x-text="Math.round(((originalPrice - currentPrice) / originalPrice) * 100)"></span>%
                     </span>
                 </template>
+                @endif
             </div>
 
             {{-- Description --}}
@@ -688,6 +734,36 @@
                 <p class="text-[10px] tracking-widest uppercase text-slate-400 mb-1">{{ $related->category_name }}</p>
                 <h3 class="text-[14px] font-medium text-slate-900 group-hover:text-slate-600 transition-colors mb-2">{{ $related->name }}</h3>
                 <p class="text-[14px] font-semibold text-slate-900">Rs. {{ number_format($related->discount_price ?? $related->price, 2) }}</p>
+            </a>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
+    {{-- Recently Viewed Products --}}
+    @if(isset($recentlyViewed) && $recentlyViewed->count() > 0)
+    <div class="mt-20 border-t border-slate-100 pt-12">
+        <div class="flex items-center justify-between mb-10">
+            <h2 class="text-2xl font-serif tracking-wide">Recently Viewed</h2>
+            <a href="{{ route('shop.index') }}" class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-400 hover:text-slate-900 transition-colors">
+                Continue Shopping →
+            </a>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            @foreach($recentlyViewed as $viewed)
+            <a href="{{ route('shop.show', $viewed) }}" class="group">
+                <div class="aspect-[3/4] bg-[#f7f7f7] overflow-hidden mb-4">
+                    @if($viewed->image_url)
+                    <img src="{{ $viewed->image_url }}" alt="{{ $viewed->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    @else
+                    <div class="w-full h-full flex items-center justify-center">
+                        <svg class="w-12 h-12 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </div>
+                    @endif
+                </div>
+                <p class="text-[10px] tracking-widest uppercase text-slate-400 mb-1">{{ $viewed->category_name }}</p>
+                <h3 class="text-[14px] font-medium text-slate-900 group-hover:text-slate-600 transition-colors mb-2">{{ $viewed->name }}</h3>
+                <p class="text-[14px] font-semibold text-slate-900">Rs. {{ number_format($viewed->discount_price ?? $viewed->price, 2) }}</p>
             </a>
             @endforeach
         </div>
