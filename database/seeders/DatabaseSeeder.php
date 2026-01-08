@@ -18,20 +18,24 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Admin User
-        User::create([
-            'name' => 'Admin',
-            'email' => 'admin@shopease.com',
-            'password' => Hash::make('admin123'),
-            'role' => 'admin',
-        ]);
+        User::firstOrCreate(
+            ['email' => 'admin@shopease.com'],
+            [
+                'name' => 'Admin',
+                'password' => Hash::make('admin123'),
+                'role' => 'admin',
+            ]
+        );
 
         // Normal User
-        User::create([
-            'name' => 'John Doe',
-            'email' => 'user@shopease.com',
-            'password' => Hash::make('user123'),
-            'role' => 'user',
-        ]);
+        User::firstOrCreate(
+            ['email' => 'user@shopease.com'],
+            [
+                'name' => 'John Doe',
+                'password' => Hash::make('user123'),
+                'role' => 'user',
+            ]
+        );
 
         // Sample Products
         $products = [
@@ -48,7 +52,10 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($products as $product) {
-            Product::create($product);
+            Product::firstOrCreate(
+                ['name' => $product['name']],
+                $product
+            );
         }
     }
 }

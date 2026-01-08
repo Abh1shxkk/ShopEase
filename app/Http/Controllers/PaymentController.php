@@ -6,6 +6,7 @@ use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Services\Payment\RazorpayService;
+use App\Services\LoyaltyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -13,10 +14,12 @@ use Illuminate\Support\Facades\Log;
 class PaymentController extends Controller
 {
     protected RazorpayService $razorpay;
+    protected LoyaltyService $loyaltyService;
 
-    public function __construct(RazorpayService $razorpay)
+    public function __construct(RazorpayService $razorpay, LoyaltyService $loyaltyService)
     {
         $this->razorpay = $razorpay;
+        $this->loyaltyService = $loyaltyService;
     }
 
     /**
@@ -52,10 +55,11 @@ class PaymentController extends Controller
         $pointsDiscount = 0;
         $pointsRedeemed = 0;
         if ($request->use_reward_points && $request->redeem_points >= 100) {
-            $pointsToRedeem = min($request->redeem_points, $user->reward_points);
-            $referralService = app(\App\Services\ReferralService::class);
-            $pointsDiscount = $referralService->getPointsValue($pointsToRedeem);
-            $pointsRedeemed = $pointsToRedeem;
+            $validation = $this->loyaltyService->validateRedemption($user, $request->redeem_points, $subtotal);
+            if ($validation['valid']) {
+                $pointsRedeemed = $request->redeem_points;
+                $pointsDiscount = $validation['discount'];
+            }
         }
         
         $total = $subtotal + $shipping + $tax - $pointsDiscount;
@@ -87,8 +91,7 @@ class PaymentController extends Controller
             
             // Redeem points if used
             if ($pointsRedeemed > 0) {
-                $referralService = app(\App\Services\ReferralService::class);
-                $referralService->redeemPoints($user, $pointsRedeemed, $order, "Redeemed for order #{$order->order_number}");
+                $this->loyaltyService->redeemPoints($user, $pointsRedeemed, 'redemption', "Redeemed for order #{$order->order_number}", $order);
             }
 
             // Create order items
@@ -234,14 +237,16 @@ class PaymentController extends Controller
         // Update order status
         $order->update(['status' => 'processing']);
 
-        // Handle referral and reward points
+        // Mark abandoned cart as recovered
+        $abandonedCartService = app(\App\Services\AbandonedCartService::class);
+        $abandonedCartService->markRecovered(auth()->user(), $order->id);
+
+        // Handle referral completion
         $referralService = app(\App\Services\ReferralService::class);
-        
-        // Complete referral if this is user's first paid order
         $referralService->completeReferral($order);
         
-        // Earn points from order
-        $referralService->earnPointsFromOrder($order);
+        // Earn loyalty points from order (with tier multiplier)
+        $this->loyaltyService->processOrderCompletion($order);
 
         // Record frequently bought together data
         $bundleService = app(\App\Services\BundleService::class);

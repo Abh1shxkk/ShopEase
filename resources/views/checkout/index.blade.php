@@ -227,31 +227,40 @@
                     @endif
 
                     {{-- Reward Points Redemption --}}
-                    @if(auth()->user()->reward_points >= 100)
-                    <div class="mt-4 p-4 bg-amber-50 border border-amber-200" x-data="{ usePoints: false, pointsToUse: 0 }">
+                    @if($loyaltyEnabled)
+                    <div class="mt-4 p-4 bg-amber-50 border border-amber-200" x-data="{ usePoints: false, pointsToUse: {{ min(auth()->user()->reward_points, $maxRedeemablePoints) }} }">
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center gap-2">
-                                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                <span class="text-[12px] font-medium text-amber-800">Reward Points</span>
+                                <span class="text-lg">{{ $userTier['icon'] }}</span>
+                                <span class="text-[12px] font-medium text-amber-800">{{ $userTier['name'] }} Member</span>
                             </div>
                             <span class="text-[12px] font-bold text-amber-700">{{ number_format(auth()->user()->reward_points) }} pts</span>
                         </div>
-                        <p class="text-[11px] text-amber-700 mb-3">Worth ₹{{ number_format(auth()->user()->reward_points * 0.25) }} (1 pt = ₹0.25)</p>
+                        
+                        {{-- Points to Earn --}}
+                        <div class="flex items-center justify-between py-2 border-b border-amber-200 mb-3">
+                            <span class="text-[11px] text-amber-700">Points you'll earn</span>
+                            <span class="text-[12px] font-bold text-emerald-600">+{{ number_format($earnablePoints) }} pts</span>
+                        </div>
+                        
+                        @if(auth()->user()->reward_points >= $loyaltySettings['min_points_to_redeem'])
+                        <p class="text-[11px] text-amber-700 mb-3">Worth ₹{{ number_format(auth()->user()->reward_points * $loyaltySettings['points_value_in_rupees']) }} (1 pt = ₹{{ $loyaltySettings['points_value_in_rupees'] }})</p>
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" name="use_reward_points" x-model="usePoints" class="w-4 h-4 text-amber-600 border-amber-300 focus:ring-amber-500">
+                            <input type="checkbox" name="use_reward_points" x-model="usePoints" value="1" class="w-4 h-4 text-amber-600 border-amber-300 focus:ring-amber-500">
                             <span class="text-[11px] text-amber-800">Use reward points for this order</span>
                         </label>
                         <div x-show="usePoints" x-collapse class="mt-3">
-                            <label class="text-[10px] text-amber-700 block mb-1">Points to redeem (min 100)</label>
-                            <input type="number" name="redeem_points" x-model="pointsToUse" min="100" max="{{ min(auth()->user()->reward_points, $total * 4) }}" step="10" class="w-full h-10 px-3 bg-white border border-amber-300 text-[12px] focus:outline-none focus:border-amber-500">
-                            <p class="text-[10px] text-amber-600 mt-1">Discount: ₹<span x-text="(pointsToUse * 0.25).toFixed(2)">0.00</span></p>
+                            <label class="text-[10px] text-amber-700 block mb-1">Points to redeem (min {{ $loyaltySettings['min_points_to_redeem'] }}, max {{ number_format($maxRedeemablePoints) }})</label>
+                            <input type="number" name="redeem_points" x-model="pointsToUse" min="{{ $loyaltySettings['min_points_to_redeem'] }}" max="{{ $maxRedeemablePoints }}" step="10" class="w-full h-10 px-3 bg-white border border-amber-300 text-[12px] focus:outline-none focus:border-amber-500">
+                            <p class="text-[10px] text-amber-600 mt-1">Discount: ₹<span x-text="(pointsToUse * {{ $loyaltySettings['points_value_in_rupees'] }}).toFixed(2)">0.00</span></p>
                         </div>
-                    </div>
-                    @elseif(auth()->user()->reward_points > 0)
-                    <div class="mt-4 p-3 bg-slate-100 border border-slate-200">
-                        <p class="text-[11px] text-slate-600">You have {{ number_format(auth()->user()->reward_points) }} reward points. Earn {{ 100 - auth()->user()->reward_points }} more to redeem!</p>
+                        @elseif(auth()->user()->reward_points > 0)
+                        <p class="text-[11px] text-amber-600">Earn {{ $loyaltySettings['min_points_to_redeem'] - auth()->user()->reward_points }} more points to unlock redemption!</p>
+                        @else
+                        <p class="text-[11px] text-amber-600">Start earning points with this order!</p>
+                        @endif
+                        
+                        <a href="{{ route('loyalty.index') }}" class="text-[10px] text-amber-700 hover:text-amber-900 mt-2 inline-block">View Loyalty Dashboard →</a>
                     </div>
                     @endif
 

@@ -27,6 +27,11 @@
                    class="text-[11px] font-semibold tracking-widest uppercase text-red-600 hover:text-red-500 transition-colors">
                     Offers
                 </a>
+                <a href="{{ route('flash-sales.index') }}" 
+                   class="text-[11px] font-semibold tracking-widest uppercase text-amber-600 hover:text-amber-500 transition-colors flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    Flash Sale
+                </a>
                 <a href="{{ route('shop.index') }}" 
                    class="text-[11px] font-semibold tracking-widest uppercase text-slate-800 hover:text-slate-500 transition-colors">
                     {{ __('messages.nav.shop') }}
@@ -135,12 +140,16 @@
                                         <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
                                         {{ __('messages.nav.wishlist') }}
                                     </a>
-                                    <a href="{{ route('referrals.index') }}" class="flex items-center gap-2 px-4 py-2 text-[11px] text-amber-700 hover:bg-amber-50">
+                                    <a href="{{ route('loyalty.index') }}" class="flex items-center gap-2 px-4 py-2 text-[11px] text-amber-700 hover:bg-amber-50">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                        Refer & Earn
+                                        Loyalty Points
                                         @if(auth()->user()->reward_points > 0)
                                         <span class="ml-auto text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">{{ number_format(auth()->user()->reward_points) }} pts</span>
                                         @endif
+                                    </a>
+                                    <a href="{{ route('referrals.index') }}" class="flex items-center gap-2 px-4 py-2 text-[11px] text-slate-700 hover:bg-slate-50">
+                                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                                        Refer & Earn
                                     </a>
                                     <a href="{{ route('cart') }}" class="flex items-center gap-2 px-4 py-2 text-[11px] text-slate-700 hover:bg-slate-50">
                                         <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
@@ -214,6 +223,10 @@
                 <a href="{{ route('shop.index', ['gender' => 'men']) }}" class="text-2xl font-serif tracking-wide">{{ __('messages.nav.men') }}</a>
                 <a href="{{ route('shop.index', ['category' => 'Accessories']) }}" class="text-2xl font-serif tracking-wide">{{ __('messages.nav.accessories') }}</a>
                 <a href="{{ route('bundles.index') }}" class="text-2xl font-serif tracking-wide text-red-600">Offers</a>
+                <a href="{{ route('flash-sales.index') }}" class="text-2xl font-serif tracking-wide text-amber-600 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    Flash Sale
+                </a>
                 <a href="{{ route('shop.index') }}" class="text-2xl font-serif tracking-wide">{{ __('messages.nav.shop') }}</a>
                 
                 <div class="border-t border-slate-200 pt-6 mt-4">
