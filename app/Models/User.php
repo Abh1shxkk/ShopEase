@@ -204,4 +204,15 @@ class User extends Authenticatable
     {
         return $this->hasMany(RewardTransaction::class);
     }
+
+    // Seller relationship
+    public function seller(): HasOne
+    {
+        return $this->hasOne(Seller::class);
+    }
+
+    public function isSeller(): bool
+    {
+        return $this->seller && $this->seller->isApproved();
+    }
 }
