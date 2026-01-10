@@ -138,6 +138,40 @@
                 @endif
             </a>
 
+            <p class="px-3 mt-8 mb-4 text-[9px] font-bold tracking-[0.2em] uppercase text-slate-500">Marketplace</p>
+            
+            <a href="{{ route('admin.sellers.index') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.sellers.index') || request()->routeIs('admin.sellers.show') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                <span>Sellers</span>
+                @php $pendingSellers = \App\Models\Seller::where('status', 'pending')->count(); @endphp
+                @if($pendingSellers > 0)
+                <span class="ml-auto px-2 py-0.5 bg-amber-500 text-white text-[10px] font-bold">{{ $pendingSellers }}</span>
+                @endif
+            </a>
+            
+            <a href="{{ route('admin.sellers.products') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.sellers.products*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                <span>Seller Products</span>
+                @php $pendingProducts = \App\Models\Product::whereNotNull('seller_id')->where('approval_status', 'pending')->count(); @endphp
+                @if($pendingProducts > 0)
+                <span class="ml-auto px-2 py-0.5 bg-amber-500 text-white text-[10px] font-bold">{{ $pendingProducts }}</span>
+                @endif
+            </a>
+            
+            <a href="{{ route('admin.sellers.payouts') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.sellers.payouts*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                <span>Payouts</span>
+                @php $pendingPayouts = \App\Models\SellerPayout::where('status', 'pending')->count(); @endphp
+                @if($pendingPayouts > 0)
+                <span class="ml-auto px-2 py-0.5 bg-amber-500 text-white text-[10px] font-bold">{{ $pendingPayouts }}</span>
+                @endif
+            </a>
+            
+            <a href="{{ route('admin.sellers.settings') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.sellers.settings*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <span>Seller Settings</span>
+            </a>
+
             <p class="px-3 mt-8 mb-4 text-[9px] font-bold tracking-[0.2em] uppercase text-slate-500">Customers</p>
             
             <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.users.*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">

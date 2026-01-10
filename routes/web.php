@@ -422,4 +422,54 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->prefix('admin')->
     Route::post('/newsletter/campaigns/{campaign}/send-test', [\App\Http\Controllers\Admin\NewsletterController::class, 'sendTestEmail'])->name('newsletter.campaigns.send-test');
     Route::post('/newsletter/campaigns/{campaign}/send', [\App\Http\Controllers\Admin\NewsletterController::class, 'sendCampaign'])->name('newsletter.campaigns.send');
     Route::get('/newsletter/campaigns/{campaign}/preview', [\App\Http\Controllers\Admin\NewsletterController::class, 'previewCampaign'])->name('newsletter.campaigns.preview');
+
+    // Seller Management
+    Route::get('/sellers', [\App\Http\Controllers\Admin\SellerController::class, 'index'])->name('sellers.index');
+    Route::get('/sellers/{seller}', [\App\Http\Controllers\Admin\SellerController::class, 'show'])->name('sellers.show');
+    Route::post('/sellers/{seller}/approve', [\App\Http\Controllers\Admin\SellerController::class, 'approve'])->name('sellers.approve');
+    Route::post('/sellers/{seller}/reject', [\App\Http\Controllers\Admin\SellerController::class, 'reject'])->name('sellers.reject');
+    Route::post('/sellers/{seller}/suspend', [\App\Http\Controllers\Admin\SellerController::class, 'suspend'])->name('sellers.suspend');
+    Route::patch('/sellers/{seller}/commission', [\App\Http\Controllers\Admin\SellerController::class, 'updateCommission'])->name('sellers.commission');
+    Route::get('/seller-payouts', [\App\Http\Controllers\Admin\SellerController::class, 'payouts'])->name('sellers.payouts');
+    Route::post('/seller-payouts/{payout}/process', [\App\Http\Controllers\Admin\SellerController::class, 'processPayout'])->name('sellers.payouts.process');
+    Route::post('/seller-payouts/{payout}/reject', [\App\Http\Controllers\Admin\SellerController::class, 'rejectPayout'])->name('sellers.payouts.reject');
+    Route::get('/seller-settings', [\App\Http\Controllers\Admin\SellerController::class, 'settings'])->name('sellers.settings');
+    Route::post('/seller-settings', [\App\Http\Controllers\Admin\SellerController::class, 'updateSettings'])->name('sellers.settings.update');
+    Route::get('/seller-products', [\App\Http\Controllers\Admin\SellerController::class, 'products'])->name('sellers.products');
+    Route::post('/seller-products/{product}/approve', [\App\Http\Controllers\Admin\SellerController::class, 'approveProduct'])->name('sellers.products.approve');
+    Route::post('/seller-products/{product}/reject', [\App\Http\Controllers\Admin\SellerController::class, 'rejectProduct'])->name('sellers.products.reject');
+});
+
+// Seller Registration Routes
+Route::middleware('auth')->group(function () {
+    Route::get('/become-seller', [\App\Http\Controllers\SellerRegistrationController::class, 'showForm'])->name('seller.register');
+    Route::post('/become-seller', [\App\Http\Controllers\SellerRegistrationController::class, 'register'])->name('seller.register.store');
+    Route::get('/seller/pending', fn() => view('seller.pending'))->name('seller.pending');
+    Route::get('/seller/suspended', fn() => view('seller.suspended'))->name('seller.suspended');
+});
+
+// Seller Dashboard Routes
+Route::middleware(['auth', \App\Http\Middleware\SellerMiddleware::class])->prefix('seller')->name('seller.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Seller\DashboardController::class, 'index'])->name('dashboard');
+    
+    // Products
+    Route::get('/products', [\App\Http\Controllers\Seller\ProductController::class, 'index'])->name('products.index');
+    Route::get('/products/create', [\App\Http\Controllers\Seller\ProductController::class, 'create'])->name('products.create');
+    Route::post('/products', [\App\Http\Controllers\Seller\ProductController::class, 'store'])->name('products.store');
+    Route::get('/products/{product}/edit', [\App\Http\Controllers\Seller\ProductController::class, 'edit'])->name('products.edit');
+    Route::put('/products/{product}', [\App\Http\Controllers\Seller\ProductController::class, 'update'])->name('products.update');
+    Route::delete('/products/{product}', [\App\Http\Controllers\Seller\ProductController::class, 'destroy'])->name('products.destroy');
+    
+    // Orders
+    Route::get('/orders', [\App\Http\Controllers\Seller\OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [\App\Http\Controllers\Seller\OrderController::class, 'show'])->name('orders.show');
+    
+    // Payouts
+    Route::get('/payouts', [\App\Http\Controllers\Seller\PayoutController::class, 'index'])->name('payouts.index');
+    Route::post('/payouts', [\App\Http\Controllers\Seller\PayoutController::class, 'store'])->name('payouts.store');
+    
+    // Profile
+    Route::get('/profile', [\App\Http\Controllers\Seller\ProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile', [\App\Http\Controllers\Seller\ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/bank', [\App\Http\Controllers\Seller\ProfileController::class, 'updateBankDetails'])->name('profile.bank');
 });
