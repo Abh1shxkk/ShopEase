@@ -52,4 +52,9 @@ return [
         'key_secret' => env('RAZORPAY_KEY_SECRET'),
     ],
 
+    'ai_chat' => [
+        'provider' => env('AI_CHAT_PROVIDER', 'gemini'), // gemini, openai, or empty for fallback
+        'api_key' => env('AI_CHAT_API_KEY', ''),
+    ],
+
 ];

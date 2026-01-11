@@ -7,7 +7,7 @@
 <header id="main-header" class="fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ease-out">
     {{-- Main Navigation --}}
     <nav id="navbar" class="border-b border-slate-200 bg-white/95 backdrop-blur-md transition-all duration-300">
-        <div class="max-w-[1440px] mx-auto px-6 md:px-12 h-12 grid grid-cols-3 items-center">
+        <div class="max-w-[1440px] mx-auto px-6 md:px-12 h-16 grid grid-cols-3 items-center">
             
             {{-- Left Navigation (Desktop) --}}
             <div class="hidden lg:flex items-center gap-6">
@@ -187,6 +187,14 @@
                     </a>
                 @endauth
 
+                {{-- Compare --}}
+                <a href="{{ route('compare.index') }}" class="hidden sm:block p-1 hover:text-slate-500 transition-colors relative" title="Compare Products">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
+                    </svg>
+                    <span id="compare-count" class="absolute -top-1 -right-1 w-4 h-4 bg-slate-900 text-white text-[9px] font-bold rounded-full items-center justify-center" style="display: none;">0</span>
+                </a>
+
                 {{-- Wishlist --}}
                 @auth
                     <a href="{{ route('wishlist') }}" class="hidden sm:block p-1 hover:text-slate-500 transition-colors" title="Wishlist">
@@ -292,7 +300,7 @@
     let ticking = false;
     const header = document.getElementById('main-header');
     const navbar = document.getElementById('navbar');
-    const navbarHeight = 48; // h-12 = 48px
+    const navbarHeight = 64; // h-16 = 64px
     
     function updateHeader() {
         const currentScrollY = window.scrollY;

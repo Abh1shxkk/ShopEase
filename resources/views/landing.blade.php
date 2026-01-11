@@ -58,7 +58,7 @@
         @include('partials.landing.navbar')
         
         {{-- Main Content --}}
-        <main class="pt-12">
+        <main class="pt-16">
             {{-- Hero Slider --}}
             @include('partials.landing.hero-slider')
             

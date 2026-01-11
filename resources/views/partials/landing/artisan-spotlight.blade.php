@@ -1,4 +1,9 @@
 {{-- Artisan Spotlight Component --}}
+@php
+use App\Models\ProcessStep;
+$hasProcessSteps = ProcessStep::where('is_active', true)->exists();
+@endphp
+
 <section class="relative h-[80vh] overflow-hidden flex items-center justify-center">
     {{-- Background Image with Parallax Effect --}}
     <div class="absolute inset-0 bg-fixed bg-cover bg-center grayscale" 
@@ -18,8 +23,13 @@
             "We traverse the globe to find vintage textiles that deserve a second life. Our artisans in Istanbul transform these pieces of history into modern icons of luxury."
         </p>
         
-        <button class="text-[11px] font-bold tracking-[0.2em] uppercase border border-slate-900 px-10 py-4 hover:bg-slate-900 hover:text-white transition-all">
-            Discover the Process
-        </button>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{{ route('pages.process') }}" class="text-[11px] font-bold tracking-[0.2em] uppercase border border-slate-900 px-10 py-4 hover:bg-slate-900 hover:text-white transition-all">
+                Discover the Process
+            </a>
+            <a href="{{ route('pages.story') }}" class="text-[11px] font-bold tracking-[0.2em] uppercase border border-slate-300 text-slate-600 px-10 py-4 hover:border-slate-900 hover:text-slate-900 transition-all">
+                Our Story
+            </a>
+        </div>
     </div>
 </section>

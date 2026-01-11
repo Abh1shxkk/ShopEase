@@ -86,7 +86,7 @@ class SiteSettingsSeeder extends Seeder
                 'title' => 'Sustainability Through Rediscovery.',
                 'description' => "We don't just make products; we preserve cultures. By sourcing kilims that are up to 100 years old, we reduce waste while honoring the geometric languages of nomadic tribes.",
                 'image' => 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=1000',
-                'link' => '/about',
+                'link' => '/our-ethos',
                 'link_text' => 'Read Our Ethos',
                 'section_type' => 'heritage',
                 'sort_order' => 0,

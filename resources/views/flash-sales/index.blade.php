@@ -141,7 +141,7 @@
             </svg>
             <h3 class="text-xl font-serif text-slate-900 mb-2">No Flash Sales Right Now</h3>
             <p class="text-slate-500">Check back soon for amazing deals!</p>
-            <a href="{{ route('shop.index') }}" class="inline-block mt-6 h-11 px-8 bg-slate-900 text-white text-[11px] font-bold tracking-[0.15em] uppercase flex items-center justify-center hover:bg-slate-800 transition-colors">
+            <a href="{{ route('shop.index') }}" class="inline-flex items-center justify-center mt-6 h-11 px-8 bg-slate-900 text-white text-[11px] font-bold tracking-[0.15em] uppercase hover:bg-slate-800 transition-colors">
                 Browse Shop
             </a>
         </div>

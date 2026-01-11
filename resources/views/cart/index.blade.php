@@ -131,7 +131,7 @@
                             <span class="font-medium" :class="shipping == 0 ? 'text-green-600' : 'text-slate-900'" x-text="shipping == 0 ? '{{ __('messages.common.free_shipping') }}' : 'Rs. ' + shipping.toFixed(2)"></span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-slate-500">{{ __('messages.common.tax') }} (8%)</span>
+                            <span class="text-slate-500">{{ __('messages.common.tax') }} (18% GST)</span>
                             <span class="font-medium text-slate-900">Rs. <span x-text="tax.toFixed(2)"></span></span>
                         </div>
                         <div class="border-t border-slate-200 pt-4 flex justify-between">
@@ -139,9 +139,9 @@
                             <span class="text-lg font-bold text-slate-900">Rs. <span x-text="total.toFixed(2)"></span></span>
                         </div>
                     </div>
-                    <template x-if="subtotal < 250">
+                    <template x-if="subtotal < 500">
                         <p class="text-[12px] text-slate-500 mt-6 p-3 bg-white border border-slate-200">
-                            Add Rs. <span x-text="(250 - subtotal).toFixed(2)"></span> more for free shipping!
+                            Add Rs. <span x-text="(500 - subtotal).toFixed(2)"></span> more for free shipping!
                         </p>
                     </template>
                     <a href="{{ route('checkout') }}" class="mt-8 w-full h-12 bg-slate-900 text-white text-[11px] font-bold tracking-[0.2em] uppercase flex items-center justify-center hover:bg-slate-800 transition-colors">
@@ -208,10 +208,10 @@ function cartManager() {
             return this.appliedCoupon ? this.appliedCoupon.discount : 0;
         },
         get shipping() {
-            return (this.subtotal - this.discount) >= 250 ? 0 : 10;
+            return (this.subtotal - this.discount) >= 500 ? 0 : 49;
         },
         get tax() {
-            return (this.subtotal - this.discount) * 0.08;
+            return (this.subtotal - this.discount) * 0.18;
         },
         get total() {
             return this.subtotal - this.discount + this.shipping + this.tax;
