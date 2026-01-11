@@ -63,6 +63,11 @@ Route::get('/product/{product}', [ShopController::class, 'show'])->name('shop.sh
 // Membership routes (Public)
 Route::get('/membership', [\App\Http\Controllers\MembershipController::class, 'index'])->name('membership.index');
 
+// Brand Pages (Public)
+Route::get('/our-story', [\App\Http\Controllers\BrandPageController::class, 'story'])->name('pages.story');
+Route::get('/our-process', [\App\Http\Controllers\BrandPageController::class, 'process'])->name('pages.process');
+Route::get('/our-ethos', [\App\Http\Controllers\BrandPageController::class, 'ethos'])->name('pages.ethos');
+
 // Search routes (Public)
 Route::get('/search', [\App\Http\Controllers\SearchController::class, 'search'])->name('search');
 Route::get('/search/suggestions', [\App\Http\Controllers\SearchController::class, 'suggestions'])->name('search.suggestions');
@@ -438,6 +443,62 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->prefix('admin')->
     Route::get('/seller-products', [\App\Http\Controllers\Admin\SellerController::class, 'products'])->name('sellers.products');
     Route::post('/seller-products/{product}/approve', [\App\Http\Controllers\Admin\SellerController::class, 'approveProduct'])->name('sellers.products.approve');
     Route::post('/seller-products/{product}/reject', [\App\Http\Controllers\Admin\SellerController::class, 'rejectProduct'])->name('sellers.products.reject');
+
+    // Brand Pages Management
+    Route::get('/brand/story-sections', [\App\Http\Controllers\Admin\BrandPageController::class, 'storySections'])->name('brand.story-sections');
+    Route::get('/brand/story-sections/create', [\App\Http\Controllers\Admin\BrandPageController::class, 'createStorySection'])->name('brand.story-sections.create');
+    Route::post('/brand/story-sections', [\App\Http\Controllers\Admin\BrandPageController::class, 'storeStorySection'])->name('brand.story-sections.store');
+    Route::get('/brand/story-sections/{section}/edit', [\App\Http\Controllers\Admin\BrandPageController::class, 'editStorySection'])->name('brand.story-sections.edit');
+    Route::put('/brand/story-sections/{section}', [\App\Http\Controllers\Admin\BrandPageController::class, 'updateStorySection'])->name('brand.story-sections.update');
+    Route::delete('/brand/story-sections/{section}', [\App\Http\Controllers\Admin\BrandPageController::class, 'destroyStorySection'])->name('brand.story-sections.destroy');
+
+    Route::get('/brand/process-steps', [\App\Http\Controllers\Admin\BrandPageController::class, 'processSteps'])->name('brand.process-steps');
+    Route::get('/brand/process-steps/create', [\App\Http\Controllers\Admin\BrandPageController::class, 'createProcessStep'])->name('brand.process-steps.create');
+    Route::post('/brand/process-steps', [\App\Http\Controllers\Admin\BrandPageController::class, 'storeProcessStep'])->name('brand.process-steps.store');
+    Route::get('/brand/process-steps/{step}/edit', [\App\Http\Controllers\Admin\BrandPageController::class, 'editProcessStep'])->name('brand.process-steps.edit');
+    Route::put('/brand/process-steps/{step}', [\App\Http\Controllers\Admin\BrandPageController::class, 'updateProcessStep'])->name('brand.process-steps.update');
+    Route::delete('/brand/process-steps/{step}', [\App\Http\Controllers\Admin\BrandPageController::class, 'destroyProcessStep'])->name('brand.process-steps.destroy');
+
+    Route::get('/brand/team', [\App\Http\Controllers\Admin\BrandPageController::class, 'teamMembers'])->name('brand.team');
+    Route::get('/brand/team/create', [\App\Http\Controllers\Admin\BrandPageController::class, 'createTeamMember'])->name('brand.team.create');
+    Route::post('/brand/team', [\App\Http\Controllers\Admin\BrandPageController::class, 'storeTeamMember'])->name('brand.team.store');
+    Route::get('/brand/team/{member}/edit', [\App\Http\Controllers\Admin\BrandPageController::class, 'editTeamMember'])->name('brand.team.edit');
+    Route::put('/brand/team/{member}', [\App\Http\Controllers\Admin\BrandPageController::class, 'updateTeamMember'])->name('brand.team.update');
+    Route::delete('/brand/team/{member}', [\App\Http\Controllers\Admin\BrandPageController::class, 'destroyTeamMember'])->name('brand.team.destroy');
+
+    // Ethos Page Management
+    Route::get('/brand/ethos/sections', [\App\Http\Controllers\Admin\EthosController::class, 'sections'])->name('brand.ethos.sections');
+    Route::get('/brand/ethos/sections/create', [\App\Http\Controllers\Admin\EthosController::class, 'createSection'])->name('brand.ethos.sections.create');
+    Route::post('/brand/ethos/sections', [\App\Http\Controllers\Admin\EthosController::class, 'storeSection'])->name('brand.ethos.sections.store');
+    Route::get('/brand/ethos/sections/{section}/edit', [\App\Http\Controllers\Admin\EthosController::class, 'editSection'])->name('brand.ethos.sections.edit');
+    Route::put('/brand/ethos/sections/{section}', [\App\Http\Controllers\Admin\EthosController::class, 'updateSection'])->name('brand.ethos.sections.update');
+    Route::delete('/brand/ethos/sections/{section}', [\App\Http\Controllers\Admin\EthosController::class, 'deleteSection'])->name('brand.ethos.sections.delete');
+
+    Route::get('/brand/ethos/values', [\App\Http\Controllers\Admin\EthosController::class, 'values'])->name('brand.ethos.values');
+    Route::get('/brand/ethos/values/create', [\App\Http\Controllers\Admin\EthosController::class, 'createValue'])->name('brand.ethos.values.create');
+    Route::post('/brand/ethos/values', [\App\Http\Controllers\Admin\EthosController::class, 'storeValue'])->name('brand.ethos.values.store');
+    Route::get('/brand/ethos/values/{value}/edit', [\App\Http\Controllers\Admin\EthosController::class, 'editValue'])->name('brand.ethos.values.edit');
+    Route::put('/brand/ethos/values/{value}', [\App\Http\Controllers\Admin\EthosController::class, 'updateValue'])->name('brand.ethos.values.update');
+    Route::delete('/brand/ethos/values/{value}', [\App\Http\Controllers\Admin\EthosController::class, 'deleteValue'])->name('brand.ethos.values.delete');
+
+    // Blog Management
+    Route::get('/blog/posts', [\App\Http\Controllers\Admin\BlogController::class, 'posts'])->name('blog.posts');
+    Route::get('/blog/posts/create', [\App\Http\Controllers\Admin\BlogController::class, 'createPost'])->name('blog.posts.create');
+    Route::post('/blog/posts', [\App\Http\Controllers\Admin\BlogController::class, 'storePost'])->name('blog.posts.store');
+    Route::get('/blog/posts/{post}/edit', [\App\Http\Controllers\Admin\BlogController::class, 'editPost'])->name('blog.posts.edit');
+    Route::put('/blog/posts/{post}', [\App\Http\Controllers\Admin\BlogController::class, 'updatePost'])->name('blog.posts.update');
+    Route::delete('/blog/posts/{post}', [\App\Http\Controllers\Admin\BlogController::class, 'deletePost'])->name('blog.posts.delete');
+
+    Route::get('/blog/categories', [\App\Http\Controllers\Admin\BlogController::class, 'categories'])->name('blog.categories');
+    Route::get('/blog/categories/create', [\App\Http\Controllers\Admin\BlogController::class, 'createCategory'])->name('blog.categories.create');
+    Route::post('/blog/categories', [\App\Http\Controllers\Admin\BlogController::class, 'storeCategory'])->name('blog.categories.store');
+    Route::get('/blog/categories/{category}/edit', [\App\Http\Controllers\Admin\BlogController::class, 'editCategory'])->name('blog.categories.edit');
+    Route::put('/blog/categories/{category}', [\App\Http\Controllers\Admin\BlogController::class, 'updateCategory'])->name('blog.categories.update');
+    Route::delete('/blog/categories/{category}', [\App\Http\Controllers\Admin\BlogController::class, 'deleteCategory'])->name('blog.categories.delete');
+
+    Route::get('/blog/comments', [\App\Http\Controllers\Admin\BlogController::class, 'comments'])->name('blog.comments');
+    Route::patch('/blog/comments/{comment}/approve', [\App\Http\Controllers\Admin\BlogController::class, 'approveComment'])->name('blog.comments.approve');
+    Route::delete('/blog/comments/{comment}', [\App\Http\Controllers\Admin\BlogController::class, 'deleteComment'])->name('blog.comments.delete');
 });
 
 // Seller Registration Routes
@@ -472,4 +533,54 @@ Route::middleware(['auth', \App\Http\Middleware\SellerMiddleware::class])->prefi
     Route::get('/profile', [\App\Http\Controllers\Seller\ProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile', [\App\Http\Controllers\Seller\ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/bank', [\App\Http\Controllers\Seller\ProfileController::class, 'updateBankDetails'])->name('profile.bank');
+});
+
+// Customer Experience Routes
+
+// Product Comparison (Public)
+Route::get('/compare', [\App\Http\Controllers\ProductComparisonController::class, 'index'])->name('compare.index');
+Route::post('/compare/add', [\App\Http\Controllers\ProductComparisonController::class, 'add'])->name('compare.add');
+Route::post('/compare/remove', [\App\Http\Controllers\ProductComparisonController::class, 'remove'])->name('compare.remove');
+Route::post('/compare/clear', [\App\Http\Controllers\ProductComparisonController::class, 'clear'])->name('compare.clear');
+Route::get('/compare/count', [\App\Http\Controllers\ProductComparisonController::class, 'count'])->name('compare.count');
+
+// Order Tracking (Public)
+Route::get('/track-order', [\App\Http\Controllers\OrderTrackingController::class, 'trackForm'])->name('orders.track.form');
+Route::post('/track-order', [\App\Http\Controllers\OrderTrackingController::class, 'track'])->name('orders.track');
+
+// Shared Wishlist (Public)
+Route::get('/wishlist/shared/{token}', [\App\Http\Controllers\WishlistShareController::class, 'show'])->name('wishlist.shared');
+
+// Customer Experience Routes (Authenticated)
+Route::middleware('auth')->group(function () {
+    // Order Tracking
+    Route::get('/orders/{order}/tracking', [\App\Http\Controllers\OrderTrackingController::class, 'show'])->name('orders.tracking');
+    
+    // Product Q&A
+    Route::post('/product/{product}/question', [\App\Http\Controllers\ProductQAController::class, 'storeQuestion'])->name('product.question.store');
+    Route::post('/question/{question}/answer', [\App\Http\Controllers\ProductQAController::class, 'storeAnswer'])->name('product.answer.store');
+    Route::post('/answer/{answer}/vote', [\App\Http\Controllers\ProductQAController::class, 'voteAnswer'])->name('product.answer.vote');
+    
+    // Review Votes
+    Route::post('/reviews/{review}/vote', [\App\Http\Controllers\ReviewController::class, 'vote'])->name('reviews.vote');
+    
+    // Wishlist Sharing
+    Route::get('/wishlist/share', [\App\Http\Controllers\WishlistShareController::class, 'create'])->name('wishlist.share.create');
+    Route::post('/wishlist/share', [\App\Http\Controllers\WishlistShareController::class, 'store'])->name('wishlist.share.store');
+    Route::delete('/wishlist/share/{share}', [\App\Http\Controllers\WishlistShareController::class, 'destroy'])->name('wishlist.share.destroy');
+});
+
+// AI Chat Routes
+Route::prefix('chat')->name('chat.')->group(function () {
+    Route::get('/conversation', [\App\Http\Controllers\ChatController::class, 'getConversation'])->name('conversation');
+    Route::post('/send', [\App\Http\Controllers\ChatController::class, 'sendMessage'])->name('send');
+    Route::post('/clear', [\App\Http\Controllers\ChatController::class, 'clearConversation'])->name('clear');
+});
+
+// Blog/Journal Routes (Public)
+Route::prefix('journal')->name('blog.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\BlogController::class, 'index'])->name('index');
+    Route::get('/category/{slug}', [\App\Http\Controllers\BlogController::class, 'category'])->name('category');
+    Route::get('/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('show');
+    Route::post('/{post}/comment', [\App\Http\Controllers\BlogController::class, 'storeComment'])->name('comment');
 });

@@ -36,9 +36,16 @@
         }
         return {{ $product->discount_price ? 'true' : 'false' }};
     },
+    get totalVariantStock() {
+        return this.variants.reduce((sum, v) => sum + (v.stock || 0), 0);
+    },
     get currentStock() {
-        if (this.hasVariants && this.selectedVariant) {
-            return this.selectedVariant.stock;
+        if (this.hasVariants) {
+            if (this.selectedVariant) {
+                return this.selectedVariant.stock;
+            }
+            // Show total variant stock when no variant selected
+            return this.totalVariantStock;
         }
         return {{ $product->stock }};
     },
@@ -97,7 +104,17 @@
     },
     get canAddToCart() {
         if (!this.hasVariants) return this.currentStock > 0;
+        // For products with variants, need to select a variant with stock
         return this.selectedVariant && this.selectedVariant.stock > 0;
+    },
+    get needsVariantSelection() {
+        // Show variant selection prompt when variants exist but none selected
+        return this.hasVariants && !this.selectedVariant && this.totalVariantStock > 0;
+    },
+    get isOutOfStock() {
+        // True only when there's genuinely no stock
+        if (!this.hasVariants) return this.currentStock <= 0;
+        return this.totalVariantStock <= 0;
     },
     increment() { if (this.quantity < this.maxStock) this.quantity++ },
     decrement() { if (this.quantity > 1) this.quantity-- }
@@ -218,6 +235,56 @@
             {{-- Variant Selection --}}
             @if($product->has_variants)
             <div class="space-y-6 mb-8 pb-8 border-b border-slate-100">
+                {{-- Size Guide Link --}}
+                @php $sizeGuide = $product->sizeGuide(); @endphp
+                @if($sizeGuide)
+                <div x-data="{ showSizeGuide: false }">
+                    <button @click="showSizeGuide = true" type="button" class="text-[11px] font-bold tracking-widest uppercase text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-2 mb-4">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                        Size Guide
+                    </button>
+                    
+                    {{-- Size Guide Modal --}}
+                    <div x-show="showSizeGuide" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display: none;">
+                        <div class="fixed inset-0 bg-black/50" @click="showSizeGuide = false"></div>
+                        <div class="relative bg-white max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8" @click.stop>
+                            <button @click="showSizeGuide = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-900 transition-colors">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                            <h2 class="text-2xl font-serif text-slate-900 mb-2">{{ $sizeGuide->name }}</h2>
+                            <p class="text-[10px] font-bold tracking-widest uppercase text-slate-400 mb-6">{{ ucfirst($sizeGuide->type) }} Size Guide</p>
+                            @if($sizeGuide->measurements)
+                            <div class="overflow-x-auto mb-6">
+                                <table class="w-full text-sm">
+                                    <thead>
+                                        <tr class="bg-slate-50">
+                                            @foreach(array_keys($sizeGuide->measurements[0] ?? []) as $header)
+                                            <th class="px-4 py-3 text-left text-[10px] font-bold tracking-widest uppercase text-slate-500 border-b border-slate-100">{{ $header }}</th>
+                                            @endforeach
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($sizeGuide->measurements as $row)
+                                        <tr class="border-b border-slate-100">
+                                            @foreach($row as $value)
+                                            <td class="px-4 py-3 text-slate-600">{{ $value }}</td>
+                                            @endforeach
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            @endif
+                            @if($sizeGuide->fit_tips)
+                            <div class="bg-slate-50 p-4">
+                                <h3 class="text-[11px] font-bold tracking-widest uppercase text-slate-500 mb-2">Fit Tips</h3>
+                                <p class="text-sm text-slate-600">{{ $sizeGuide->fit_tips }}</p>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endif
                 {{-- Size Selection --}}
                 <template x-if="availableSizes.length > 0">
                     <div>
@@ -315,6 +382,9 @@
                         <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
                     </button>
                 </form>
+                <button onclick="addToCompare({{ $product->id }})" class="w-14 h-14 border border-slate-200 flex items-center justify-center hover:bg-slate-50 hover:border-slate-900 transition-all" title="Add to Compare">
+                    <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+                </button>
                 @else
                 <a href="{{ route('login') }}" class="flex-1 h-14 bg-slate-900 text-white text-[11px] font-bold tracking-[0.2em] uppercase hover:bg-slate-800 transition-colors flex items-center justify-center gap-3">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
@@ -324,8 +394,19 @@
             </div>
             </div>
             </template>
-            <template x-if="!canAddToCart">
-            {{-- Out of Stock - Notify Me Section --}}
+            
+            {{-- Needs Variant Selection Message --}}
+            <template x-if="needsVariantSelection">
+            <div class="bg-amber-50 border border-amber-200 p-6 mb-10">
+                <div class="flex items-center gap-3 text-amber-800">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <p class="text-[13px] font-medium">Please select your size and options above to add to cart</p>
+                </div>
+            </div>
+            </template>
+            
+            {{-- Out of Stock - Notify Me Section (only when genuinely out of stock) --}}
+            <template x-if="isOutOfStock">
             <div class="bg-slate-50 p-6 mb-10" x-data="{ 
                 email: '{{ auth()->user()->email ?? '' }}', 
                 loading: false, 
@@ -410,6 +491,9 @@
             </button>
             <button @click="activeTab = 'reviews'" :class="activeTab === 'reviews' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400'" class="pb-4 border-b-2 text-[11px] font-bold tracking-[0.2em] uppercase transition-colors">
                 Reviews ({{ $product->reviews_count }})
+            </button>
+            <button @click="activeTab = 'qa'" :class="activeTab === 'qa' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400'" class="pb-4 border-b-2 text-[11px] font-bold tracking-[0.2em] uppercase transition-colors">
+                Q&A ({{ $product->approvedQuestions()->count() }})
             </button>
             <button @click="activeTab = 'shipping'" :class="activeTab === 'shipping' ? 'border-slate-900 text-slate-900' : 'border-transparent text-slate-400'" class="pb-4 border-b-2 text-[11px] font-bold tracking-[0.2em] uppercase transition-colors">
                 Shipping & Returns
@@ -535,6 +619,32 @@
                         <h5 class="text-[14px] font-medium text-slate-900 mb-2">{{ $review->title }}</h5>
                         @endif
                         <p class="text-[13px] text-slate-600 leading-relaxed">{{ $review->comment }}</p>
+                        
+                        {{-- Review Photos --}}
+                        @if($review->photos->count() > 0)
+                        <div class="flex gap-2 mt-3">
+                            @foreach($review->photos as $photo)
+                            <img src="{{ $photo->image_url }}" alt="Review photo" class="w-16 h-16 object-cover cursor-pointer hover:opacity-80 transition-opacity" onclick="window.open('{{ $photo->image_url }}', '_blank')">
+                            @endforeach
+                        </div>
+                        @endif
+                        
+                        {{-- Helpful Voting --}}
+                        <div class="flex items-center gap-4 mt-4 pt-4 border-t border-slate-100">
+                            <span class="text-[11px] text-slate-400">Was this review helpful?</span>
+                            @auth
+                            <button onclick="voteReview({{ $review->id }}, true)" class="text-[11px] text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/></svg>
+                                Yes (<span id="helpful-{{ $review->id }}">{{ $review->helpful_count ?? 0 }}</span>)
+                            </button>
+                            <button onclick="voteReview({{ $review->id }}, false)" class="text-[11px] text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-1">
+                                <svg class="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/></svg>
+                                No (<span id="not-helpful-{{ $review->id }}">{{ $review->not_helpful_count ?? 0 }}</span>)
+                            </button>
+                            @else
+                            <span class="text-[11px] text-slate-400">{{ $review->helpful_count ?? 0 }} found this helpful</span>
+                            @endauth
+                        </div>
                     </div>
                     @empty
                     <div class="text-center py-12">
@@ -548,6 +658,104 @@
 
         {{-- Shipping Tab --}}
         <div x-show="activeTab === 'shipping'" x-cloak x-transition class="max-w-3xl">
+
+        {{-- Q&A Tab --}}
+        <div x-show="activeTab === 'qa'" x-cloak x-transition>
+            @php
+                $questions = $product->approvedQuestions()->with(['user', 'approvedAnswers.user'])->take(10)->get();
+            @endphp
+            
+            <div class="grid lg:grid-cols-3 gap-12">
+                {{-- Ask Question Form --}}
+                <div class="lg:col-span-1">
+                    @auth
+                    <div class="bg-slate-50 p-6" x-data="{ submitting: false }">
+                        <h4 class="text-[11px] font-bold tracking-[0.2em] uppercase text-slate-900 mb-4">Ask a Question</h4>
+                        <form action="{{ route('product.question.store', $product) }}" method="POST" @submit="submitting = true">
+                            @csrf
+                            <div class="mb-4">
+                                <textarea name="question" rows="4" required minlength="10" maxlength="500" class="w-full px-4 py-3 border border-slate-200 text-[13px] focus:outline-none focus:border-slate-900 resize-none" placeholder="What would you like to know about this product?"></textarea>
+                            </div>
+                            <button type="submit" :disabled="submitting" class="w-full h-12 bg-slate-900 text-white text-[11px] font-bold tracking-[0.2em] uppercase hover:bg-slate-800 transition-colors disabled:opacity-50">
+                                <span x-show="!submitting">Submit Question</span>
+                                <span x-show="submitting">Submitting...</span>
+                            </button>
+                        </form>
+                        <p class="text-[11px] text-slate-400 mt-3">Questions are reviewed before being published.</p>
+                    </div>
+                    @else
+                    <div class="bg-slate-50 p-6 text-center">
+                        <p class="text-[13px] text-slate-600 mb-4">Login to ask a question</p>
+                        <a href="{{ route('login') }}" class="inline-flex h-10 px-6 bg-slate-900 text-white text-[11px] font-bold tracking-widest uppercase items-center hover:bg-slate-800 transition-colors">Login</a>
+                    </div>
+                    @endauth
+                </div>
+
+                {{-- Questions List --}}
+                <div class="lg:col-span-2">
+                    @forelse($questions as $question)
+                    <div class="pb-6 mb-6 border-b border-slate-100 last:border-0" x-data="{ showAnswerForm: false }">
+                        <div class="flex gap-3 mb-3">
+                            <span class="text-[11px] font-bold tracking-widest uppercase text-blue-600 mt-0.5">Q:</span>
+                            <div class="flex-1">
+                                <p class="text-[14px] text-slate-900">{{ $question->question }}</p>
+                                <p class="text-[11px] text-slate-400 mt-1">Asked by {{ $question->user->name }} · {{ $question->created_at->diffForHumans() }}</p>
+                            </div>
+                        </div>
+
+                        {{-- Answers --}}
+                        @foreach($question->approvedAnswers as $answer)
+                        <div class="flex gap-3 ml-6 mt-4 bg-slate-50 p-4">
+                            <span class="text-[11px] font-bold tracking-widest uppercase {{ $answer->is_seller_answer ? 'text-green-600' : 'text-slate-400' }} mt-0.5">A:</span>
+                            <div class="flex-1">
+                                <p class="text-[13px] text-slate-700">{{ $answer->answer }}</p>
+                                <div class="flex items-center gap-3 mt-2">
+                                    <p class="text-[11px] text-slate-400">
+                                        @if($answer->is_seller_answer)
+                                        <span class="text-green-600 font-medium">Seller</span>
+                                        @else
+                                        {{ $answer->user->name }}
+                                        @endif
+                                        · {{ $answer->created_at->diffForHumans() }}
+                                    </p>
+                                    @if($answer->helpful_count > 0)
+                                    <span class="text-[11px] text-slate-400">{{ $answer->helpful_count }} found this helpful</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+
+                        {{-- Answer Form --}}
+                        @auth
+                        <button @click="showAnswerForm = !showAnswerForm" class="ml-6 mt-3 text-[10px] font-bold tracking-widest uppercase text-slate-500 hover:text-slate-900 transition-colors">
+                            Answer this question
+                        </button>
+                        <div x-show="showAnswerForm" x-transition class="ml-6 mt-3">
+                            <form action="{{ route('product.answer.store', $question) }}" method="POST">
+                                @csrf
+                                <textarea name="answer" rows="2" required minlength="10" maxlength="1000" placeholder="Share your answer..." class="w-full px-4 py-3 border border-slate-200 text-[13px] focus:outline-none focus:border-slate-900 resize-none mb-2"></textarea>
+                                <div class="flex justify-end gap-2">
+                                    <button type="button" @click="showAnswerForm = false" class="px-4 py-1.5 text-[10px] font-bold tracking-widest uppercase text-slate-500 hover:text-slate-900 transition-colors">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" class="px-4 py-1.5 bg-slate-900 text-white text-[10px] font-bold tracking-widest uppercase hover:bg-slate-800 transition-colors">
+                                        Submit
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        @endauth
+                    </div>
+                    @empty
+                    <div class="text-center py-12">
+                        <svg class="w-16 h-16 mx-auto text-slate-200 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <p class="text-[14px] text-slate-500">No questions yet. Be the first to ask!</p>
+                    </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
             <div class="grid md:grid-cols-2 gap-12">
                 <div>
                     <h4 class="text-[11px] font-bold tracking-[0.2em] uppercase text-slate-900 mb-4">Shipping</h4>
@@ -770,4 +978,52 @@
     </div>
     @endif
 </div>
+
+@push('scripts')
+<script>
+// Review voting
+function voteReview(reviewId, isHelpful) {
+    fetch(`/reviews/${reviewId}/vote`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ is_helpful: isHelpful })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById(`helpful-${reviewId}`).textContent = data.helpful_count;
+            document.getElementById(`not-helpful-${reviewId}`).textContent = data.not_helpful_count;
+            showToast('Thanks for your feedback!');
+        }
+    })
+    .catch(() => showToast('Something went wrong', 'error'));
+}
+
+// Add to compare
+function addToCompare(productId) {
+    fetch('{{ route('compare.add') }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ product_id: productId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast(data.message);
+        } else {
+            showToast(data.message, 'error');
+        }
+    })
+    .catch(() => showToast('Something went wrong', 'error'));
+}
+</script>
+@endpush
 @endsection

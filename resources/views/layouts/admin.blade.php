@@ -172,6 +172,45 @@
                 <span>Seller Settings</span>
             </a>
 
+            <p class="px-3 mt-8 mb-4 text-[9px] font-bold tracking-[0.2em] uppercase text-slate-500">Brand Pages</p>
+            
+            <a href="{{ route('admin.brand.story-sections') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.brand.story-sections*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                <span>Story Sections</span>
+            </a>
+            
+            <a href="{{ route('admin.brand.process-steps') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.brand.process-steps*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                <span>Process Steps</span>
+            </a>
+            
+            <a href="{{ route('admin.brand.team') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.brand.team*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                <span>Team Members</span>
+            </a>
+            
+            <a href="{{ route('admin.brand.ethos.sections') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.brand.ethos.*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                <span>Ethos Page</span>
+            </a>
+
+            <p class="px-3 mt-8 mb-4 text-[9px] font-bold tracking-[0.2em] uppercase text-slate-500">Blog / Journal</p>
+            
+            <a href="{{ route('admin.blog.posts') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.blog.posts*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+                <span>Posts</span>
+            </a>
+            
+            <a href="{{ route('admin.blog.categories') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.blog.categories*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                <span>Categories</span>
+            </a>
+            
+            <a href="{{ route('admin.blog.comments') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.blog.comments*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                <span>Comments</span>
+            </a>
+
             <p class="px-3 mt-8 mb-4 text-[9px] font-bold tracking-[0.2em] uppercase text-slate-500">Customers</p>
             
             <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-4 py-3 text-[12px] transition-colors {{ request()->routeIs('admin.users.*') ? 'bg-white text-slate-900' : 'text-slate-300 hover:bg-slate-800 hover:text-white' }}">

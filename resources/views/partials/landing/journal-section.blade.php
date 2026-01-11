@@ -1,14 +1,35 @@
 {{-- Journal Section Component --}}
 @php
+use App\Models\BlogPost;
 use App\Models\FeaturedSection;
-$journalPosts = FeaturedSection::active()->byType('journal')->get();
 
-// Fallback if no posts in database
+// Try to get blog posts first
+$journalPosts = BlogPost::published()
+    ->latest('published_at')
+    ->take(3)
+    ->get();
+
+// Fallback to featured sections if no blog posts
+if ($journalPosts->isEmpty()) {
+    $featuredPosts = FeaturedSection::active()->byType('journal')->get();
+    if ($featuredPosts->isNotEmpty()) {
+        $journalPosts = $featuredPosts->map(function($post) {
+            return (object)[
+                'title' => $post->title,
+                'slug' => null,
+                'featured_image' => $post->image_url,
+                'published_at' => $post->created_at,
+            ];
+        });
+    }
+}
+
+// Final fallback with static data
 if ($journalPosts->isEmpty()) {
     $journalPosts = collect([
-        (object)['title' => 'What the Places We Call Home Have Taught Us', 'image_url' => 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=800', 'created_at' => now()->subDays(10)],
-        (object)['title' => 'Still Naughty. Still Saucy. Still Yummy.', 'image_url' => 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800', 'created_at' => now()->subDays(20)],
-        (object)['title' => 'The Art of Wandering Without a Plan', 'image_url' => 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80&w=800', 'created_at' => now()->subDays(30)],
+        (object)['title' => 'What the Places We Call Home Have Taught Us', 'slug' => null, 'featured_image' => 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&q=80&w=800', 'published_at' => now()->subDays(10)],
+        (object)['title' => 'Still Naughty. Still Saucy. Still Yummy.', 'slug' => null, 'featured_image' => 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800', 'published_at' => now()->subDays(20)],
+        (object)['title' => 'The Art of Wandering Without a Plan', 'slug' => null, 'featured_image' => 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&q=80&w=800', 'published_at' => now()->subDays(30)],
     ]);
 }
 @endphp
@@ -24,15 +45,17 @@ if ($journalPosts->isEmpty()) {
         {{-- Journal Grid --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
             @foreach($journalPosts as $post)
-                <a href="{{ $post->link ?? '#' }}" class="group cursor-pointer block">
+                <a href="{{ $post->slug ? route('blog.show', $post->slug) : route('blog.index') }}" class="group cursor-pointer block">
                     <div class="aspect-video overflow-hidden mb-6 bg-slate-50">
                         <img 
-                            src="{{ $post->image_url }}" 
+                            src="{{ $post->featured_image ?? 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&q=80&w=800' }}" 
                             alt="{{ $post->title }}" 
                             class="w-full h-full object-cover grayscale-hover"
                         />
                     </div>
-                    <p class="text-[10px] font-bold tracking-widest text-slate-400 uppercase mb-3">{{ $post->created_at->format('M d, Y') }}</p>
+                    <p class="text-[10px] font-bold tracking-widest text-slate-400 uppercase mb-3">
+                        {{ $post->published_at ? $post->published_at->format('M d, Y') : now()->format('M d, Y') }}
+                    </p>
                     <h4 class="text-lg font-serif tracking-wide leading-snug group-hover:text-slate-600 transition-colors">
                         {{ $post->title }}
                     </h4>
@@ -42,9 +65,9 @@ if ($journalPosts->isEmpty()) {
 
         {{-- View All Button --}}
         <div class="mt-16 text-center">
-            <button class="text-[11px] font-bold tracking-[0.2em] uppercase underline underline-offset-8 decoration-slate-200 underline-animate hover:decoration-slate-900">
+            <a href="{{ route('blog.index') }}" class="text-[11px] font-bold tracking-[0.2em] uppercase underline underline-offset-8 decoration-slate-200 underline-animate hover:decoration-slate-900">
                 View All
-            </button>
+            </a>
         </div>
     </div>
 </section>

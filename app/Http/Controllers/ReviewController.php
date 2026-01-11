@@ -86,4 +86,19 @@ class ReviewController extends Controller
 
         return back()->with('success', 'Review deleted successfully');
     }
+
+    public function vote(Request $request, Review $review)
+    {
+        $request->validate([
+            'is_helpful' => 'required|boolean',
+        ]);
+
+        $review->vote(auth()->id(), $request->is_helpful);
+
+        return response()->json([
+            'success' => true,
+            'helpful_count' => $review->fresh()->helpful_count,
+            'not_helpful_count' => $review->fresh()->not_helpful_count,
+        ]);
+    }
 }

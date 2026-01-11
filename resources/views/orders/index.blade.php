@@ -35,6 +35,11 @@
                         'cancelled' => 'bg-red-50 text-red-700 border-red-200',
                     ];
                     @endphp
+                    @if(in_array($order->status, ['shipped', 'processing', 'delivered']))
+                    <a href="{{ route('orders.tracking', $order) }}" class="text-[10px] font-bold tracking-widest uppercase text-blue-600 hover:text-blue-800 transition-colors" onclick="event.stopPropagation();">
+                        Track Order
+                    </a>
+                    @endif
                     <span class="px-3 py-1.5 text-[10px] font-bold tracking-widest uppercase border {{ $statusStyles[$order->status] ?? 'bg-slate-50 text-slate-700 border-slate-200' }}">
                         {{ ucfirst($order->status) }}
                     </span>

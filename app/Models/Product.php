@@ -50,6 +50,21 @@ class Product extends Model
         return $this->hasMany(Review::class);
     }
 
+    public function questions(): HasMany
+    {
+        return $this->hasMany(ProductQuestion::class);
+    }
+
+    public function approvedQuestions(): HasMany
+    {
+        return $this->questions()->where('is_approved', true)->latest();
+    }
+
+    public function sizeGuide(): ?SizeGuide
+    {
+        return SizeGuide::getForCategory($this->category_id);
+    }
+
     public function stockNotifications(): HasMany
     {
         return $this->hasMany(StockNotification::class);
