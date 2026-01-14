@@ -55,6 +55,11 @@ class ProductController extends Controller
         $validated['seller_id'] = $seller->id;
         $validated['status'] = 'active';
         $validated['approval_status'] = $settings->auto_approve_products ? 'approved' : 'pending';
+        
+        // Set default gender if empty or null
+        if (empty($validated['gender'])) {
+            $validated['gender'] = 'unisex';
+        }
 
         Product::create($validated);
 

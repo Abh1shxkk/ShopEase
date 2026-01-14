@@ -16,18 +16,20 @@ if ($showcaseCategories->isEmpty()) {
 
 <section id="categories" class="py-24 bg-white border-t border-slate-100">
     <div class="max-w-[1440px] mx-auto px-6 md:px-12">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-{{ min($showcaseCategories->count(), 4) }} gap-px bg-slate-200 border border-slate-200">
-            @foreach($showcaseCategories as $category)
-                <a href="{{ $category->link ?? '/shop' }}" class="group relative h-[600px] overflow-hidden bg-white cursor-pointer block">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-{{ min($showcaseCategories->count(), 4) }} gap-px bg-slate-200 border border-slate-200 stagger-container">
+            @foreach($showcaseCategories as $index => $category)
+                <a href="{{ $category->link ?? '/shop' }}" class="group relative h-[600px] overflow-hidden bg-white cursor-pointer block stagger-item image-shine">
                     <img 
                         src="{{ $category->image_url }}" 
                         alt="{{ $category->title }}" 
-                        class="w-full h-full object-cover transition-opacity duration-700 group-hover:opacity-90"
+                        class="w-full h-full object-cover transition-all duration-700 group-hover:opacity-90 group-hover:scale-105"
                     />
-                    <div class="absolute inset-x-0 bottom-0 p-10 bg-gradient-to-t from-black/40 to-transparent">
-                        <h4 class="text-2xl font-serif text-white tracking-wide mb-2">{{ $category->title }}</h4>
+                    <div class="absolute inset-x-0 bottom-0 p-10 bg-gradient-to-t from-black/50 to-transparent">
+                        <h4 class="text-2xl font-serif text-white tracking-wide mb-2 category-title-animate">{{ $category->title }}</h4>
                         <div class="category-line h-[2px] bg-white"></div>
                     </div>
+                    {{-- Hover overlay --}}
+                    <div class="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/10 transition-all duration-500"></div>
                 </a>
             @endforeach
         </div>
