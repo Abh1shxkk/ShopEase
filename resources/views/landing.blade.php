@@ -31,10 +31,17 @@
             pointer-events: auto !important;
         }
         
-        /* Header/Navbar critical styles - prevent black border flash */
-        header {
-            background-color: #fff !important;
-            border-bottom: 1px solid #f1f5f9 !important;
+        /* Header/Navbar critical styles - start transparent for hero overlay */
+        #main-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+        }
+        #navbar {
+            background: transparent;
+            border-bottom: 1px solid transparent;
         }
         
         /* Prevent any transition flicker on load */

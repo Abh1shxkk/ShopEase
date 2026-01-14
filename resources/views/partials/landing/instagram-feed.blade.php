@@ -12,20 +12,20 @@ $instagramImages = [
 <section class="py-24 border-t border-slate-100">
     <div class="max-w-[1440px] mx-auto px-6 md:px-12">
         {{-- Section Header --}}
-        <div class="mb-12 text-center">
+        <div class="mb-12 text-center reveal">
             <h3 class="text-xl font-serif tracking-widest uppercase text-slate-800">
                 Follow Us On Instagram @shopease
             </h3>
         </div>
 
         {{-- Instagram Grid --}}
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 stagger-container">
             @foreach($instagramImages as $index => $image)
-                <a href="#" class="aspect-square bg-slate-50 overflow-hidden border border-slate-100 block">
+                <a href="#" class="aspect-square bg-slate-50 overflow-hidden border border-slate-100 block stagger-item group">
                     <img 
                         src="{{ $image }}" 
                         alt="Instagram feed item {{ $index + 1 }}" 
-                        class="w-full h-full object-cover instagram-image"
+                        class="w-full h-full object-cover instagram-image group-hover:scale-110 transition-transform duration-700"
                     />
                 </a>
             @endforeach

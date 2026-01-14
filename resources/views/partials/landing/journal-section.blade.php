@@ -37,16 +37,16 @@ if ($journalPosts->isEmpty()) {
 <section class="py-24 bg-white border-t border-slate-100">
     <div class="max-w-[1440px] mx-auto px-6 md:px-12">
         {{-- Section Header --}}
-        <div class="mb-16 text-center">
+        <div class="mb-16 text-center reveal">
             <h2 class="text-3xl font-serif tracking-wide mb-4">Journal</h2>
-            <div class="w-12 h-[1px] bg-slate-900 mx-auto"></div>
+            <div class="h-[1px] bg-slate-900 mx-auto title-underline"></div>
         </div>
 
         {{-- Journal Grid --}}
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12 stagger-container">
             @foreach($journalPosts as $post)
-                <a href="{{ $post->slug ? route('blog.show', $post->slug) : route('blog.index') }}" class="group cursor-pointer block">
-                    <div class="aspect-video overflow-hidden mb-6 bg-slate-50">
+                <a href="{{ $post->slug ? route('blog.show', $post->slug) : route('blog.index') }}" class="group cursor-pointer block stagger-item product-card-hover">
+                    <div class="aspect-video overflow-hidden mb-6 bg-slate-50 curtain-reveal">
                         <img 
                             src="{{ $post->featured_image ?? 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&q=80&w=800' }}" 
                             alt="{{ $post->title }}" 
@@ -64,9 +64,12 @@ if ($journalPosts->isEmpty()) {
         </div>
 
         {{-- View All Button --}}
-        <div class="mt-16 text-center">
-            <a href="{{ route('blog.index') }}" class="text-[11px] font-bold tracking-[0.2em] uppercase underline underline-offset-8 decoration-slate-200 underline-animate hover:decoration-slate-900">
+        <div class="mt-16 text-center reveal">
+            <a href="{{ route('blog.index') }}" class="text-[11px] font-bold tracking-[0.2em] uppercase underline underline-offset-8 decoration-slate-200 underline-animate hover:decoration-slate-900 btn-arrow">
                 View All
+                <svg class="w-4 h-4 arrow-icon inline-block ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                </svg>
             </a>
         </div>
     </div>

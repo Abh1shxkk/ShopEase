@@ -3,11 +3,11 @@
     <div class="max-w-[1440px] mx-auto px-6 md:px-12 relative">
         
         {{-- Curated Collection Header --}}
-        <div class="mb-16 flex items-center justify-between">
+        <div class="mb-16 flex items-center justify-between reveal">
             <div class="w-1/3 invisible lg:visible"></div>
             <div class="text-center">
                 <h2 class="text-3xl font-serif tracking-wide mb-4">Curated Collection</h2>
-                <div class="w-12 h-[1px] bg-slate-900 mx-auto"></div>
+                <div class="h-[1px] bg-slate-900 mx-auto title-underline"></div>
             </div>
             <div class="flex gap-4 w-1/3 justify-end">
                 {{-- Scroll Left Button --}}
@@ -39,8 +39,8 @@
             @forelse($curatedProducts ?? [] as $product)
                 <div class="snap-start flex-shrink-0 w-full sm:w-1/2 md:w-1/4 px-4 first:pl-0 last:pr-0">
                     {{-- Product Card --}}
-                    <a href="{{ route('shop.show', $product) }}" class="group cursor-pointer block">
-                        <div class="relative aspect-[3/4] overflow-hidden mb-6 bg-[#f7f7f7]">
+                    <a href="{{ route('shop.show', $product) }}" class="group cursor-pointer block product-card-hover">
+                        <div class="relative aspect-[3/4] overflow-hidden mb-6 bg-[#f7f7f7] image-shine">
                             @if($product->image)
                             <img 
                                 src="{{ $product->image_url }}" 
@@ -110,17 +110,17 @@
         </div>
 
         {{-- New Arrivals Section --}}
-        <div class="mt-32 mb-16 text-center">
+        <div class="mt-32 mb-16 text-center reveal">
             <h2 class="text-3xl font-serif tracking-wide mb-4">New Arrivals</h2>
-            <div class="w-12 h-[1px] bg-slate-900 mx-auto"></div>
+            <div class="h-[1px] bg-slate-900 mx-auto title-underline"></div>
         </div>
 
         {{-- Standard Grid for New Arrivals --}}
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-x-12 gap-y-20">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-x-12 gap-y-20 stagger-container">
             @forelse($newArrivals ?? [] as $product)
-                <div class="w-full px-0">
-                    <a href="{{ route('shop.show', $product) }}" class="group cursor-pointer block">
-                        <div class="relative aspect-[3/4] overflow-hidden mb-6 bg-[#f7f7f7]">
+                <div class="w-full px-0 stagger-item">
+                    <a href="{{ route('shop.show', $product) }}" class="group cursor-pointer block product-card-hover">
+                        <div class="relative aspect-[3/4] overflow-hidden mb-6 bg-[#f7f7f7] image-shine">
                             @if($product->image)
                             <img 
                                 src="{{ $product->image_url }}" 
@@ -181,9 +181,12 @@
         </div>
 
         {{-- View More Button --}}
-        <div class="mt-20 text-center">
-            <a href="{{ route('shop.index') }}" class="text-[11px] font-bold tracking-[0.2em] uppercase underline underline-offset-8 decoration-slate-200 underline-animate hover:decoration-slate-900 transition-all">
+        <div class="mt-20 text-center reveal">
+            <a href="{{ route('shop.index') }}" class="text-[11px] font-bold tracking-[0.2em] uppercase underline underline-offset-8 decoration-slate-200 underline-animate hover:decoration-slate-900 transition-all btn-arrow">
                 View More
+                <svg class="w-4 h-4 arrow-icon inline-block ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                </svg>
             </a>
         </div>
     </div>
