@@ -296,30 +296,21 @@
 
 <script>
 (function() {
-    let lastScrollY = 0;
     let ticking = false;
     const header = document.getElementById('main-header');
     const navbar = document.getElementById('navbar');
-    const navbarHeight = 64; // h-16 = 64px
     
     function updateHeader() {
         const currentScrollY = window.scrollY;
-        const scrollDelta = currentScrollY - lastScrollY;
         
         if (currentScrollY <= 10) {
-            // At top - show everything normally, no shadow
-            header.style.transform = 'translateY(0)';
+            // At top - no shadow
             navbar.classList.remove('shadow-md');
-        } else if (scrollDelta > 0 && currentScrollY > navbarHeight) {
-            // Scrolling DOWN & past header - hide navbar completely
-            header.style.transform = 'translateY(-100%)';
-        } else if (scrollDelta < 0) {
-            // Scrolling UP - show navbar with shadow
-            header.style.transform = 'translateY(0)';
+        } else {
+            // Scrolled - add shadow
             navbar.classList.add('shadow-md');
         }
         
-        lastScrollY = currentScrollY;
         ticking = false;
     }
     
