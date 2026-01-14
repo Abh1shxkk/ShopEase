@@ -31,17 +31,13 @@
             pointer-events: auto !important;
         }
         
-        /* Header/Navbar critical styles - start transparent for hero overlay */
+        /* Header/Navbar critical styles */
         #main-header {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 50;
-        }
-        #navbar {
-            background: transparent;
-            border-bottom: 1px solid transparent;
         }
         
         /* Prevent any transition flicker on load */
@@ -65,7 +61,7 @@
         @include('partials.landing.navbar')
         
         {{-- Main Content --}}
-        <main class="pt-16">
+        <main style="padding-top: 64px;">
             {{-- Hero Slider --}}
             @include('partials.landing.hero-slider')
             
