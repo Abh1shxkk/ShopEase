@@ -1,13 +1,23 @@
-{{-- Navbar Component --}}
+{{-- Navbar Component - Glassmorphic --}}
 <style>
     /* Prevent FOUC - Critical CSS for navbar */
     #main-header { position: fixed; top: 0; left: 0; right: 0; z-index: 50; }
-    #navbar { background: rgba(255,255,255,0.95); border-bottom: 1px solid #e2e8f0; }
+    #navbar { 
+        background: rgba(255,255,255,0.7); 
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255,255,255,0.3);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+    }
+    #navbar.scrolled {
+        background: rgba(255,255,255,0.85);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
 </style>
 <header id="main-header" class="fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ease-out">
-    {{-- Main Navigation --}}
-    <nav id="navbar" class="border-b border-slate-200 bg-white/95 backdrop-blur-md transition-all duration-300">
-        <div class="max-w-[1440px] mx-auto px-6 md:px-12 h-16 grid grid-cols-3 items-center">
+    {{-- Main Navigation - Glassmorphic --}}
+    <nav id="navbar" class="border-b border-white/30 transition-all duration-300">
+        <div class="max-w-[1440px] mx-auto px-6 md:px-12 h-20 grid grid-cols-3 items-center">
             
             {{-- Left Navigation (Desktop) --}}
             <div class="hidden lg:flex items-center gap-6">
@@ -297,18 +307,15 @@
 <script>
 (function() {
     let ticking = false;
-    const header = document.getElementById('main-header');
     const navbar = document.getElementById('navbar');
     
     function updateHeader() {
         const currentScrollY = window.scrollY;
         
         if (currentScrollY <= 10) {
-            // At top - no shadow
-            navbar.classList.remove('shadow-md');
+            navbar.classList.remove('scrolled');
         } else {
-            // Scrolled - add shadow
-            navbar.classList.add('shadow-md');
+            navbar.classList.add('scrolled');
         }
         
         ticking = false;
@@ -321,7 +328,6 @@
         }
     }, { passive: true });
     
-    // Initial state
     updateHeader();
 })();
 </script>

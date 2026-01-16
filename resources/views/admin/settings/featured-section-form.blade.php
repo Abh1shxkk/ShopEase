@@ -8,6 +8,7 @@ $typeLabels = [
     'category_showcase' => 'Category Showcase',
     'heritage' => 'Heritage Section',
     'journal' => 'Journal Post',
+    'marquee' => 'Marquee Product',
 ];
 @endphp
 
@@ -73,6 +74,9 @@ $typeLabels = [
                         <div>
                             <label class="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-400 block mb-2">Sort Order</label>
                             <input type="number" name="sort_order" value="{{ old('sort_order', $section?->sort_order ?? 0) }}" class="w-full h-11 px-4 bg-slate-50 border border-slate-200 text-[13px] text-slate-900 focus:outline-none focus:border-slate-900 transition-colors">
+                            @if($type === 'marquee')
+                            <p class="text-[10px] text-slate-400 mt-2">1-8 = Top row (scrolls left), 9+ = Bottom row (scrolls right)</p>
+                            @endif
                         </div>
                         <label class="flex items-center gap-3 cursor-pointer">
                             <input type="checkbox" name="is_active" value="1" {{ old('is_active', $section?->is_active ?? true) ? 'checked' : '' }} class="w-4 h-4 text-slate-900 border-slate-300 focus:ring-slate-900">
@@ -85,7 +89,7 @@ $typeLabels = [
                     <h3 class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-500 mb-6">Image</h3>
                     
                     <div class="space-y-4">
-                        <div class="{{ $type === 'category_showcase' ? 'aspect-[3/4]' : 'aspect-video' }} bg-slate-50 border border-slate-200 overflow-hidden flex items-center justify-center">
+                        <div class="{{ in_array($type, ['category_showcase', 'marquee']) ? 'aspect-[3/4]' : 'aspect-video' }} bg-slate-50 border border-slate-200 overflow-hidden flex items-center justify-center">
                             <template x-if="imagePreview">
                                 <img :src="imagePreview" class="w-full h-full object-cover">
                             </template>
