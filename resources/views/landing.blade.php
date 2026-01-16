@@ -61,12 +61,15 @@
         @include('partials.landing.navbar')
         
         {{-- Main Content --}}
-        <main style="padding-top: 64px;">
+        <main style="padding-top: 80px;">
             {{-- Hero Slider --}}
             @include('partials.landing.hero-slider')
             
             {{-- Category Showcase --}}
             @include('partials.landing.category-showcase')
+            
+            {{-- Product Marquee - Auto-scrolling --}}
+            @include('partials.landing.product-marquee')
             
             {{-- Heritage Narrative --}}
             @include('partials.landing.heritage-narrative')
