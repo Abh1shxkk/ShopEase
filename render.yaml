@@ -1,27 +1,40 @@
 services:
+  # Web Service Configuration
   - type: web
     name: shopease
     runtime: php
     plan: free
+    region: singapore
     branch: main
+    
+    # Build Configuration
     buildCommand: |
-      composer install --no-dev --optimize-autoloader
-      npm install
-      npm run build
-      php artisan config:cache
-      php artisan route:cache
-      php artisan view:cache
+      chmod +x scripts/build.sh
+      ./scripts/build.sh
+    
+    # Start Command
     startCommand: php artisan serve --host=0.0.0.0 --port=$PORT
+    
+    # Health Check
+    healthCheckPath: /
+    
+    # Environment Variables (set in dashboard for secrets)
     envVars:
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
         value: false
-      - key: APP_KEY
-        generateValue: true
       - key: LOG_CHANNEL
         value: stderr
+      - key: LOG_LEVEL
+        value: error
       - key: SESSION_DRIVER
-        value: cookie
-      - key: CACHE_DRIVER
+        value: database
+      - key: CACHE_STORE
         value: file
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_SSLMODE
+        value: require
