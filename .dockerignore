@@ -1,0 +1,16 @@
+# Ignore in Docker build
+.git
+.gitignore
+.env
+.env.*
+node_modules
+vendor
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+.docker
+docker-compose*.yml
+*.md
+tests
+.phpunit*
