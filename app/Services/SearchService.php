@@ -133,9 +133,9 @@ class SearchService
         });
     }
 
-    public function getAutoComplete(string $query, int $limit = 6): array
+    public function getAutoComplete(?string $query, int $limit = 6): array
     {
-        $query = strtolower(trim($query));
+        $query = strtolower(trim($query ?? ''));
         
         if (strlen($query) < 2) {
             return $this->getDefaultSuggestions();
